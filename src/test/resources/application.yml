@@ -1,0 +1,8 @@
+#spring.data.mongodb.database=${MONGODB_DBNAME}
+#spring.data.mongodb.uri=${MONGODB_URI}
+spring:
+  mongodb:
+    embedded:
+      version: 4.0.21
+#      features: ONLY_WITH_SSL,ONLY_WINDOWS_2008_SERVER
+
