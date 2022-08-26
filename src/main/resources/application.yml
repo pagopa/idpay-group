@@ -51,3 +51,7 @@ management:
     web:
       exposure:
         include: "*"
+
+rest-client.encrypt.cf: ${PDV_DECRYPT_SERVICE_CODE:pdv-ms-tokenizer}
+rest-client.decrypt.base-url: ${PDV_DECRYPT_BASE_URL:}
+api.key.decrypt: ${PDV_DECRYPT_API_KEY:}
