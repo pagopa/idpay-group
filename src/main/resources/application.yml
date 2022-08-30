@@ -3,6 +3,7 @@ spring:
     mongodb:
       uri: ${MONGODB_URI}
       database: ${MONGODB_DBNAME}
+
 management:
   endpoints:
     web:
@@ -12,9 +13,28 @@ management:
 rest-client:
   initiative:
     base-url: ${INITIATIVE_SERVICE_BASE_URL:}
+  pdv-encrypt:
+    http:
+      retry:
+        period: 100
+        maxPeriod: 1
+        maxAttempts: 3
+    cf: ${PDV_ENCRYPT_SERVICE_CODE:pdv-ms-tokenizer}
+    base-url: ${PDV_ENCRYPT_BASE_URL:}
+    api.key: ${PDV_ENCRYPT_API_KEY:}
+feign:
+  okhttp:
+    enabled: true
+  client:
+    config:
+      pdv-ms-tokenizer:
+        errorDecoder: it.gov.pagopa.group.connector.pdv.PdvClientErrorDecoder
+        loggerLevel: basic
+        retryer: it.gov.pagopa.group.connector.pdv.PdvClientRetryer
 
 storage:
   schedule:
   file:
     path: ${CF_FILE_ROOT_PATCH:/tmp/pagopa/cf}
     column_separator: ${CF_FILE_SEPARATOR_COLUMN:;}
+    deletion: true

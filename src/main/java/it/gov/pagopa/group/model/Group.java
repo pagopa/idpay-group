@@ -25,6 +25,10 @@ public class Group {
 
     private String status;
 
+    private String exceptionMessage;
+
+    private LocalDateTime elabDateTime;
+
     private LocalDateTime creationDate;
 
     private LocalDateTime updateDate;

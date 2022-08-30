@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -34,7 +36,7 @@ public class BeneficiaryGroupController implements BeneficiaryGroup {
 
 
     @Override
-    public ResponseEntity<GroupUpdateDTO> uploadBeneficiaryGroupFile(@RequestParam("file") MultipartFile file, @PathVariable("organizationId") String organizationId, @PathVariable("initiativeId") String initiativeId){
+    public ResponseEntity<GroupUpdateDTO> uploadBeneficiaryGroupFile(@RequestParam("file") MultipartFile file, @PathVariable("organizationId") String organizationId, @PathVariable("initiativeId") String initiativeId, HttpServletRequest request){
         InitiativeDTO initiativeDTO = initiativeService.getInitiative(initiativeId);
         BigDecimal budget = initiativeDTO.getGeneral().getBudget();
         BigDecimal beneficiaryBudget = initiativeDTO.getGeneral().getBeneficiaryBudget();
