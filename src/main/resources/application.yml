@@ -40,3 +40,4 @@ storage:
   file:
     path: ${CF_FILE_ROOT_PATCH:/tmp/pagopa/cf}
     column_separator: ${CF_FILE_SEPARATOR_COLUMN:;}
+    deletion: true
