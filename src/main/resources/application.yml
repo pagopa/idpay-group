@@ -3,10 +3,18 @@ spring:
     mongodb:
       uri: ${MONGODB_URI}
       database: ${MONGODB_DBNAME}
-server:
-  port: 8081
 management:
   endpoints:
     web:
       exposure:
         include: "*"
+
+rest-client:
+  initiative:
+    base-url: ${INITIATIVE_SERVICE_BASE_URL:}
+
+storage:
+  schedule:
+  file:
+    path: ${CF_FILE_ROOT_PATCH:/tmp/pagopa/cf}
+    column_separator: ${CF_FILE_SEPARATOR_COLUMN:;}

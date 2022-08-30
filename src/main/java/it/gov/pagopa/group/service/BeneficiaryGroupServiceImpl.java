@@ -3,6 +3,7 @@ package it.gov.pagopa.group.service;
 import it.gov.pagopa.group.model.Group;
 import it.gov.pagopa.group.repository.GroupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -10,31 +11,28 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 @Service
 public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
-    private final Path root = Paths.get("C:\\Users\\fpinsone\\Documents\\IdPay\\prova");
+
+    @Value("${storage.file.path}")
+    private String rootPath;
 
     @Autowired
     private GroupRepository groupRepository;
 
-
     @Override
     public void init() {
         try {
+            Path root = Paths.get(rootPath);
             Files.createDirectory(root);
         } catch (IOException e) {
             throw new RuntimeException("Could not initialize folder for upload!");
@@ -43,24 +41,32 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
 
     @Scheduled(fixedRate = 2000, initialDelay = 4000)
     public void scheduleGroupCheck() throws IOException {
-        List<Group> groups = groupRepository.findAllGroups("VALIDATED");
-        for (int i = 0; i < groups.size(); i++){
-            Resource file = load(groups.get(i).getFileName());
-            cfAnonymizer(file);
-            groups.get(i).setBeneficiaryList(createCfStringList(file));
-            groupRepository.save(groups.get(i));
-        }
+        List<Group> groups = groupRepository.findGroupsByStatus("VALIDATED");
+        for (Group group : groups){
+            String fileName = group.getFileName();
+            Resource file = load(fileName);
+            List<String> anonymousCFlist = null;
+            try {
+                anonymousCFlist = cfAnonymizer(file);
+            } catch (Exception e) {
 
+            }
+            group.setBeneficiaryList(anonymousCFlist);
+            group.setStatus("OK");
+            groupRepository.save(group);
+            delete(fileName);
+        }
     }
 
-    public void cfAnonymizer(Resource file){
-
+    public List<String> cfAnonymizer(Resource file){
+        return null;
     }
 
     @Override
     public void save(MultipartFile file, String initiativeId, String organizationId, String status) {
         try {
-            Files.copy(file.getInputStream(), this.root.resolve(file.getOriginalFilename()));
+            Path root = Paths.get(rootPath);
+            Files.copy(file.getInputStream(), root.resolve(file.getOriginalFilename()));
             Group group = new Group();
             group.setGroupId(initiativeId+organizationId);
             group.setInitiativeId(initiativeId);
@@ -78,21 +84,10 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
         }
     }
 
-    private List<String> createCfStringList(Resource file) throws IOException {
-        BufferedReader br;
-        List<String> list = new ArrayList<String>();
-        String line;
-        InputStream is = file.getInputStream();
-        br = new BufferedReader(new InputStreamReader(is));
-        while ((line = br.readLine()) != null) {
-            list.add(line);
-        }
-        return list;
-    }
-
     @Override
     public Resource load(String filename) {
         try {
+            Path root = Paths.get(rootPath);
             Path file = root.resolve(filename);
             Resource resource = new UrlResource(file.toUri());
 
@@ -109,7 +104,8 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
     @Override
     public Stream<Path> loadAll() {
         try {
-            return Files.walk(this.root, 1).filter(path -> !path.equals(this.root)).map(this.root::relativize);
+            Path root = Paths.get(rootPath);
+            return Files.walk(root, 1).filter(path -> !path.equals(root)).map(root::relativize);
         } catch (IOException e) {
             throw new RuntimeException("Could not load the files!");
         }
@@ -118,6 +114,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
     @Override
     public void delete(String filename){
         try{
+            Path root = Paths.get(rootPath);
             Path file = root.resolve(filename);
             file.toFile().delete();
         } catch (Exception e) {
@@ -126,6 +123,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
     }
     @Override
     public void deleteAll() {
+        Path root = Paths.get(rootPath);
         FileSystemUtils.deleteRecursively(root.toFile());
     }
 

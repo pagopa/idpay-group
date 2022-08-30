@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import it.gov.pagopa.group.dto.ErrorDTO;
 import it.gov.pagopa.group.dto.GroupUpdateDTO;
 import it.gov.pagopa.group.dto.StatusGroupDTO;
-import it.gov.pagopa.initiative.dto.InitiativeDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
