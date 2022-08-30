@@ -16,7 +16,7 @@ public interface BeneficiaryGroupService {
 
     void init();
 
-    void save(MultipartFile file, String initiativeId, String organizationId);
+    void save(MultipartFile file, String initiativeId, String organizationId, String status);
 
     Resource load(String filename);
 
@@ -25,4 +25,6 @@ public interface BeneficiaryGroupService {
     void deleteAll();
 
     Stream<Path> loadAll();
+
+    Group getStatusByInitiativeId(String initiativeId);
 }

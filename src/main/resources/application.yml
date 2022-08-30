@@ -3,55 +3,10 @@ spring:
     mongodb:
       uri: ${MONGODB_URI}
       database: ${MONGODB_DBNAME}
-  cloud:
-    stream:
-      bindings:
-        initiativeQueue-out-0:
-          binder: kafka-group-outcome
-          destination: ${KAFKA_INITIATIVE_OUTCOME_TOPIC:idpay-rule-update}
-          content-type: ${KAFKA_CONTENT_TYPE:application/json}
-      binders:
-        kafka-initiative-outcome:
-          type: kafka
-          environment:
-            spring:
-              cloud:
-                stream:
-                  kafka:
-                    binder:
-                      configuration:
-                        sasl:
-                          jaas:
-                            config: ${KAFKA_INITIATIVE_SASL_JAAS_CONFIG:}
-      function:
-        definition: initiativeQueue
-      kafka:
-        binder:
-          configuration:
-            session.timeout.ms: '60000'
-            sasl:
-              mechanism: ${KAFKA_INITIATIVE_SASL_MECHANISM}
-              jaas.config: ${KAFKA_INITIATIVE_SASL_JAAS_CONFIG}
-            heartbeat.interval.ms: '30000'
-            security.protocol: ${KAFKA_INITIATIVE_SECURITY_PROTOCOL}
-          consumerProperties:
-            socket.connection.setup.timeout:
-              ms: '100000'
-              max.ms: '200000'
-            key:
-              deserializer: org.apache.kafka.common.serialization.StringDeserializer
-            connections.max.idle.ms: '300000'
-            value:
-              deserializer: org.apache.kafka.common.serialization.StringDeserializer
-          auto-create-topics: 'false'
-          brokers: ${KAFKA_BINDER_BROKER_ENDPOINT_LIST}
-
+server:
+  port: 8081
 management:
   endpoints:
     web:
       exposure:
         include: "*"
-
-rest-client.encrypt.cf: ${PDV_DECRYPT_SERVICE_CODE:pdv-ms-tokenizer}
-rest-client.decrypt.base-url: ${PDV_DECRYPT_BASE_URL:}
-api.key.decrypt: ${PDV_DECRYPT_API_KEY:}

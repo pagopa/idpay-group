@@ -10,12 +10,9 @@ import java.util.Optional;
 
 public interface GroupRepository extends MongoRepository<Group, String> {
 
-    /*@Query(value="{organizationId : ?0}", fields="{initiativeId : 1, initiativeName : 1, status : 1, 'additionalInfo.serviceName' : 1, creationDate : 1, updateDate : 1}")
-    List<Group> retrieveInitiativeSummary(String organizationId);
+    @Query(value = "{status : ?0}", fields = "{groupId : 1, initiativeId : 1, organizationId : 1, fileName : 1, status : 1, creationDate : 1, updateDate : 1, creationUser : 1, updateUser : 1, beneficiaryList : 1}")
+    List<Group> findAllGroups(String status);
 
-    Optional<Group> findByOrganizationIdAndInitiativeId(String organizationId, String initiativeId);
-
-    @Query(value="{initiativeId : ?0}", fields="{initiativeId : 1, initiativeName : 1, status : 1, 'additionalInfo.serviceName' : 1, 'general' : 1, 'beneficiaryRule' : 1}")
-    Optional<Group> retrieveInitiativeBeneficiaryView(String initiativeId);*/
-
+    @Query(value = "{initiativeId : ?0}", fields = "{status : 1, _id : 0}")
+    Group getStatus(String initiativeId);
 }

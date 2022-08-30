@@ -21,6 +21,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @Service
@@ -42,14 +43,12 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
 
     @Scheduled(fixedRate = 2000, initialDelay = 4000)
     public void scheduleGroupCheck() throws IOException {
-        List<Group> groups = groupRepository.findAll();
+        List<Group> groups = groupRepository.findAllGroups("VALIDATED");
         for (int i = 0; i < groups.size(); i++){
-            if (groups.get(i).getStatus().equals("VALIDATED")){
-                Resource file = load(groups.get(i).getFileName());
-                cfAnonymizer(file);
-                groups.get(i).setBeneficiaryList(createCfStringList(file));
-                groupRepository.save(groups.get(i));
-            }
+            Resource file = load(groups.get(i).getFileName());
+            cfAnonymizer(file);
+            groups.get(i).setBeneficiaryList(createCfStringList(file));
+            groupRepository.save(groups.get(i));
         }
 
     }
@@ -59,14 +58,14 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
     }
 
     @Override
-    public void save(MultipartFile file, String initiativeId, String organizationId) {
+    public void save(MultipartFile file, String initiativeId, String organizationId, String status) {
         try {
             Files.copy(file.getInputStream(), this.root.resolve(file.getOriginalFilename()));
             Group group = new Group();
             group.setGroupId(initiativeId+organizationId);
             group.setInitiativeId(initiativeId);
             group.setOrganizationId(organizationId);
-            group.setStatus("VALIDATED");
+            group.setStatus(status);
             group.setFileName(file.getOriginalFilename());
             group.setCreationDate(LocalDateTime.now());
             group.setUpdateDate(LocalDateTime.now());
@@ -128,5 +127,10 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
     @Override
     public void deleteAll() {
         FileSystemUtils.deleteRecursively(root.toFile());
+    }
+
+    @Override
+    public Group getStatusByInitiativeId(String initiativeId){
+        return groupRepository.getStatus(initiativeId);
     }
 }
