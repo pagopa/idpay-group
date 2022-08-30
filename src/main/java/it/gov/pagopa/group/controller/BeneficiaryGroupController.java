@@ -36,7 +36,7 @@ public class BeneficiaryGroupController implements BeneficiaryGroup {
 
 
     @Override
-    public ResponseEntity<GroupUpdateDTO> uploadBeneficiaryGroupFile(@RequestParam("file") MultipartFile file, @PathVariable("organizationId") String organizationId, @PathVariable("initiativeId") String initiativeId, HttpServletRequest request){
+    public ResponseEntity<GroupUpdateDTO> uploadBeneficiaryGroupFile(@RequestParam("file") MultipartFile file, @PathVariable("organizationId") String organizationId, @PathVariable("initiativeId") String initiativeId){
         InitiativeDTO initiativeDTO = initiativeService.getInitiative(initiativeId);
         BigDecimal budget = initiativeDTO.getGeneral().getBudget();
         BigDecimal beneficiaryBudget = initiativeDTO.getGeneral().getBeneficiaryBudget();
