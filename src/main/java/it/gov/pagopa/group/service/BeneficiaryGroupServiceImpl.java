@@ -1,5 +1,8 @@
 package it.gov.pagopa.group.service;
 
+import it.gov.pagopa.group.connector.pdv.EncryptRestConnector;
+import it.gov.pagopa.group.dto.FiscalCodeTokenizedDTO;
+import it.gov.pagopa.group.dto.PiiDTO;
 import it.gov.pagopa.group.model.Group;
 import it.gov.pagopa.group.repository.GroupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,13 +14,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @Service
@@ -25,9 +33,15 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
 
     @Value("${storage.file.path}")
     private String rootPath;
+    @Value("${storage.file.deletion}")
+    private boolean isFilesOnStorageToBeDeleted;
 
     @Autowired
     private GroupRepository groupRepository;
+
+    @Autowired
+    private EncryptRestConnector encryptRestConnector;
+
 
     @Override
     public void init() {
@@ -40,26 +54,62 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
     }
 
     @Scheduled(fixedRate = 2000, initialDelay = 4000)
-    public void scheduleGroupCheck() throws IOException {
-        List<Group> groups = groupRepository.findGroupsByStatus("VALIDATED"); //TODO modificare find
-        for (Group group : groups){
+    public void scheduleValidatedGroup() throws IOException {
+        Optional<Group> groupOptional = groupRepository.findFirstByStatus("VALIDATED");
+        if(groupOptional.isPresent()) {
+            Group group = groupOptional.get();
             String fileName = group.getFileName();
             Resource file = load(fileName);
             List<String> anonymousCFlist = null;
             try {
                 anonymousCFlist = cfAnonymizer(file);
+                group.setBeneficiaryList(anonymousCFlist);
+                group.setStatus("OK");
             } catch (Exception e) {
-
+                group.setExceptionMessage(e.getMessage());
+                group.setElabDateTime(LocalDateTime.now());
+                group.setStatus("PROC_KO");
             }
-            group.setBeneficiaryList(anonymousCFlist);
-            group.setStatus("Validated");
             groupRepository.save(group);
-            delete(fileName);
+            if(isFilesOnStorageToBeDeleted)
+                delete(fileName);
         }
     }
 
-    public List<String> cfAnonymizer(Resource file){
-        return null;
+//    @Scheduled(fixedRate = 2000, initialDelay = 4000)
+//    public void scheduleProcKoGroup() throws IOException {
+//        Optional<Group> groupOptional = groupRepository.findFirstGroupByStatus("PROC_KO");
+//        if(groupOptional.isPresent()) {
+//            Group group = groupOptional.get();
+//            String fileName = group.getFileName();
+//            Resource file = load(fileName);
+//            List<String> anonymousCFlist = null;
+//            try {
+//                anonymousCFlist = cfAnonymizer(file);
+//                group.setBeneficiaryList(anonymousCFlist);
+//                group.setStatus("OK");
+//            } catch (Exception e) {
+//                group.setExceptionMessage(e.getMessage());
+//                group.setElabDateTime(LocalDateTime.now());
+//                group.setStatus("PROC_KO");
+//            }
+//            groupRepository.save(group);
+//            if(isFilesOnStorageToBeDeleted)
+//                delete(fileName);
+//        }
+//    }
+
+    public List<String> cfAnonymizer(Resource file) throws Exception {
+//        List<String> cfStringList = createCfStringList2(file);
+        List<String> anonymousCFlist = new ArrayList<>();
+        String line;
+        InputStream is = file.getInputStream();
+        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+        while ((line = br.readLine()) != null) {
+            FiscalCodeTokenizedDTO fiscalCodeTokenizedDTO = encryptRestConnector.putPii(PiiDTO.builder().pii(line).build());
+            anonymousCFlist.add(fiscalCodeTokenizedDTO.getToken());
+        }
+        return anonymousCFlist;
     }
 
     @Override

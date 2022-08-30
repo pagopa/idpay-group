@@ -9,8 +9,7 @@ import java.util.Optional;
 
 public interface GroupRepository extends MongoRepository<Group, String> {
 
-    @Query(value = "{status : ?0}")
-    List<Group> findGroupsByStatus(String status);
+    Optional<Group> findFirstByStatus(String status);
 
     @Query(value = "{initiativeId : ?0}")
     Group getStatus(String initiativeId);

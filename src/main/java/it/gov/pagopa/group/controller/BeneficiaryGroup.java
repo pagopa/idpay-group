@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
+
 public interface BeneficiaryGroup {
 
     @Operation(summary = "Save group and first subset of data 'general info'", description = "", security = {
@@ -29,7 +31,7 @@ public interface BeneficiaryGroup {
             @ApiResponse(responseCode = "429", description = "Too many Request", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
             @ApiResponse(responseCode = "500", description = "Server ERROR", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class)))})
     @PutMapping(value = "/idpay/organization/{organizationId}/initiative/{initiativeId}/group")
-    ResponseEntity<GroupUpdateDTO> uploadBeneficiaryGroupFile(@RequestParam("file") MultipartFile file, @PathVariable("organizationId") String organizationId, @PathVariable("initiativeId") String initiativeId);
+    ResponseEntity<GroupUpdateDTO> uploadBeneficiaryGroupFile(@RequestParam("file") MultipartFile file, @PathVariable("organizationId") String organizationId, @PathVariable("initiativeId") String initiativeId, HttpServletRequest request);
 
     @Operation(summary = "Return the group status of the initiative'", description = "", security = {
             @SecurityRequirement(name = "Bearer")}, tags = {"group"})

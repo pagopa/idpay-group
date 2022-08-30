@@ -9,7 +9,6 @@ import it.gov.pagopa.group.service.BeneficiaryGroupService;
 import it.gov.pagopa.group.service.FileValidationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,9 +31,6 @@ public class BeneficiaryGroupController implements BeneficiaryGroup {
 
     @Autowired
     private FileValidationService fileValidationService;
-
-    @Value("${file.csv.max-size}")
-    private long maxSize;
 
     private static final String CONTENT_TYPE = "text/csv";
 
