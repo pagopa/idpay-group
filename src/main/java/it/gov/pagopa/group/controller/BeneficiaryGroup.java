@@ -39,6 +39,6 @@ public interface BeneficiaryGroup {
             @ApiResponse(responseCode = "401", description = "Authentication failed", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
             @ApiResponse(responseCode = "404", description = "The requested ID was not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
             @ApiResponse(responseCode = "500", description = "Server ERROR", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class)))})
-    @GetMapping(value = "/idpay/initiative/{initiativeId}/group")
-    ResponseEntity<StatusGroupDTO> getGroupStatus(@PathVariable("initiativeId") String initiativeId);
+    @GetMapping(value = "/idpay/organization/{organizationId}/initiative/{initiativeId}/group")
+    ResponseEntity<StatusGroupDTO> getGroupStatus( @PathVariable("organizationId") String organizationId, @PathVariable("initiativeId") String initiativeId);
 }

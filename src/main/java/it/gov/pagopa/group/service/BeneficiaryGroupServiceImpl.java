@@ -41,7 +41,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
 
     @Scheduled(fixedRate = 2000, initialDelay = 4000)
     public void scheduleGroupCheck() throws IOException {
-        List<Group> groups = groupRepository.findGroupsByStatus("VALIDATED");
+        List<Group> groups = groupRepository.findGroupsByStatus("VALIDATED"); //TODO modificare find
         for (Group group : groups){
             String fileName = group.getFileName();
             Resource file = load(fileName);
@@ -52,7 +52,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
 
             }
             group.setBeneficiaryList(anonymousCFlist);
-            group.setStatus("OK");
+            group.setStatus("Validated");
             groupRepository.save(group);
             delete(fileName);
         }
@@ -68,7 +68,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
             Path root = Paths.get(rootPath);
             Files.copy(file.getInputStream(), root.resolve(file.getOriginalFilename()));
             Group group = new Group();
-            group.setGroupId(initiativeId+organizationId);
+            group.setGroupId(initiativeId + "_" + organizationId);
             group.setInitiativeId(initiativeId);
             group.setOrganizationId(organizationId);
             group.setStatus(status);

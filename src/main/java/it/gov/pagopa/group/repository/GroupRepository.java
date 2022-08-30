@@ -5,12 +5,13 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface GroupRepository extends MongoRepository<Group, String> {
 
-    @Query(value = "{status : ?0}", fields = "{groupId : 1, initiativeId : 1, organizationId : 1, fileName : 1, status : 1, creationDate : 1, updateDate : 1, creationUser : 1, updateUser : 1, beneficiaryList : 1}")
+    @Query(value = "{status : ?0}")
     List<Group> findGroupsByStatus(String status);
 
-    @Query(value = "{initiativeId : ?0}", fields = "{status : 1, _id : 0}")
+    @Query(value = "{initiativeId : ?0}")
     Group getStatus(String initiativeId);
 }

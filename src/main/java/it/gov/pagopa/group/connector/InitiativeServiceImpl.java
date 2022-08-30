@@ -24,7 +24,7 @@ public class InitiativeServiceImpl implements InitiativeService {
         HttpHeaders headers = new HttpHeaders();
         headers.set(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
         HttpEntity<?> entity = new HttpEntity<>(headers);
-        HttpEntity<InitiativeDTO> initiativeResponse = restTemplate.exchange(initiativeBaseUrl+"/{initiativeId}/beneficiary/view",
+        HttpEntity<InitiativeDTO> initiativeResponse = restTemplate.exchange(initiativeBaseUrl+"/idpay/initiative/{initiativeId}/beneficiary/view",
                 HttpMethod.GET,
                 entity,
                 InitiativeDTO.class,
