@@ -5,6 +5,8 @@ import it.gov.pagopa.group.dto.FiscalCodeTokenizedDTO;
 import it.gov.pagopa.group.dto.PiiDTO;
 import it.gov.pagopa.group.model.Group;
 import it.gov.pagopa.group.repository.GroupRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -14,10 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -29,6 +28,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 @Service
+@Slf4j
 public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
 
     @Value("${storage.file.path}")
@@ -43,71 +43,82 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
     private EncryptRestConnector encryptRestConnector;
 
 
-    @Override
-    public void init() {
+    private void init(String organizationId) {
         try {
-            Path root = Paths.get(rootPath);
+            Path root = Paths.get(rootPath + File.separator + organizationId);
             Files.createDirectory(root);
         } catch (IOException e) {
             throw new RuntimeException("Could not initialize folder for upload!");
         }
     }
 
-    @Scheduled(fixedRate = 2000, initialDelay = 4000)
+    @Scheduled(fixedRate = 4000, initialDelay = 4000)
     public void scheduleValidatedGroup() throws IOException {
+        boolean anonymizationDone = false;
         Optional<Group> groupOptional = groupRepository.findFirstByStatus("VALIDATED");
         if(groupOptional.isPresent()) {
             Group group = groupOptional.get();
             String fileName = group.getFileName();
-            Resource file = load(fileName);
+            log.debug("[GROUP_SCHEDULING] [ANONYMIZER] Found beneficiary's group for {} with status {} on Organization {}", fileName, "VALIDATED", group.getOrganizationId());
+            Resource file = load(group.getOrganizationId(), fileName);
             List<String> anonymousCFlist = null;
             try {
                 anonymousCFlist = cfAnonymizer(file);
                 group.setBeneficiaryList(anonymousCFlist);
                 group.setStatus("OK");
+                anonymizationDone = true;
             } catch (Exception e) {
                 group.setExceptionMessage(e.getMessage());
                 group.setElabDateTime(LocalDateTime.now());
+                group.setRetry(1);
                 group.setStatus("PROC_KO");
             }
             groupRepository.save(group);
-            if(isFilesOnStorageToBeDeleted)
-                delete(fileName);
+            if(isFilesOnStorageToBeDeleted && anonymizationDone)
+                delete(group.getOrganizationId(), fileName);
         }
     }
 
-//    @Scheduled(fixedRate = 2000, initialDelay = 4000)
-//    public void scheduleProcKoGroup() throws IOException {
-//        Optional<Group> groupOptional = groupRepository.findFirstGroupByStatus("PROC_KO");
-//        if(groupOptional.isPresent()) {
-//            Group group = groupOptional.get();
-//            String fileName = group.getFileName();
-//            Resource file = load(fileName);
-//            List<String> anonymousCFlist = null;
-//            try {
-//                anonymousCFlist = cfAnonymizer(file);
-//                group.setBeneficiaryList(anonymousCFlist);
-//                group.setStatus("OK");
-//            } catch (Exception e) {
-//                group.setExceptionMessage(e.getMessage());
-//                group.setElabDateTime(LocalDateTime.now());
-//                group.setStatus("PROC_KO");
-//            }
-//            groupRepository.save(group);
-//            if(isFilesOnStorageToBeDeleted)
-//                delete(fileName);
-//        }
-//    }
+    @Scheduled(fixedRate = 10000, initialDelay = 8000)
+    public void scheduleProcKoGroup() throws IOException {
+        boolean anonymizationDone = false;
+        Optional<Group> groupOptional = groupRepository.findFirstByStatusAndRetryLessThan("PROC_KO", 3);
+        if(groupOptional.isPresent()) {
+            Group group = groupOptional.get();
+            String fileName = group.getFileName();
+            log.debug("[GROUP_SCHEDULING] [ANONYMIZER] Found beneficiary's group for {} with status {} on Organization {}", fileName, "PROC_KO", group.getOrganizationId());
+            Resource file = load(group.getOrganizationId(), fileName);
+            List<String> anonymousCFlist = null;
+            try {
+                log.info("Retry to communicate with PDV num: {}", group.getRetry()+1);
+                anonymousCFlist = cfAnonymizer(file);
+                group.setBeneficiaryList(anonymousCFlist);
+                group.setStatus("OK");
+                anonymizationDone = true;
+            } catch (Exception e) {
+                group.setExceptionMessage(e.getMessage());
+                group.setElabDateTime(LocalDateTime.now());
+                group.setRetry(group.getRetry()+1);
+                group.setStatus("PROC_KO");
+            }
+            groupRepository.save(group);
+            if(isFilesOnStorageToBeDeleted && anonymizationDone || group.getRetry() >= 3)
+                delete(group.getOrganizationId(), fileName);
+        }
+    }
 
     public List<String> cfAnonymizer(Resource file) throws Exception {
-//        List<String> cfStringList = createCfStringList2(file);
         List<String> anonymousCFlist = new ArrayList<>();
         String line;
         InputStream is = file.getInputStream();
-        BufferedReader br = new BufferedReader(new InputStreamReader(is));
-        while ((line = br.readLine()) != null) {
-            FiscalCodeTokenizedDTO fiscalCodeTokenizedDTO = encryptRestConnector.putPii(PiiDTO.builder().pii(line).build());
-            anonymousCFlist.add(fiscalCodeTokenizedDTO.getToken());
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
+            while ((line = br.readLine()) != null) {
+                FiscalCodeTokenizedDTO fiscalCodeTokenizedDTO = encryptRestConnector.putPii(PiiDTO.builder().pii(line).build());
+                anonymousCFlist.add(fiscalCodeTokenizedDTO.getToken());
+            }
+        } catch (Exception e) {
+            log.error("[ANONYMIZER] General exception", e.getMessage());
+            throw e;
         }
         return anonymousCFlist;
     }
@@ -115,7 +126,8 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
     @Override
     public void save(MultipartFile file, String initiativeId, String organizationId, String status) {
         try {
-            Path root = Paths.get(rootPath);
+            Path root = Paths.get(rootPath + File.separator + organizationId);
+            Files.createDirectories(root);
             Files.copy(file.getInputStream(), root.resolve(file.getOriginalFilename()));
             Group group = new Group();
             group.setGroupId(initiativeId + "_" + organizationId);
@@ -135,17 +147,20 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
     }
 
     @Override
-    public Resource load(String filename) {
+    public Resource load(String organizationId, String filename) {
         try {
-            Path root = Paths.get(rootPath);
-            Path file = root.resolve(filename);
-            Resource resource = new UrlResource(file.toUri());
-
-            if (resource.exists() || resource.isReadable()) {
-                return resource;
-            } else {
-                throw new RuntimeException("Could not read the file!");
+            Path root = Paths.get(rootPath + File.separator + organizationId);
+            Resource resource = new UrlResource(root.toUri());
+            if (!resource.exists()) {
+                init(organizationId);
             }
+            Path file = root.resolve(filename);
+            resource = new UrlResource(file.toUri());
+            if (resource.exists() || resource.isReadable()){
+                return resource;
+            }
+            else
+                throw new RuntimeException("Could not read the file!");
         } catch (MalformedURLException e) {
             throw new RuntimeException("Error: " + e.getMessage());
         }
@@ -162,11 +177,12 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
     }
 
     @Override
-    public void delete(String filename){
+    public void delete(String organizationId, String filename){
         try{
-            Path root = Paths.get(rootPath);
+            Path root = Paths.get(rootPath + File.separator + organizationId);
             Path file = root.resolve(filename);
-            file.toFile().delete();
+//            file.toFile().delete();
+            Files.delete(file);
         } catch (Exception e) {
             throw new RuntimeException("Could not delete the file!");
         }
