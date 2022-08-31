@@ -85,7 +85,7 @@ microservice-chart:
     APPLICATIONINSIGHTS_ROLE_NAME: "idpaygroup"
     APPLICATIONINSIGHTS_INSTRUMENTATION_LOGGING_LEVEL: "OFF"
     APPLICATIONINSIGHTS_INSTRUMENTATION_MICROMETER_ENABLED: "false"
-    PDV_DECRYPT_SERVICE_CODE: pdv-ms-tokenizer
+    PDV_ENCRYPT_SERVICE_CODE: pdv-ms-tokenizer
     CF_FILE_ROOT_PATH: /mnt/group
 
   envConfigMapExternals:
@@ -99,7 +99,7 @@ microservice-chart:
   envSecret:
     aks-api-url: cstar-d-weu-dev01-aks-apiserver-url
     MONGODB_URI: mongodb-connection-string
-    PDV_DECRYPT_API_KEY: pdv-api-key
+    PDV_ENCRYPT_API_KEY: pdv-api-key
 
   keyvault:
     name: "cstar-d-idpay-kv"
