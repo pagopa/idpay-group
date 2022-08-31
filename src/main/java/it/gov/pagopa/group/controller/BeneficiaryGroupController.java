@@ -1,9 +1,11 @@
 package it.gov.pagopa.group.controller;
 
 import it.gov.pagopa.group.connector.InitiativeService;
+import it.gov.pagopa.group.constants.GroupConstants;
 import it.gov.pagopa.group.dto.GroupUpdateDTO;
 import it.gov.pagopa.group.dto.InitiativeDTO;
 import it.gov.pagopa.group.dto.StatusGroupDTO;
+import it.gov.pagopa.group.exception.BeneficiaryGroupException;
 import it.gov.pagopa.group.model.Group;
 import it.gov.pagopa.group.service.BeneficiaryGroupService;
 import it.gov.pagopa.group.service.FileValidationService;
@@ -19,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.time.LocalDateTime;
 
 @RestController
@@ -69,9 +72,14 @@ public class BeneficiaryGroupController implements BeneficiaryGroup {
     @Override
     public ResponseEntity<StatusGroupDTO> getGroupStatus(@PathVariable("organizationId") String organizationId, @PathVariable("initiativeId") String initiativeId){
         Group group = beneficiaryGroupService.getStatusByInitiativeId(initiativeId);
+        if (group == null){
+            throw new BeneficiaryGroupException(GroupConstants.Exception.NotFound.CODE,
+                    MessageFormat.format( GroupConstants.Exception.BadRequest.NO_GROUP_FOR_INITIATIVE_ID, initiativeId),
+                    HttpStatus.BAD_REQUEST);
+        }
         StatusGroupDTO statusGroupDTO = new StatusGroupDTO();
         statusGroupDTO.setStatus(group.getStatus());
-        statusGroupDTO.setErrorMessage("");
+        statusGroupDTO.setErrorMessage(group.getExceptionMessage());
         return ResponseEntity.ok(statusGroupDTO);
     }
 }

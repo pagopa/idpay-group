@@ -27,4 +27,9 @@ public class RestResponseExceptionHandler {
     public ResponseEntity<GroupUpdateDTO> handleGroupFileException(FileSizeLimitExceededException ex) {
         return ResponseEntity.ok(GroupUpdateDTO.builder().status("KO").errorKey("group.groups.invalid.file.size").elabTimeStamp(LocalDateTime.now()).build());
     }
+
+    @ExceptionHandler({BeneficiaryGroupException.class})
+    public ResponseEntity<GroupUpdateDTO> handlerGroupNotFoundException(BeneficiaryGroupException ex){
+        return ResponseEntity.ok(GroupUpdateDTO.builder().errorKey(GroupConstants.Exception.NotFound.CODE).elabTimeStamp(LocalDateTime.now()).build());
+    }
 }

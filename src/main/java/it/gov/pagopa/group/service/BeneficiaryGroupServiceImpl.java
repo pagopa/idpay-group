@@ -127,8 +127,12 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
             group.setUpdateDate(LocalDateTime.now());
             group.setCreationUser("admin"); //TODO recuperare info da apim
             group.setUpdateUser("admin"); //TODO recuperare info da apim
-            group.setBeneficiaryList(null); //TODO Aggiungere anonimizzazione
-            groupRepository.insert(group);
+            group.setBeneficiaryList(null);
+            if (groupRepository.existsById(group.getGroupId())){
+                groupRepository.save(group);
+            }else{
+                groupRepository.insert(group);
+            }
         } catch (Exception e) {
             throw new RuntimeException("Could not store the file. Error: " + e.getMessage());
         }
