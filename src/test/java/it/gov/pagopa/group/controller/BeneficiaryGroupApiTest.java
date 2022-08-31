@@ -41,6 +41,7 @@ import static org.mockito.Mockito.when;
         BeneficiaryGroup.class}, excludeAutoConfiguration = SecurityAutoConfiguration.class)
 @Slf4j
 public class BeneficiaryGroupApiTest {
+
     @MockBean
     private BeneficiaryGroupService beneficiaryGroupService;
 
@@ -74,11 +75,12 @@ public class BeneficiaryGroupApiTest {
                         .andDo(print())
                         .andReturn();
     }
+
     @Test
     void getGroupStatus_groupNull_ko() throws Exception{
         Group group = null;
 
-        when(beneficiaryGroupService.getStatusByInitiativeId(anyString())).thenReturn(group);
+        when(beneficiaryGroupService.getStatusByInitiativeId(anyString(),anyString())).thenReturn(group);
 
         mvc.perform(
                         MockMvcRequestBuilders.get(BASE_URL + MessageFormat.format(GET_GROUP_STATUS_URL, "A1", "A1"))
