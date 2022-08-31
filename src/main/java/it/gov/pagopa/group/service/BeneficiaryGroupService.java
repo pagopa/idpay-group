@@ -11,13 +11,11 @@ import java.util.stream.Stream;
 @Service
 public interface BeneficiaryGroupService {
 
-    void init();
-
     void save(MultipartFile file, String initiativeId, String organizationId, String status);
 
-    Resource load(String filename);
+    Resource load(String organizationId, String filename);
 
-    void delete(String filename);
+    void delete(String organizationId, String filename);
 
     void deleteAll();
 

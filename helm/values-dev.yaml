@@ -12,7 +12,7 @@ microservice-chart:
     httpGet:
       path: /actuator/health
       port: 8080
-    initialDelaySeconds: 60
+    initialDelaySeconds: 120
     failureThreshold: 6
     periodSeconds: 10
 
@@ -20,7 +20,7 @@ microservice-chart:
     httpGet:
       path: /actuator/health
       port: 8080
-    initialDelaySeconds: 60
+    initialDelaySeconds: 120
     failureThreshold: 6
     periodSeconds: 10
 
@@ -53,10 +53,10 @@ microservice-chart:
 
   resources:
     requests:
-      memory: "256Mi"
+      memory: "512Mi"
       cpu: "40m"
     limits:
-      memory: "1Gi"
+      memory: "2Gi"
       cpu: "200m"
 
 #  autoscaling:
@@ -85,15 +85,21 @@ microservice-chart:
     APPLICATIONINSIGHTS_ROLE_NAME: "idpaygroup"
     APPLICATIONINSIGHTS_INSTRUMENTATION_LOGGING_LEVEL: "OFF"
     APPLICATIONINSIGHTS_INSTRUMENTATION_MICROMETER_ENABLED: "false"
+    PDV_DECRYPT_SERVICE_CODE: pdv-ms-tokenizer
+    CF_FILE_ROOT_PATH: /mnt/group
 
   envConfigMapExternals:
     idpay-common:
       TZ: TZ
       JAVA_TOOL_OPTIONS: JAVA_TOOL_OPTIONS
+    rest-client:
+      INITIATIVE_MS_BASE_URL: initiative_ms_base_url
+      PDV_ENCRYPT_BASE_URL: pdv_decrypt_base_url
 
   envSecret:
     aks-api-url: cstar-d-weu-dev01-aks-apiserver-url
     MONGODB_URI: mongodb-connection-string
+    PDV_DECRYPT_API_KEY: pdv-api-key
 
   keyvault:
     name: "cstar-d-idpay-kv"

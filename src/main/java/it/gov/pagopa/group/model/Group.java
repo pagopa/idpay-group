@@ -29,6 +29,8 @@ public class Group {
 
     private LocalDateTime elabDateTime;
 
+    private int retry;
+
     private LocalDateTime creationDate;
 
     private LocalDateTime updateDate;

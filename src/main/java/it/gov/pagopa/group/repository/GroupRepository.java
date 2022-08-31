@@ -11,6 +11,8 @@ public interface GroupRepository extends MongoRepository<Group, String> {
 
     Optional<Group> findFirstByStatus(String status);
 
+    Optional<Group> findFirstByStatusAndRetryLessThan(String status, int retry);
+
     @Query(value = "{initiativeId : ?0}")
     Group getStatus(String initiativeId);
 }

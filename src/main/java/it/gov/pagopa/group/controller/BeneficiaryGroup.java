@@ -20,10 +20,9 @@ import javax.servlet.http.HttpServletRequest;
 
 public interface BeneficiaryGroup {
 
-    @Operation(summary = "Save group and first subset of data 'general info'", description = "", security = {
-            @SecurityRequirement(name = "Bearer")}, tags = {"group"})
+    @Operation(operationId = "uploadGroupOfBeneficiary", summary = "Upload CSV file containing a group of Beneficiary", description = "", tags = {"group"})
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "202", description = "Accepted"),
+            @ApiResponse(responseCode = "200", description = "Ok",  content = @Content(mediaType = "application/json", schema = @Schema(implementation = GroupUpdateDTO.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
             @ApiResponse(responseCode = "401", description = "Authentication failed", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
             @ApiResponse(responseCode = "404", description = "The requested ID was not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
@@ -33,8 +32,7 @@ public interface BeneficiaryGroup {
     @PutMapping(value = "/idpay/organization/{organizationId}/initiative/{initiativeId}/group")
     ResponseEntity<GroupUpdateDTO> uploadBeneficiaryGroupFile(@RequestParam("file") MultipartFile file, @PathVariable("organizationId") String organizationId, @PathVariable("initiativeId") String initiativeId);
 
-    @Operation(summary = "Return the group status of the initiative'", description = "", security = {
-            @SecurityRequirement(name = "Bearer")}, tags = {"group"})
+    @Operation(operationId = "getGroupOfBeneficiaryStatusAndDetails", summary = "Return Group of Beneficiary CSV file upload status with relative error detail if present", description = "", tags = {"group"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Ok",  content = @Content(mediaType = "application/json", schema = @Schema(implementation = StatusGroupDTO.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
