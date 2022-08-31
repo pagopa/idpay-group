@@ -6,7 +6,8 @@ spring:
   servlet:
     multipart:
       max-file-size: 2097152
-
+server:
+  port: 8081
 management:
   endpoints:
     web:
