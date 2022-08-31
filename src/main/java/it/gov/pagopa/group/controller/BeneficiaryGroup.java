@@ -10,10 +10,7 @@ import it.gov.pagopa.group.dto.ErrorDTO;
 import it.gov.pagopa.group.dto.GroupUpdateDTO;
 import it.gov.pagopa.group.dto.StatusGroupDTO;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -29,7 +26,7 @@ public interface BeneficiaryGroup {
             @ApiResponse(responseCode = "409", description = "Conflict", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
             @ApiResponse(responseCode = "429", description = "Too many Request", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
             @ApiResponse(responseCode = "500", description = "Server ERROR", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class)))})
-    @PutMapping(value = "/idpay/organization/{organizationId}/initiative/{initiativeId}/group")
+    @PostMapping(value = "/idpay/organization/{organizationId}/initiative/{initiativeId}/group")
     ResponseEntity<GroupUpdateDTO> uploadBeneficiaryGroupFile(@RequestParam("file") MultipartFile file, @PathVariable("organizationId") String organizationId, @PathVariable("initiativeId") String initiativeId);
 
     @Operation(operationId = "getGroupOfBeneficiaryStatusAndDetails", summary = "Return Group of Beneficiary CSV file upload status with relative error detail if present", description = "", tags = {"group"})
