@@ -66,7 +66,7 @@ public class BeneficiaryGroupApiTest {
     void getGroupStatus_ok() throws Exception{
         Group group = createGroupValid_ok();
 
-        when(beneficiaryGroupService.getStatusByInitiativeId(anyString())).thenReturn(group);
+        when(beneficiaryGroupService.getStatusByInitiativeId(anyString(), anyString())).thenReturn(group);
 
         mvc.perform(
                 MockMvcRequestBuilders.get(BASE_URL + MessageFormat.format(GET_GROUP_STATUS_URL, group.getOrganizationId(), group.getInitiativeId()))
