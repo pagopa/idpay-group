@@ -13,6 +13,6 @@ public interface GroupRepository extends MongoRepository<Group, String> {
 
     Optional<Group> findFirstByStatusAndRetryLessThan(String status, int retry);
 
-    @Query(value = "{initiativeId : ?0}")
-    Group getStatus(String initiativeId);
+    @Query(value = "{initiativeId : ?0, organizationId : ?1}", fields = "{status : 1, exceptionMessage : 1, initiativeId : 1, organizationId : 1}")
+    Optional<Group> getStatus(String initiativeId, String organizationId);
 }

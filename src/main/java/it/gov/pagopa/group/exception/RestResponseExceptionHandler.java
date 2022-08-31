@@ -29,7 +29,8 @@ public class RestResponseExceptionHandler {
     }
 
     @ExceptionHandler({BeneficiaryGroupException.class})
-    public ResponseEntity<GroupUpdateDTO> handlerGroupNotFoundException(BeneficiaryGroupException ex){
-        return ResponseEntity.ok(GroupUpdateDTO.builder().errorKey(GroupConstants.Exception.NotFound.CODE).elabTimeStamp(LocalDateTime.now()).build());
+    public ResponseEntity<ErrorDTO> handlerGroupNotFoundException(BeneficiaryGroupException ex){
+            return new ResponseEntity<>(new ErrorDTO(ex.getCode(), ex.getMessage()),
+                    ex.getHttpStatus());
     }
 }

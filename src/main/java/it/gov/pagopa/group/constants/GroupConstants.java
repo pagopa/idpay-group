@@ -5,8 +5,14 @@ public class GroupConstants {
 
     private GroupConstants(){}
 
-    public static final class Status {
+    public static final String CONTENT_TYPE = "text/csv";
 
+    public static final class Status {
+        public static final String VALIDATED = "VALIDATED";
+        public static final String PROCESSING = "PROCESSING";
+        public static final String PROC_KO = "PROC_KO";
+        public static final String OK = "OK";
+        public static final String KO = "KO";
     }
 
     public static final class Exception {

@@ -1,8 +1,10 @@
 package it.gov.pagopa.group.service;
 
 import it.gov.pagopa.group.connector.pdv.EncryptRestConnector;
+import it.gov.pagopa.group.constants.GroupConstants;
 import it.gov.pagopa.group.dto.FiscalCodeTokenizedDTO;
 import it.gov.pagopa.group.dto.PiiDTO;
+import it.gov.pagopa.group.exception.BeneficiaryGroupException;
 import it.gov.pagopa.group.model.Group;
 import it.gov.pagopa.group.repository.GroupRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
@@ -21,6 +24,8 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +36,7 @@ import java.util.stream.Stream;
 @Slf4j
 public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
 
+    public static final String KEY_SEPARATOR = "_";
     @Value("${storage.file.path}")
     private String rootPath;
     @Value("${storage.file.deletion}")
@@ -55,7 +61,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
     @Scheduled(fixedRate = 4000, initialDelay = 4000)
     public void scheduleValidatedGroup() throws IOException {
         boolean anonymizationDone = false;
-        Optional<Group> groupOptional = groupRepository.findFirstByStatus("VALIDATED");
+        Optional<Group> groupOptional = groupRepository.findFirstByStatus(GroupConstants.Status.VALIDATED);
         if(groupOptional.isPresent()) {
             Group group = groupOptional.get();
             String fileName = group.getFileName();
@@ -71,18 +77,19 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
                 group.setExceptionMessage(e.getMessage());
                 group.setElabDateTime(LocalDateTime.now());
                 group.setRetry(1);
-                group.setStatus("PROC_KO");
+                group.setStatus(GroupConstants.Status.PROC_KO);
             }
             groupRepository.save(group);
-            if(isFilesOnStorageToBeDeleted && anonymizationDone)
+            if(isFilesOnStorageToBeDeleted && anonymizationDone) {
                 delete(group.getOrganizationId(), fileName);
+            }
         }
     }
 
     @Scheduled(fixedRate = 10000, initialDelay = 8000)
     public void scheduleProcKoGroup() throws IOException {
         boolean anonymizationDone = false;
-        Optional<Group> groupOptional = groupRepository.findFirstByStatusAndRetryLessThan("PROC_KO", 3);
+        Optional<Group> groupOptional = groupRepository.findFirstByStatusAndRetryLessThan(GroupConstants.Status.PROC_KO, 3);
         if(groupOptional.isPresent()) {
             Group group = groupOptional.get();
             String fileName = group.getFileName();
@@ -102,8 +109,9 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
                 group.setStatus("PROC_KO");
             }
             groupRepository.save(group);
-            if(isFilesOnStorageToBeDeleted && anonymizationDone || group.getRetry() >= 3)
+            if(isFilesOnStorageToBeDeleted && (anonymizationDone || group.getRetry() >= 3)) {
                 delete(group.getOrganizationId(), fileName);
+            }
         }
     }
 
@@ -125,12 +133,13 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
 
     @Override
     public void save(MultipartFile file, String initiativeId, String organizationId, String status) {
+
         try {
             Path root = Paths.get(rootPath + File.separator + organizationId);
             Files.createDirectories(root);
-            Files.copy(file.getInputStream(), root.resolve(file.getOriginalFilename()));
+            Files.copy(file.getInputStream(), root.resolve(file.getOriginalFilename()), StandardCopyOption.REPLACE_EXISTING);
             Group group = new Group();
-            group.setGroupId(initiativeId + "_" + organizationId);
+            group.setGroupId(initiativeId + KEY_SEPARATOR + organizationId);
             group.setInitiativeId(initiativeId);
             group.setOrganizationId(organizationId);
             group.setStatus(status);
@@ -140,11 +149,9 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
             group.setCreationUser("admin"); //TODO recuperare info da apim
             group.setUpdateUser("admin"); //TODO recuperare info da apim
             group.setBeneficiaryList(null);
-            if (groupRepository.existsById(group.getGroupId())){
-                groupRepository.save(group);
-            }else{
-                groupRepository.insert(group);
-            }
+
+            groupRepository.save(group);
+
         } catch (Exception e) {
             throw new RuntimeException("Could not store the file. Error: " + e.getMessage());
         }
@@ -181,16 +188,17 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
     }
 
     @Override
-    public void delete(String organizationId, String filename){
+    public void delete(String organizationId, String filename) {
         try{
             Path root = Paths.get(rootPath + File.separator + organizationId);
             Path file = root.resolve(filename);
-//            file.toFile().delete();
             Files.delete(file);
         } catch (Exception e) {
-            throw new RuntimeException("Could not delete the file!");
+            log.error("[UPLOAD_FILE_GROUP] - Could not delete the file: " + filename, e);
+            throw new RuntimeException(e);
         }
     }
+
     @Override
     public void deleteAll() {
         Path root = Paths.get(rootPath);
@@ -198,7 +206,12 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
     }
 
     @Override
-    public Group getStatusByInitiativeId(String initiativeId){
-        return groupRepository.getStatus(initiativeId);
+    public Group getStatusByInitiativeId(String initiativeId, String organizationId) {
+
+        return groupRepository.getStatus(initiativeId, organizationId)
+                .orElseThrow(() -> new BeneficiaryGroupException(GroupConstants.Exception.NotFound.CODE,
+                        MessageFormat.format(GroupConstants.Exception.BadRequest.NO_GROUP_FOR_INITIATIVE_ID, initiativeId),
+                        HttpStatus.BAD_REQUEST));
     }
+
 }

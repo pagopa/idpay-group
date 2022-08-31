@@ -86,7 +86,7 @@ microservice-chart:
     APPLICATIONINSIGHTS_INSTRUMENTATION_LOGGING_LEVEL: "OFF"
     APPLICATIONINSIGHTS_INSTRUMENTATION_MICROMETER_ENABLED: "false"
     PDV_ENCRYPT_SERVICE_CODE: pdv-ms-tokenizer
-    CF_FILE_ROOT_PATH: /mnt/group
+    GROUP_FILE_ROOT_PATH: /tmp/group
 
   envConfigMapExternals:
     idpay-common:

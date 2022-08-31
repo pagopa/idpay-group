@@ -21,5 +21,5 @@ public interface BeneficiaryGroupService {
 
     Stream<Path> loadAll();
 
-    Group getStatusByInitiativeId(String initiativeId);
+    Group getStatusByInitiativeId(String initiativeId, String organizationId);
 }
