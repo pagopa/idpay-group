@@ -17,6 +17,9 @@ public class GroupConstants {
 
     public static final class Exception {
 
+        public static final class KO{
+            public static final String INVALID_FILE_SIZE = "group.groups.invalid.file.size";
+        }
         public static final class NotFound {
             public static final String CODE = "it.gov.pagopa.group.not.found";
             public static final String INITIATIVE_LIST_BY_ORGANIZATION_MESSAGE = "List of Initiatives with organizationId {0} not found.";

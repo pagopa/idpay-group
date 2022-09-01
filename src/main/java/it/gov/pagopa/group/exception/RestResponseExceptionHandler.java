@@ -26,7 +26,7 @@ public class RestResponseExceptionHandler {
     // API
     @ExceptionHandler({FileSizeLimitExceededException.class, MaxUploadSizeExceededException.class})
     public ResponseEntity<GroupUpdateDTO> handleGroupFileException(FileSizeLimitExceededException ex) {
-        return ResponseEntity.ok(GroupUpdateDTO.builder().status("KO").errorKey("group.groups.invalid.file.size").elabTimeStamp(LocalDateTime.now()).build());
+        return ResponseEntity.ok(GroupUpdateDTO.builder().status("KO").errorKey(GroupConstants.Exception.KO.INVALID_FILE_SIZE).elabTimeStamp(LocalDateTime.now()).build());
     }
 
     @ExceptionHandler({BeneficiaryGroupException.class})
