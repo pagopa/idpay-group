@@ -13,10 +13,12 @@ import it.gov.pagopa.group.service.FileValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -24,6 +26,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -47,10 +50,27 @@ import static org.junit.jupiter.api.Assertions.*;
 @Slf4j
 public class FileValidationServiceTest {
 
-    @MockBean
+    @Autowired
     FileValidationService fileValidationService;
 
     @MockBean
     GroupRepository groupRepository;
 
+
+    @Test
+    void rowFileCounterCheck_validFile_ok() throws Exception{
+        File file1 = new ClassPathResource("group" + File.separator + "ps_fiscal_code_groups_file_large_20.csv").getFile();
+        FileInputStream inputFile = new FileInputStream( file1);
+        MockMultipartFile file = new MockMultipartFile("file", file1.getName(), "text/csv", inputFile);
+
+        assertEquals(fileValidationService.rowFileCounterCheck(file), 20);
+    }
+    @Test
+    void rowFileCounterCheck_InvalidFile_ko() throws Exception{
+        File file1 = new ClassPathResource("group" + File.separator + "ps_fiscal_code_groups_file_large_WrongCF.csv").getFile();
+        FileInputStream inputFile = new FileInputStream( file1);
+        MockMultipartFile file = new MockMultipartFile("file", file1.getName(), "text/csv", inputFile);
+
+        assertEquals(fileValidationService.rowFileCounterCheck(file), -34);
+    }
 }
