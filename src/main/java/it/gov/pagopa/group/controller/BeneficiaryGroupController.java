@@ -39,7 +39,6 @@ public class BeneficiaryGroupController implements BeneficiaryGroup {
         if (file.isEmpty()){
             return ResponseEntity.ok(GroupUpdateDTO.builder().status("KO").errorKey("group.groups.invalid.file.empty").elabTimeStamp(LocalDateTime.now()).build());
         }
-        System.out.println(file.isEmpty());
         if (!(GroupConstants.CONTENT_TYPE.equals(file.getContentType()))){
             return ResponseEntity.ok(GroupUpdateDTO.builder().status("KO").errorKey("group.groups.invalid.file.format").elabTimeStamp(LocalDateTime.now()).build());
         }
