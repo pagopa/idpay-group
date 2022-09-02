@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.MediaType;
@@ -96,7 +97,9 @@ public class BeneficiaryGroupApiTest {
     void uploadBeneficiaryGroupFile_ok() throws Exception{
         Group group = createGroupValid_ok();
 
-        FileInputStream inputFile = new FileInputStream( "/C:/Users/fpinsone/Documents/IdPay/csv-test-file/file.csv/");
+        File file1 = new ClassPathResource("group" + File.separator + "ps_fiscal_code_groups_file_large_20.csv").getFile();
+
+        FileInputStream inputFile = new FileInputStream( file1);
         MockMultipartFile file = new MockMultipartFile("file", "file.csv", "text/csv", inputFile);
 
         when(initiativeService.getInitiative(group.getInitiativeId())).thenReturn(createInitiativeDTO(group.getOrganizationId(), group.getInitiativeId()));
@@ -121,7 +124,10 @@ public class BeneficiaryGroupApiTest {
     void uploadInvaliFormatFile_ko() throws Exception {
         GroupUpdateDTO groupUpdateDTO = createGroupUpdateDTONotValidFormatFile_ko();
 
-        FileInputStream inputFile = new FileInputStream( "C:/Users/fpinsone/Documents/IdPay/csv-test-file/InitiativePayloadExample_v0.json");
+        File file1 = new ClassPathResource("group" + File.separator + "ps_fiscal_code_groups_file_large_WrongCF.csv").getFile();
+
+        //FIXME
+        FileInputStream inputFile = new FileInputStream( file1);
         MockMultipartFile file = new MockMultipartFile("file", "file.json", "json", inputFile);
 
         when(initiativeService.getInitiative("A1")).thenReturn(createInitiativeDTO("O1", "A1"));
@@ -147,7 +153,10 @@ public class BeneficiaryGroupApiTest {
     void uploadEmptyFile_ko() throws Exception{
         GroupUpdateDTO groupUpdateDTO = createGroupUpdateDTONotValidFormatFile_ko();
 
-        FileInputStream inputFile = new FileInputStream( "/C:/Users/fpinsone/Documents/IdPay/csv-test-file/empty_file.csv");
+        File file1 = new ClassPathResource("group" + File.separator + "empty_file.csv").getFile();
+
+        //FIXME
+        FileInputStream inputFile = new FileInputStream( file1);
         MockMultipartFile file = new MockMultipartFile("file", "file.csv", "text/csv", inputFile);
 
         when(initiativeService.getInitiative("A1")).thenReturn(createInitiativeDTO("O1", "A1"));
@@ -176,7 +185,10 @@ public class BeneficiaryGroupApiTest {
 
         InitiativeDTO initiativeDTO = createInitiativeDTOLowBudget(group.getOrganizationId(), group.getInitiativeId());
 
-        FileInputStream inputFile = new FileInputStream( "/C:/Users/fpinsone/Documents/IdPay/csv-test-file/file.csv");
+        //FIXME
+        File file1 = new ClassPathResource("group" + File.separator + "ps_fiscal_code_groups_file_large_WrongCF.csv").getFile();
+
+        FileInputStream inputFile = new FileInputStream( file1);
         MockMultipartFile file = new MockMultipartFile("file", "file.csv", "text/csv", inputFile);
 
         when(initiativeService.getInitiative(initiativeDTO.getInitiativeId())).thenReturn(initiativeDTO);
