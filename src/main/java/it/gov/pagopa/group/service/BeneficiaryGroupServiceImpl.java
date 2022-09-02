@@ -61,11 +61,13 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
     @Scheduled(fixedRate = 4000, initialDelay = 4000)
     public void scheduleValidatedGroup() throws IOException {
         boolean anonymizationDone = false;
-        Optional<Group> groupOptional = groupRepository.findFirstByStatus(GroupConstants.Status.VALIDATED);
+        Optional<Group> groupOptional = groupRepository.findFirstByStatus(GroupConstants.Status.VALIDATED); //FIXME change it in findAndUpdate with Mongo
         if(groupOptional.isPresent()) {
             Group group = groupOptional.get();
+            group.setStatus(GroupConstants.Status.PROCESSING); //FIXME Da rimuovere. Vedere poco sopra
+            groupRepository.save(group);
             String fileName = group.getFileName();
-            log.debug("[GROUP_SCHEDULING] [ANONYMIZER] Found beneficiary's group for {} with status {} on Organization {}", fileName, "VALIDATED", group.getOrganizationId());
+            log.info("[GROUP_SCHEDULING] [ANONYMIZER] Found beneficiary's group for {} with status {} on Organization {}", fileName, "VALIDATED", group.getOrganizationId());
             Resource file = load(group.getOrganizationId(), fileName);
             List<String> anonymousCFlist = null;
             try {
@@ -93,7 +95,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
         if(groupOptional.isPresent()) {
             Group group = groupOptional.get();
             String fileName = group.getFileName();
-            log.debug("[GROUP_SCHEDULING] [ANONYMIZER] Found beneficiary's group for {} with status {} on Organization {}", fileName, "PROC_KO", group.getOrganizationId());
+            log.info("[GROUP_SCHEDULING] [ANONYMIZER] Found beneficiary's group for {} with status {} on Organization {}", fileName, "PROC_KO", group.getOrganizationId());
             Resource file = load(group.getOrganizationId(), fileName);
             List<String> anonymousCFlist = null;
             try {
@@ -120,12 +122,17 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
         String line;
         InputStream is = file.getInputStream();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
+            long before=System.currentTimeMillis();
+            int lineCounter = 0;
             while ((line = br.readLine()) != null) {
+                lineCounter++;
                 FiscalCodeTokenizedDTO fiscalCodeTokenizedDTO = encryptRestConnector.putPii(PiiDTO.builder().pii(line).build());
                 anonymousCFlist.add(fiscalCodeTokenizedDTO.getToken());
             }
+            long after=System.currentTimeMillis();
+            log.info("[ANONYMIZER] Time to finish {} PDV calls: {} ms", lineCounter, after-before);
         } catch (Exception e) {
-            log.error("[ANONYMIZER] General exception", e.getMessage());
+            log.error("[ANONYMIZER] - General exception: {}", e.getMessage());
             throw e;
         }
         return anonymousCFlist;
