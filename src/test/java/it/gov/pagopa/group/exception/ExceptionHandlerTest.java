@@ -45,13 +45,4 @@ public class ExceptionHandlerTest {
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(responseEntity.getBody()).isEqualTo(errorDTO);
     }
-
-    @Test
-    void validationException_ok(){
-        ValidationException validationException = new ValidationException("OK", "ok", HttpStatus.OK);
-        assertThat(validationException).isNotNull();
-        assertThat(validationException.getCode()).isEqualTo("OK");
-        assertThat(validationException.getMessage()).isEqualTo("ok");
-        assertThat(validationException.getHttpStatus()).isEqualTo(HttpStatus.OK);
-    }
 }
