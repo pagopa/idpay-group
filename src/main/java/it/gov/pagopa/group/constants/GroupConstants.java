@@ -19,6 +19,9 @@ public class GroupConstants {
 
         public static final class KO{
             public static final String INVALID_FILE_SIZE = "group.groups.invalid.file.size";
+            public static final String INVALID_FORMAT_FILE = "group.groups.invalid.format.file";
+
+            public static final String EMPTY_FILE = "group.groups.empty.file";
         }
         public static final class NotFound {
             public static final String CODE = "it.gov.pagopa.group.not.found";

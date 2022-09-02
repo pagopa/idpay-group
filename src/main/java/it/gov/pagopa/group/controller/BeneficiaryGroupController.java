@@ -36,12 +36,12 @@ public class BeneficiaryGroupController implements BeneficiaryGroup {
 
     @Override
     public ResponseEntity<GroupUpdateDTO> uploadBeneficiaryGroupFile(@RequestParam("file") MultipartFile file, @PathVariable("organizationId") String organizationId, @PathVariable("initiativeId") String initiativeId){
-
-        if (!GroupConstants.CONTENT_TYPE.equals(file.getContentType())){
-            return ResponseEntity.ok(GroupUpdateDTO.builder().status("KO").errorKey("group.groups.invalid.format.file").elabTimeStamp(LocalDateTime.now()).build());
-        }
         if (file.isEmpty()){
-            return ResponseEntity.ok(GroupUpdateDTO.builder().status("KO").errorKey("group.groups.empty.file").elabTimeStamp(LocalDateTime.now()).build());
+            return ResponseEntity.ok(GroupUpdateDTO.builder().status("KO").errorKey("group.groups.invalid.file.empty").elabTimeStamp(LocalDateTime.now()).build());
+        }
+        System.out.println(file.isEmpty());
+        if (!(GroupConstants.CONTENT_TYPE.equals(file.getContentType()))){
+            return ResponseEntity.ok(GroupUpdateDTO.builder().status("KO").errorKey("group.groups.invalid.file.format").elabTimeStamp(LocalDateTime.now()).build());
         }
         InitiativeDTO initiativeDTO = initiativeService.getInitiative(initiativeId);
         BigDecimal budget = initiativeDTO.getGeneral().getBudget();
@@ -56,7 +56,7 @@ public class BeneficiaryGroupController implements BeneficiaryGroup {
                     return ResponseEntity.ok(GroupUpdateDTO.builder().status(GroupConstants.Status.KO).errorKey("group.groups.invalid.beneficiary.number").elabTimeStamp(LocalDateTime.now()).build());
                 }
             }else {
-                return ResponseEntity.ok(GroupUpdateDTO.builder().status(GroupConstants.Status.KO).errorRow(Math.abs(counterCheckFile)).errorKey("group.groups.invalid.cf").elabTimeStamp(LocalDateTime.now()).build());
+                return ResponseEntity.ok(GroupUpdateDTO.builder().status(GroupConstants.Status.KO).errorRow(Math.abs(counterCheckFile)).errorKey("group.groups.invalid.file.cf").elabTimeStamp(LocalDateTime.now()).build());
             }
         } catch (Exception e) {
             log.error("[UPLOAD_FILE_GROUP] - Generic Error: ", e);

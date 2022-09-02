@@ -14,6 +14,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -33,5 +34,10 @@ public class RestResponseExceptionHandler {
     public ResponseEntity<ErrorDTO> handlerGroupNotFoundException(BeneficiaryGroupException ex){
             return new ResponseEntity<>(new ErrorDTO(ex.getCode(), ex.getMessage()),
                     ex.getHttpStatus());
+    }
+
+    @ExceptionHandler({MultipartException.class})
+    public ResponseEntity<ErrorDTO> handlerFileGroupNullException(MultipartException ex){
+        return new ResponseEntity<>(new ErrorDTO("500", ex.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
