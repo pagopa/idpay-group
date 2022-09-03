@@ -6,6 +6,7 @@ import it.gov.pagopa.group.dto.FiscalCodeTokenizedDTO;
 import it.gov.pagopa.group.dto.PiiDTO;
 import it.gov.pagopa.group.exception.BeneficiaryGroupException;
 import it.gov.pagopa.group.model.Group;
+import it.gov.pagopa.group.repository.GroupQueryDAO;
 import it.gov.pagopa.group.repository.GroupRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -13,6 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -37,9 +42,9 @@ import java.util.stream.Stream;
 public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
 
     public static final String KEY_SEPARATOR = "_";
-    @Value("${storage.file.path}")
+    @Value("${file.storage.path}")
     private String rootPath;
-    @Value("${storage.file.deletion}")
+    @Value("${file.storage.deletion}")
     private boolean isFilesOnStorageToBeDeleted;
 
     @Autowired
@@ -47,6 +52,9 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
 
     @Autowired
     private EncryptRestConnector encryptRestConnector;
+
+    @Autowired
+    private GroupQueryDAO groupQueryDAO;
 
 
     private void init(String organizationId) {
@@ -61,19 +69,17 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
     @Scheduled(fixedRate = 4000, initialDelay = 4000)
     public void scheduleValidatedGroup() throws IOException {
         boolean anonymizationDone = false;
-        Optional<Group> groupOptional = groupRepository.findFirstByStatus(GroupConstants.Status.VALIDATED); //FIXME change it in findAndUpdate with Mongo
-        if(groupOptional.isPresent()) {
-            Group group = groupOptional.get();
-            group.setStatus(GroupConstants.Status.PROCESSING); //FIXME Da rimuovere. Vedere poco sopra
-            groupRepository.save(group);
+        Group group = groupQueryDAO.findFirstByStatusAndUpdate(GroupConstants.Status.VALIDATED);
+//        if(groupOptional.isPresent()) {
+        if(null != group) {
             String fileName = group.getFileName();
-            log.info("[GROUP_SCHEDULING] [ANONYMIZER] Found beneficiary's group for {} with status {} on Organization {}", fileName, "VALIDATED", group.getOrganizationId());
+            log.info("[GROUP_SCHEDULING] [ANONYMIZER] Found beneficiary's group for {} with status {} on Organization {}", fileName, GroupConstants.Status.VALIDATED, group.getOrganizationId());
             Resource file = load(group.getOrganizationId(), fileName);
             List<String> anonymousCFlist = null;
             try {
                 anonymousCFlist = cfAnonymizer(file);
                 group.setBeneficiaryList(anonymousCFlist);
-                group.setStatus("OK");
+                group.setStatus(GroupConstants.Status.OK);
                 anonymizationDone = true;
             } catch (Exception e) {
                 group.setExceptionMessage(e.getMessage());
@@ -95,7 +101,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
         if(groupOptional.isPresent()) {
             Group group = groupOptional.get();
             String fileName = group.getFileName();
-            log.info("[GROUP_SCHEDULING] [ANONYMIZER] Found beneficiary's group for {} with status {} on Organization {}", fileName, "PROC_KO", group.getOrganizationId());
+            log.info("[GROUP_SCHEDULING] [ANONYMIZER] Found beneficiary's group for {} with status {} on Organization {}", fileName, GroupConstants.Status.PROC_KO, group.getOrganizationId());
             Resource file = load(group.getOrganizationId(), fileName);
             List<String> anonymousCFlist = null;
             try {
@@ -117,7 +123,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
         }
     }
 
-    public List<String> cfAnonymizer(Resource file) throws Exception {
+    private List<String> cfAnonymizer(Resource file) throws Exception {
         List<String> anonymousCFlist = new ArrayList<>();
         String line;
         InputStream is = file.getInputStream();

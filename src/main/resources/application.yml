@@ -35,9 +35,21 @@ feign:
         loggerLevel: basic
         retryer: it.gov.pagopa.group.connector.pdv.PdvClientRetryer
 
-storage:
+file:
   schedule:
-  file:
+    init-delay:
+    fixed-rate:
+    valid: #TODO not yet in use
+      enabled: ${GROUP_SCHEDULE_VALIDATED_FILE_ENABLED:true}
+      init-delay:
+      fixed-rate:
+      cron: ${GROUP_SCHEDULE_VALIDATED_FILE_CRON:5 0 0 0 * *} #Every 5 seconds
+    proc-ko: #TODO not yet in use
+      enabled: ${GROUP_SCHEDULE_PROC-KO_FILE_ENABLED:true}
+      init-delay:
+      fixed-rate:
+      cron: ${GROUP_SCHEDULE_PROC-KO_FILE_CRON:10 0 0 0 * *} #Every 10 seconds
+  storage:
     path: ${GROUP_FILE_ROOT_PATH:/tmp/pagopa/group}
     column_separator: ${CF_FILE_SEPARATOR_COLUMN:;}
     deletion: ${GROUP_FILE_DELETION:false}
