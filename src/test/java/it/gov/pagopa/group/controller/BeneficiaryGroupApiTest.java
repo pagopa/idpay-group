@@ -242,6 +242,32 @@ public class BeneficiaryGroupApiTest {
                 .andReturn();
     }
 
+    @Test
+    void uploadFileExceptionFailed_ko() throws Exception{
+
+        Group group = createGroupValid_ok();
+        File file1 = new ClassPathResource("group" + File.separator + "ps_fiscal_code_groups_file_large_20.csv").getFile();
+        FileInputStream inputFile = new FileInputStream(file1);
+        MockMultipartFile file = new MockMultipartFile("file", anyString(), "text/csv", inputFile);
+
+        when(initiativeService.getInitiative(group.getInitiativeId())).thenReturn(createInitiativeDTO(group.getOrganizationId(), group.getInitiativeId()));
+        when(fileValidationService.rowFileCounterCheck(file)).thenThrow(new IOException());
+        MockMultipartHttpServletRequestBuilder builder =
+                MockMvcRequestBuilders.multipart((BASE_URL + MessageFormat.format(PUT_GROUP_FILE, group.getOrganizationId(), group.getInitiativeId())));
+        builder.with(new RequestPostProcessor() {
+            @Override
+            public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+                request.setMethod("PUT");
+                return request;
+            }
+        });
+        mvc.perform(builder
+                        .file(file))
+                .andExpect(MockMvcResultMatchers.status().isInternalServerError())
+                .andDo(print())
+                .andReturn();
+    }
+
     private Group createGroupValid_ok(){
         Group group = new Group();
         group.setGroupId("A1_O1");

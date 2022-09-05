@@ -148,14 +148,12 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
             group.setCreationUser("admin"); //TODO recuperare info da apim
             group.setUpdateUser("admin"); //TODO recuperare info da apim
             group.setBeneficiaryList(null);
-
             groupRepository.save(group);
-
+            Exception e = new Exception();
         } catch (Exception e) {
             throw new RuntimeException("Could not store the file. Error: " + e.getMessage());
         }
     }
-
     @Override
     public Resource load(String organizationId, String filename) {
         try {
