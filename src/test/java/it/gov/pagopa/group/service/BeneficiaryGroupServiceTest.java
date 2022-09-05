@@ -15,19 +15,19 @@ import org.springframework.test.context.TestPropertySource;
 import java.io.File;
 import java.io.FileInputStream;
 import java.time.LocalDateTime;
-import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 
 @WebMvcTest(value = {
         BeneficiaryGroupService.class})
 @Slf4j
 @TestPropertySource(properties = {
-        "storage.file.deletion=false"})
+        "storage.file.path=output/tmp/group",
+        "storage.file.deletion=false"
+})
 public class BeneficiaryGroupServiceTest {
 
     @Autowired
@@ -49,7 +49,7 @@ public class BeneficiaryGroupServiceTest {
 
         beneficiaryGroupService.save(file, group.getInitiativeId(), group.getOrganizationId(), group.getStatus());
 
-        verify(groupRepository, times(1)).save(group);
+        verify(groupRepository, times(1)).save(any());
     }
 
     private Group createGroupValid_ok(){
