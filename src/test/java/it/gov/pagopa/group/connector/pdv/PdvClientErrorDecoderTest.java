@@ -1,18 +1,22 @@
 package it.gov.pagopa.group.connector.pdv;
 
-import feign.*;
+import feign.FeignException;
+import feign.Request;
+import feign.RequestTemplate;
+import feign.Response;
 import feign.codec.ErrorDecoder;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.Charset;
 import java.util.Collections;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class PdvClientErrorDecoderTest {
+class PdvClientErrorDecoderTest {
 
     @Test
-    public void throwsFeignException() {
+    void throwsFeignException() {
         String reasonExceptionMessage = "[500 Internal server error] during [PUT] to [/test] [Service#test()]: []";
 
         // given

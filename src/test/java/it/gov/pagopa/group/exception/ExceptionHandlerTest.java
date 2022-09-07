@@ -1,7 +1,6 @@
 package it.gov.pagopa.group.exception;
 
 import it.gov.pagopa.group.constants.GroupConstants;
-import it.gov.pagopa.group.controller.BeneficiaryGroup;
 import it.gov.pagopa.group.dto.ErrorDTO;
 import it.gov.pagopa.group.dto.GroupUpdateDTO;
 import lombok.extern.slf4j.Slf4j;
@@ -11,12 +10,10 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
 
 import java.text.MessageFormat;
-import java.time.LocalDateTime;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @WebMvcTest(value = {
         RestResponseExceptionHandler.class}, excludeAutoConfiguration = SecurityAutoConfiguration.class)

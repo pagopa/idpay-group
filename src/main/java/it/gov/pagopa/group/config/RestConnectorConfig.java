@@ -1,8 +1,8 @@
 package it.gov.pagopa.group.config;
 
 import feign.Retryer;
-import it.gov.pagopa.group.connector.pdv.PdvEncryptFeignRestClient;
 import it.gov.pagopa.group.connector.pdv.PdvClientRetryer;
+import it.gov.pagopa.group.connector.pdv.PdvEncryptFeignRestClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;

@@ -16,7 +16,6 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
@@ -30,7 +29,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 @Service
 @Slf4j
@@ -65,7 +63,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
     public void scheduleValidatedGroup() throws IOException {
         boolean anonymizationDone = false;
         Group group = groupQueryDAO.findFirstByStatusAndUpdate(GroupConstants.Status.VALIDATED);
-//        if(groupOptional.isPresent()) {
+//TODO check for null?       if(groupOptional.isPresent()) {
         if(null != group) {
             String fileName = group.getFileName();
             log.info("[GROUP_SCHEDULING] [ANONYMIZER] Found beneficiary's group for {} with status {} on Organization {}", fileName, GroupConstants.Status.VALIDATED, group.getOrganizationId());
@@ -157,7 +155,6 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
             group.setUpdateUser("admin"); //TODO recuperare info da apim
             group.setBeneficiaryList(null);
             groupRepository.save(group);
-            Exception e = new Exception();
         } catch (Exception e) {
             throw new RuntimeException("Could not store the file. Error: " + e.getMessage());
         }
