@@ -37,10 +37,10 @@ public class BeneficiaryGroupController implements BeneficiaryGroup {
     @Override
     public ResponseEntity<GroupUpdateDTO> uploadBeneficiaryGroupFile(@RequestParam("file") MultipartFile file, @PathVariable("organizationId") String organizationId, @PathVariable("initiativeId") String initiativeId){
         if (file.isEmpty()){
-            return ResponseEntity.ok(GroupUpdateDTO.builder().status("KO").errorKey("group.groups.invalid.file.empty").elabTimeStamp(LocalDateTime.now()).build());
+            return ResponseEntity.ok(GroupUpdateDTO.builder().status(GroupConstants.Status.KO).errorKey(GroupConstants.Status.KOkeyMessage.INVALID_FILE_EMPTY).elabTimeStamp(LocalDateTime.now()).build());
         }
         if (!(GroupConstants.CONTENT_TYPE.equals(file.getContentType()))){
-            return ResponseEntity.ok(GroupUpdateDTO.builder().status("KO").errorKey("group.groups.invalid.file.format").elabTimeStamp(LocalDateTime.now()).build());
+            return ResponseEntity.ok(GroupUpdateDTO.builder().status(GroupConstants.Status.KO).errorKey(GroupConstants.Status.KOkeyMessage.INVALID_FILE_FORMAT).elabTimeStamp(LocalDateTime.now()).build());
         }
         try {
             InitiativeDTO initiativeDTO = initiativeService.getInitiative(initiativeId);
@@ -52,10 +52,10 @@ public class BeneficiaryGroupController implements BeneficiaryGroup {
                     beneficiaryGroupService.save(file, initiativeId, organizationId, GroupConstants.Status.VALIDATED);
                     return ResponseEntity.ok(GroupUpdateDTO.builder().status(GroupConstants.Status.VALIDATED).elabTimeStamp(LocalDateTime.now()).build());
                 }else {
-                    return ResponseEntity.ok(GroupUpdateDTO.builder().status(GroupConstants.Status.KO).errorKey("group.groups.invalid.beneficiary.number").elabTimeStamp(LocalDateTime.now()).build());
+                    return ResponseEntity.ok(GroupUpdateDTO.builder().status(GroupConstants.Status.KO).errorKey(GroupConstants.Status.KOkeyMessage.INVALID_FILE_BENEFICIARY_NUMBER_HIGH_FOR_BUDGET).elabTimeStamp(LocalDateTime.now()).build());
                 }
             }else {
-                return ResponseEntity.ok(GroupUpdateDTO.builder().status(GroupConstants.Status.KO).errorRow(Math.abs(counterCheckFile)).errorKey("group.groups.invalid.file.cf").elabTimeStamp(LocalDateTime.now()).build());
+                return ResponseEntity.ok(GroupUpdateDTO.builder().status(GroupConstants.Status.KO).errorRow(Math.abs(counterCheckFile)).errorKey(GroupConstants.Status.KOkeyMessage.INVALID_FILE_CF_WRONG).elabTimeStamp(LocalDateTime.now()).build());
             }
         } catch (Exception e) {
             log.error("[UPLOAD_FILE_GROUP] - Generic Error: {}", e.getMessage());

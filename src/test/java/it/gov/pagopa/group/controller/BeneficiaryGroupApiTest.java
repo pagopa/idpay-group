@@ -38,6 +38,7 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Time;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -96,14 +97,12 @@ public class BeneficiaryGroupApiTest {
     @Test
     void uploadBeneficiaryGroupFile_ok() throws Exception{
         Group group = createGroupValid_ok();
-
         File file1 = new ClassPathResource("group" + File.separator + "ps_fiscal_code_groups_file_large_20.csv").getFile();
-
         FileInputStream inputFile = new FileInputStream( file1);
-        MockMultipartFile file = new MockMultipartFile("file", "file.csv", "text/csv", inputFile);
+        MockMultipartFile file = new MockMultipartFile("file", file1.getName(), "text/csv", inputFile);
 
         when(initiativeService.getInitiative(group.getInitiativeId())).thenReturn(createInitiativeDTO(group.getOrganizationId(), group.getInitiativeId()));
-
+        when(fileValidationService.rowFileCounterCheck(file)).thenReturn(20);
         MockMultipartHttpServletRequestBuilder builder =
                 MockMvcRequestBuilders.multipart((BASE_URL + MessageFormat.format(PUT_GROUP_FILE, group.getOrganizationId(), group.getInitiativeId())));
         builder.with(new RequestPostProcessor() {
@@ -155,6 +154,7 @@ public class BeneficiaryGroupApiTest {
 
         File file1 = new ClassPathResource("group" + File.separator + "empty_file.csv").getFile();
 
+        ;
         //FIXME
         FileInputStream inputFile = new FileInputStream( file1);
         MockMultipartFile file = new MockMultipartFile("file", "file.csv", "text/csv", inputFile);
@@ -180,7 +180,7 @@ public class BeneficiaryGroupApiTest {
 
 
     @Test
-    void uploadFileTooCfAndLowBudgetInitiative_ko() throws Exception{
+    void uploadFileCfTooLarge_ko() throws Exception{
         Group group = createGroupValid_ok();
 
         InitiativeDTO initiativeDTO = createInitiativeDTOLowBudget(group.getOrganizationId(), group.getInitiativeId());
@@ -192,6 +192,7 @@ public class BeneficiaryGroupApiTest {
         MockMultipartFile file = new MockMultipartFile("file", "file.csv", "text/csv", inputFile);
 
         when(initiativeService.getInitiative(initiativeDTO.getInitiativeId())).thenReturn(initiativeDTO);
+        when(fileValidationService.rowFileCounterCheck(file)).thenReturn(-34);
 
         MockMultipartHttpServletRequestBuilder builder =
                 MockMvcRequestBuilders.multipart((BASE_URL + MessageFormat.format(PUT_GROUP_FILE, "O1", "A1")));
@@ -209,6 +210,64 @@ public class BeneficiaryGroupApiTest {
                 .andReturn();
 
     }
+
+    @Test
+    void uploadInvalidBeneficiaryNumberCfFile_ko() throws Exception {
+        Group group = createGroupValid_ok();
+
+        InitiativeDTO initiativeDTO = createInitiativeDTOLowBudget(group.getOrganizationId(), group.getInitiativeId());
+
+        //FIXME
+        File file1 = new ClassPathResource("group" + File.separator + "ps_fiscal_code_groups_file_large_20.csv").getFile();
+
+        FileInputStream inputFile = new FileInputStream( file1);
+        MockMultipartFile file = new MockMultipartFile("file", "file.csv", "text/csv", inputFile);
+
+        when(initiativeService.getInitiative(initiativeDTO.getInitiativeId())).thenReturn(initiativeDTO);
+        when(fileValidationService.rowFileCounterCheck(file)).thenReturn(20);
+
+        MockMultipartHttpServletRequestBuilder builder =
+                MockMvcRequestBuilders.multipart((BASE_URL + MessageFormat.format(PUT_GROUP_FILE, "O1", "A1")));
+        builder.with(new RequestPostProcessor() {
+            @Override
+            public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+                request.setMethod("PUT");
+                return request;
+            }
+        });
+        mvc.perform(builder
+                        .file(file))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(print())
+                .andReturn();
+    }
+
+    @Test
+    void uploadFileExceptionFailed_ko() throws Exception{
+
+        Group group = createGroupValid_ok();
+        File file1 = new ClassPathResource("group" + File.separator + "ps_fiscal_code_groups_file_large_20.csv").getFile();
+        FileInputStream inputFile = new FileInputStream(file1);
+        MockMultipartFile file = new MockMultipartFile("file", anyString(), "text/csv", inputFile);
+
+        when(initiativeService.getInitiative(group.getInitiativeId())).thenReturn(createInitiativeDTO(group.getOrganizationId(), group.getInitiativeId()));
+        when(fileValidationService.rowFileCounterCheck(file)).thenThrow(new IOException());
+        MockMultipartHttpServletRequestBuilder builder =
+                MockMvcRequestBuilders.multipart((BASE_URL + MessageFormat.format(PUT_GROUP_FILE, group.getOrganizationId(), group.getInitiativeId())));
+        builder.with(new RequestPostProcessor() {
+            @Override
+            public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+                request.setMethod("PUT");
+                return request;
+            }
+        });
+        mvc.perform(builder
+                        .file(file))
+                .andExpect(MockMvcResultMatchers.status().isInternalServerError())
+                .andDo(print())
+                .andReturn();
+    }
+
     private Group createGroupValid_ok(){
         Group group = new Group();
         group.setGroupId("A1_O1");
@@ -229,7 +288,7 @@ public class BeneficiaryGroupApiTest {
     private GroupUpdateDTO createGroupUpdateDTONotValidFormatFile_ko(){
         GroupUpdateDTO group = new GroupUpdateDTO();
         group.setStatus("KO");
-        group.setErrorKey(GroupConstants.Exception.KO.INVALID_FORMAT_FILE);
+        group.setErrorKey(GroupConstants.Status.KOkeyMessage.INVALID_FILE_FORMAT);
         group.setElabTimeStamp(LocalDateTime.now());
         return group;
     }
@@ -237,7 +296,7 @@ public class BeneficiaryGroupApiTest {
     private GroupUpdateDTO createGroupUpdateDTONotValidEmptyFile_ko(){
         GroupUpdateDTO group = new GroupUpdateDTO();
         group.setStatus("KO");
-        group.setErrorKey(GroupConstants.Exception.KO.EMPTY_FILE);
+        group.setErrorKey(GroupConstants.Status.KOkeyMessage.INVALID_FILE_EMPTY);
         group.setElabTimeStamp(LocalDateTime.now());
         return group;
     }
