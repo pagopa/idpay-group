@@ -12,4 +12,7 @@ public interface GroupRepository extends MongoRepository<Group, String> {
 
     @Query(value = "{initiativeId : ?0, organizationId : ?1}", fields = "{status : 1, exceptionMessage : 1, initiativeId : 1, organizationId : 1}")
     Optional<Group> getStatus(String initiativeId, String organizationId);
+
+    @Query(value = "{initiativeId : ?0, organizationId : ?1}", fields = "{beneficiaryList : 1}")
+    Optional<Group> getBeneficiaryList(String initiativeId, String organizationId);
 }

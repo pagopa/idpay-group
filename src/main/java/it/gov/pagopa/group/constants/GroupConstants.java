@@ -26,6 +26,7 @@ public class GroupConstants {
 
         public static final class NotFound {
             public static final String CODE = "it.gov.pagopa.group.not.found";
+            public static final String NO_BENEFICIARY_LIST_PROVIDED_FOR_INITIATIVE_ID = "No beneficiary list provided for initiativeId {0}";
         }
         public static final class BadRequest {
             public static final String CODE = "it.gov.pagopa.initiative.bad.request";

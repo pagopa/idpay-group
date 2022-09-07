@@ -14,7 +14,7 @@ public interface BeneficiaryGroupService {
 
     void delete(String organizationId, String filename);
 
-
-
     Group getStatusByInitiativeId(String initiativeId, String organizationId);
+
+    boolean getCitizenStatusByCitizenToken(String initiativeId, String organizationId, String citizenToken);
 }

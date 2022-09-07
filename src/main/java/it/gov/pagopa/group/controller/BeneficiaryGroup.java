@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import it.gov.pagopa.group.dto.CitizenStatusDTO;
 import it.gov.pagopa.group.dto.ErrorDTO;
 import it.gov.pagopa.group.dto.GroupUpdateDTO;
 import it.gov.pagopa.group.dto.StatusGroupDTO;
@@ -38,4 +39,14 @@ public interface BeneficiaryGroup {
             @ApiResponse(responseCode = "500", description = "Server ERROR", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class)))})
     @GetMapping(value = "/idpay/organization/{organizationId}/initiative/{initiativeId}/status")
     ResponseEntity<StatusGroupDTO> getGroupStatus( @PathVariable("organizationId") String organizationId, @PathVariable("initiativeId") String initiativeId);
+
+    @Operation(operationId = "getCitizenStatusForInitiative", summary = "Return a positive or negative boolean if the searched user is part of the preset group list uploaded for the specific initiative", description = "", tags = {"group"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ok",  content = @Content(mediaType = "application/json", schema = @Schema(implementation = CitizenStatusDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Authentication failed", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
+            @ApiResponse(responseCode = "404", description = "The requested ID was not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
+            @ApiResponse(responseCode = "500", description = "Server ERROR", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class)))})
+    @GetMapping(value = "/idpay/organization/{organizationId}/initiative/{initiativeId}/citizen/{citizenToken}")
+    ResponseEntity<CitizenStatusDTO> getCitizienStatus( @PathVariable("organizationId") String organizationId, @PathVariable("initiativeId") String initiativeId, @PathVariable("citizenToken") String citizenToken);
 }

@@ -16,6 +16,7 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
@@ -27,8 +28,10 @@ import java.nio.file.StandardCopyOption;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service
 @Slf4j
@@ -198,6 +201,20 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
                 .orElseThrow(() -> new BeneficiaryGroupException(GroupConstants.Exception.NotFound.CODE,
                         MessageFormat.format(GroupConstants.Exception.BadRequest.NO_GROUP_FOR_INITIATIVE_ID, initiativeId),
                         HttpStatus.BAD_REQUEST));
+    }
+
+    @Override
+    public boolean getCitizenStatusByCitizenToken(String initiativeId, String organizationId, String citizenToken) {
+        Group groupOnlyBeneficiaryList = groupRepository.getBeneficiaryList(initiativeId, organizationId)
+                .orElseThrow(() -> new BeneficiaryGroupException(GroupConstants.Exception.NotFound.CODE,
+                        MessageFormat.format(GroupConstants.Exception.BadRequest.NO_GROUP_FOR_INITIATIVE_ID, initiativeId),
+                        HttpStatus.BAD_REQUEST));
+        List<String> beneficiaryList = groupOnlyBeneficiaryList.getBeneficiaryList();
+        if(CollectionUtils.isEmpty(beneficiaryList))
+            throw new BeneficiaryGroupException(GroupConstants.Exception.NotFound.CODE,
+                MessageFormat.format(GroupConstants.Exception.NotFound.NO_BENEFICIARY_LIST_PROVIDED_FOR_INITIATIVE_ID, initiativeId),
+                HttpStatus.NOT_FOUND);
+        return beneficiaryList.stream().anyMatch(beneficiary -> beneficiary.equals(citizenToken));
     }
 
 }

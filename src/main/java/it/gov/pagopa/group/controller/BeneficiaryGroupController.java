@@ -2,6 +2,7 @@ package it.gov.pagopa.group.controller;
 
 import it.gov.pagopa.group.connector.InitiativeService;
 import it.gov.pagopa.group.constants.GroupConstants;
+import it.gov.pagopa.group.dto.CitizenStatusDTO;
 import it.gov.pagopa.group.dto.GroupUpdateDTO;
 import it.gov.pagopa.group.dto.InitiativeDTO;
 import it.gov.pagopa.group.dto.StatusGroupDTO;
@@ -69,6 +70,15 @@ public class BeneficiaryGroupController implements BeneficiaryGroup {
                 .status(group.getStatus())
                 .errorMessage(group.getExceptionMessage())
                 .build());
+    }
+
+    @Override
+    public ResponseEntity<CitizenStatusDTO> getCitizienStatus(String organizationId, String initiativeId, String citizenToken) {
+        CitizenStatusDTO citizenStatusDTO = new CitizenStatusDTO();
+        if(beneficiaryGroupService.getCitizenStatusByCitizenToken(initiativeId, organizationId, citizenToken)){
+            citizenStatusDTO.setStatus(true);
+        }
+        return ResponseEntity.ok(citizenStatusDTO);
     }
 }
 
