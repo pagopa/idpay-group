@@ -28,7 +28,7 @@ public class ExceptionHandlerTest {
     void raisedGroupFileException(){
         FileSizeLimitExceededException e = new FileSizeLimitExceededException("invalid file size", 0, 0);
         ResponseEntity<GroupUpdateDTO> responseEntity = restResponseExceptionHandler.handleGroupFileException(e);
-        GroupUpdateDTO groupUpdateDTO = new GroupUpdateDTO("KO", null, GroupConstants.Exception.KO.INVALID_FILE_SIZE, responseEntity.getBody().getElabTimeStamp());
+        GroupUpdateDTO groupUpdateDTO = new GroupUpdateDTO(GroupConstants.Status.KO, null, GroupConstants.Status.KOkeyMessage.INVALID_FILE_SIZE, responseEntity.getBody().getElabTimeStamp());
         assertThat(responseEntity).isNotNull();
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(responseEntity.getBody()).isEqualTo(groupUpdateDTO);

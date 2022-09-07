@@ -288,7 +288,7 @@ public class BeneficiaryGroupApiTest {
     private GroupUpdateDTO createGroupUpdateDTONotValidFormatFile_ko(){
         GroupUpdateDTO group = new GroupUpdateDTO();
         group.setStatus("KO");
-        group.setErrorKey(GroupConstants.Exception.KO.INVALID_FORMAT_FILE);
+        group.setErrorKey(GroupConstants.Status.KOkeyMessage.INVALID_FILE_FORMAT);
         group.setElabTimeStamp(LocalDateTime.now());
         return group;
     }
@@ -296,7 +296,7 @@ public class BeneficiaryGroupApiTest {
     private GroupUpdateDTO createGroupUpdateDTONotValidEmptyFile_ko(){
         GroupUpdateDTO group = new GroupUpdateDTO();
         group.setStatus("KO");
-        group.setErrorKey(GroupConstants.Exception.KO.EMPTY_FILE);
+        group.setErrorKey(GroupConstants.Status.KOkeyMessage.INVALID_FILE_EMPTY);
         group.setElabTimeStamp(LocalDateTime.now());
         return group;
     }
