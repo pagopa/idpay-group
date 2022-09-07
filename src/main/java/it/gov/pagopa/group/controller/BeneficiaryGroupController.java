@@ -42,10 +42,10 @@ public class BeneficiaryGroupController implements BeneficiaryGroup {
         if (!(GroupConstants.CONTENT_TYPE.equals(file.getContentType()))){
             return ResponseEntity.ok(GroupUpdateDTO.builder().status(GroupConstants.Status.KO).errorKey(GroupConstants.Status.KOkeyMessage.INVALID_FILE_FORMAT).elabTimeStamp(LocalDateTime.now()).build());
         }
-        InitiativeDTO initiativeDTO = initiativeService.getInitiative(initiativeId);
-        BigDecimal budget = initiativeDTO.getGeneral().getBudget();
-        BigDecimal beneficiaryBudget = initiativeDTO.getGeneral().getBeneficiaryBudget();
         try {
+            InitiativeDTO initiativeDTO = initiativeService.getInitiative(initiativeId);
+            BigDecimal budget = initiativeDTO.getGeneral().getBudget();
+            BigDecimal beneficiaryBudget = initiativeDTO.getGeneral().getBeneficiaryBudget();
             int counterCheckFile = fileValidationService.rowFileCounterCheck(file);
             if (counterCheckFile > 0){
                 if (BigDecimal.valueOf(counterCheckFile).multiply(beneficiaryBudget).compareTo(budget) <= 0){
@@ -58,7 +58,7 @@ public class BeneficiaryGroupController implements BeneficiaryGroup {
                 return ResponseEntity.ok(GroupUpdateDTO.builder().status(GroupConstants.Status.KO).errorRow(Math.abs(counterCheckFile)).errorKey(GroupConstants.Status.KOkeyMessage.INVALID_FILE_CF_WRONG).elabTimeStamp(LocalDateTime.now()).build());
             }
         } catch (Exception e) {
-            log.error("[UPLOAD_FILE_GROUP] - Generic Error: ", e);
+            log.error("[UPLOAD_FILE_GROUP] - Generic Error: {}", e.getMessage());
             return ResponseEntity.internalServerError().build();
         }
     }
