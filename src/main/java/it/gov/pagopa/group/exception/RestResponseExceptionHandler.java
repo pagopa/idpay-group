@@ -14,6 +14,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -26,12 +27,17 @@ public class RestResponseExceptionHandler {
     // API
     @ExceptionHandler({FileSizeLimitExceededException.class, MaxUploadSizeExceededException.class})
     public ResponseEntity<GroupUpdateDTO> handleGroupFileException(FileSizeLimitExceededException ex) {
-        return ResponseEntity.ok(GroupUpdateDTO.builder().status("KO").errorKey("group.groups.invalid.file.size").elabTimeStamp(LocalDateTime.now()).build());
+        return ResponseEntity.ok(GroupUpdateDTO.builder().status(GroupConstants.Status.KO).errorKey(GroupConstants.Status.KOkeyMessage.INVALID_FILE_SIZE).elabTimeStamp(LocalDateTime.now()).build());
     }
 
     @ExceptionHandler({BeneficiaryGroupException.class})
     public ResponseEntity<ErrorDTO> handlerGroupNotFoundException(BeneficiaryGroupException ex){
             return new ResponseEntity<>(new ErrorDTO(ex.getCode(), ex.getMessage()),
                     ex.getHttpStatus());
+    }
+
+    @ExceptionHandler({MultipartException.class})
+    public ResponseEntity<ErrorDTO> handlerFileGroupNullException(MultipartException ex){
+        return new ResponseEntity<>(new ErrorDTO("500", ex.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

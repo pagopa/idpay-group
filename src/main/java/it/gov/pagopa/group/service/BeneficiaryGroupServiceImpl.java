@@ -141,7 +141,6 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
 
     @Override
     public void save(MultipartFile file, String initiativeId, String organizationId, String status) {
-
         try {
             Path root = Paths.get(rootPath + File.separator + organizationId);
             Files.createDirectories(root);
@@ -157,14 +156,12 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
             group.setCreationUser("admin"); //TODO recuperare info da apim
             group.setUpdateUser("admin"); //TODO recuperare info da apim
             group.setBeneficiaryList(null);
-
             groupRepository.save(group);
-
+            Exception e = new Exception();
         } catch (Exception e) {
             throw new RuntimeException("Could not store the file. Error: " + e.getMessage());
         }
     }
-
     @Override
     public Resource load(String organizationId, String filename) {
         try {
@@ -186,16 +183,6 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
     }
 
     @Override
-    public Stream<Path> loadAll() {
-        try {
-            Path root = Paths.get(rootPath);
-            return Files.walk(root, 1).filter(path -> !path.equals(root)).map(root::relativize);
-        } catch (IOException e) {
-            throw new RuntimeException("Could not load the files!");
-        }
-    }
-
-    @Override
     public void delete(String organizationId, String filename) {
         try{
             Path root = Paths.get(rootPath + File.separator + organizationId);
@@ -205,12 +192,6 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
             log.error("[UPLOAD_FILE_GROUP] - Could not delete the file: " + filename, e);
             throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    public void deleteAll() {
-        Path root = Paths.get(rootPath);
-        FileSystemUtils.deleteRecursively(root.toFile());
     }
 
     @Override

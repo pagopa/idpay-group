@@ -17,9 +17,7 @@ public interface BeneficiaryGroupService {
 
     void delete(String organizationId, String filename);
 
-    void deleteAll();
 
-    Stream<Path> loadAll();
 
     Group getStatusByInitiativeId(String initiativeId, String organizationId);
 }
