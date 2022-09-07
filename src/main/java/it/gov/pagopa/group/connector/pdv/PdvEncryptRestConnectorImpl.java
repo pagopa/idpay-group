@@ -6,17 +6,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
-public class EncryptRestConnectorImpl implements EncryptRestConnector{
+public class PdvEncryptRestConnectorImpl implements PdvEncryptRestConnector {
     @Value("${rest-client.pdv-encrypt.api.key}")
     private String apikey;
-    private final EncryptRestClient encryptRestClient;
+    private final PdvEncryptFeignRestClient pdvEncryptFeignRestClient;
 
-    public EncryptRestConnectorImpl(EncryptRestClient encryptRestClient) {
-        this.encryptRestClient = encryptRestClient;
+    public PdvEncryptRestConnectorImpl(PdvEncryptFeignRestClient pdvEncryptFeignRestClient) {
+        this.pdvEncryptFeignRestClient = pdvEncryptFeignRestClient;
     }
 
     @Override
     public FiscalCodeTokenizedDTO putPii(PiiDTO piiDTO) {
-        return encryptRestClient.putPii(piiDTO, apikey);
+        return pdvEncryptFeignRestClient.putPii(piiDTO, apikey);
     }
 }

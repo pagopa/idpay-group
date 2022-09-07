@@ -1,17 +1,15 @@
 package it.gov.pagopa.group.service;
 
-import it.gov.pagopa.group.connector.pdv.EncryptRestConnector;
-import it.gov.pagopa.group.constants.GroupConstants;
+import it.gov.pagopa.group.connector.pdv.PdvEncryptRestConnector;
 import it.gov.pagopa.group.model.Group;
+import it.gov.pagopa.group.repository.GroupQueryDAO;
 import it.gov.pagopa.group.repository.GroupRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.core.Constants;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.TestPropertySource;
 
@@ -31,19 +29,20 @@ import static org.mockito.Mockito.verify;
         BeneficiaryGroupService.class})
 @Slf4j
 @TestPropertySource(properties = {
-        "storage.file.path=output/tmp/group",
-        "storage.file.deletion=false"
+        "file.storage.path=output/tmp/group",
+        "file.storage.deletion=false"
 })
-public class BeneficiaryGroupServiceTest {
+class BeneficiaryGroupServiceTest {
 
     @Autowired
     BeneficiaryGroupService beneficiaryGroupService;
 
     @MockBean
     GroupRepository groupRepository;
-
     @MockBean
-    EncryptRestConnector encryptRestConnector;
+    GroupQueryDAO groupQueryDAO;
+    @MockBean
+    PdvEncryptRestConnector encryptRestConnector;
 
 
     @Test

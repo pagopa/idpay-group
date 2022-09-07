@@ -13,7 +13,7 @@ public class PdvClientErrorDecoder implements ErrorDecoder {
     public Exception decode(String s, Response response) {
         log.info("Error Response!!!");
 
-        if (response.status() == 503) {
+        if (response.status() >= 400) {
             throw new RetryableException(
                     response.status(),
 //                    String.format("Service unavailable (status code %s)", response.status()),
