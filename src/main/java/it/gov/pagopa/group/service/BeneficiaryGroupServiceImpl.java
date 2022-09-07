@@ -1,6 +1,6 @@
 package it.gov.pagopa.group.service;
 
-import it.gov.pagopa.group.connector.pdv.EncryptRestConnector;
+import it.gov.pagopa.group.connector.pdv.PdvEncryptRestConnector;
 import it.gov.pagopa.group.constants.GroupConstants;
 import it.gov.pagopa.group.dto.FiscalCodeTokenizedDTO;
 import it.gov.pagopa.group.dto.PiiDTO;
@@ -9,15 +9,10 @@ import it.gov.pagopa.group.model.Group;
 import it.gov.pagopa.group.repository.GroupQueryDAO;
 import it.gov.pagopa.group.repository.GroupRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.data.mongodb.core.FindAndModifyOptions;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -51,7 +46,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
     private GroupRepository groupRepository;
 
     @Autowired
-    private EncryptRestConnector encryptRestConnector;
+    private PdvEncryptRestConnector pdvEncryptRestConnector;
 
     @Autowired
     private GroupQueryDAO groupQueryDAO;
@@ -132,7 +127,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
             int lineCounter = 0;
             while ((line = br.readLine()) != null) {
                 lineCounter++;
-                FiscalCodeTokenizedDTO fiscalCodeTokenizedDTO = encryptRestConnector.putPii(PiiDTO.builder().pii(line).build());
+                FiscalCodeTokenizedDTO fiscalCodeTokenizedDTO = pdvEncryptRestConnector.putPii(PiiDTO.builder().pii(line).build());
                 anonymousCFlist.add(fiscalCodeTokenizedDTO.getToken());
             }
             long after=System.currentTimeMillis();

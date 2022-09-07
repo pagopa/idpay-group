@@ -1,0 +1,15 @@
+{
+  "request": {
+    "method": "PUT",
+    "urlPathPattern": "/tokens"
+  },
+  "response": {
+    "status": "200",
+    "jsonBody": {
+      "token": "ec9f2fbe-ab67-4e93-a1d6-25ae6e685b74"
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

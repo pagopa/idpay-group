@@ -7,7 +7,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 @FeignClient(name = "${rest-client.pdv-encrypt.cf}", url = "${rest-client.pdv-encrypt.base-url}")
-public interface EncryptRestClient {
+public interface PdvEncryptFeignRestClient {
     @PutMapping(value = "/tokens", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     FiscalCodeTokenizedDTO putPii(@RequestBody PiiDTO piiDTO, @RequestHeader("x-api-key") String apikey);
