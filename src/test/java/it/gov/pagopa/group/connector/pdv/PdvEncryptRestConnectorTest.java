@@ -5,11 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import it.gov.pagopa.group.config.RestConnectorConfig;
 import it.gov.pagopa.group.dto.FiscalCodeTokenizedDTO;
 import it.gov.pagopa.group.dto.PiiDTO;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration;
@@ -34,7 +34,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
                 "rest-client.pdv-encrypt.http.retry.maxPeriod=1",
                 "rest-client.pdv-encrypt.http.retry.maxAttempts=3"
         })
-@WireMockTest
 @Slf4j
 @SpringBootTest
 @ContextConfiguration(
@@ -97,6 +96,11 @@ class PdvEncryptRestConnectorTest {
                 WireMock.putRequestedFor(WireMock.urlEqualTo("/tokens"))
                         .withRequestBody(equalToJson(json))
         );
+    }
+
+    @AfterEach
+    void resetAll() {
+        wireMockServer.resetAll();
     }
 
 }
