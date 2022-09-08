@@ -1,4 +1,4 @@
-package it.gov.pagopa.group.connector;
+package it.gov.pagopa.group.connector.initiative;
 
 import it.gov.pagopa.group.dto.InitiativeDTO;
 import org.springframework.beans.factory.annotation.Autowired;

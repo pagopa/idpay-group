@@ -5,10 +5,12 @@ import it.gov.pagopa.group.constants.GroupConstants;
 import it.gov.pagopa.group.dto.ErrorDTO;
 import it.gov.pagopa.group.dto.GroupUpdateDTO;
 import org.apache.tomcat.util.http.fileupload.impl.FileSizeLimitExceededException;
+import org.springframework.core.NestedRuntimeException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartException;
 
@@ -30,8 +32,8 @@ public class RestResponseExceptionHandler {
                     ex.getHttpStatus());
     }
 
-    @ExceptionHandler({MultipartException.class})
-    public ResponseEntity<ErrorDTO> handlerFileGroupNullException(MultipartException ex){
+    @ExceptionHandler({MultipartException.class, ResourceAccessException.class})
+    public ResponseEntity<ErrorDTO> handlerNestedRuntimeException(NestedRuntimeException ex){
         return new ResponseEntity<>(new ErrorDTO("500", ex.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

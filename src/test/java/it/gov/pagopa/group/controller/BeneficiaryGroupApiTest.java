@@ -1,7 +1,7 @@
 package it.gov.pagopa.group.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.gov.pagopa.group.connector.InitiativeService;
+import it.gov.pagopa.group.connector.initiative.InitiativeService;
 import it.gov.pagopa.group.constants.GroupConstants;
 import it.gov.pagopa.group.dto.GroupUpdateDTO;
 import it.gov.pagopa.group.dto.InitiativeDTO;

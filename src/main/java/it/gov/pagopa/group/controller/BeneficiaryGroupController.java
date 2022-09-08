@@ -1,6 +1,6 @@
 package it.gov.pagopa.group.controller;
 
-import it.gov.pagopa.group.connector.InitiativeService;
+import it.gov.pagopa.group.connector.initiative.InitiativeRestConnector;
 import it.gov.pagopa.group.constants.GroupConstants;
 import it.gov.pagopa.group.dto.CitizenStatusDTO;
 import it.gov.pagopa.group.dto.GroupUpdateDTO;
@@ -28,7 +28,7 @@ public class BeneficiaryGroupController implements BeneficiaryGroup {
     private BeneficiaryGroupService beneficiaryGroupService;
 
     @Autowired
-    private InitiativeService initiativeService;
+    private InitiativeRestConnector initiativeRestConnector;
 
     @Autowired
     private FileValidationService fileValidationService;
@@ -42,10 +42,10 @@ public class BeneficiaryGroupController implements BeneficiaryGroup {
         if (!(GroupConstants.CONTENT_TYPE.equals(file.getContentType()))){
             return ResponseEntity.ok(GroupUpdateDTO.builder().status(GroupConstants.Status.KO).errorKey(GroupConstants.Status.KOkeyMessage.INVALID_FILE_FORMAT).elabTimeStamp(LocalDateTime.now()).build());
         }
+        InitiativeDTO initiativeDTO = initiativeRestConnector.getInitiative(initiativeId);
+        BigDecimal budget = initiativeDTO.getGeneral().getBudget();
+        BigDecimal beneficiaryBudget = initiativeDTO.getGeneral().getBeneficiaryBudget();
         try {
-            InitiativeDTO initiativeDTO = initiativeService.getInitiative(initiativeId);
-            BigDecimal budget = initiativeDTO.getGeneral().getBudget();
-            BigDecimal beneficiaryBudget = initiativeDTO.getGeneral().getBeneficiaryBudget();
             int counterCheckFile = fileValidationService.rowFileCounterCheck(file);
             if (counterCheckFile > 0){
                 if (BigDecimal.valueOf(counterCheckFile).multiply(beneficiaryBudget).compareTo(budget) <= 0){

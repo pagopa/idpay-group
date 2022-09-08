@@ -26,6 +26,9 @@ public class InitiativeDTO   {
   @JsonProperty("organizationId")
   private String organizationId;
 
+  @JsonProperty("status")
+  private String status;
+
   @JsonProperty("general")
   private InitiativeGeneralDTO general;
 
