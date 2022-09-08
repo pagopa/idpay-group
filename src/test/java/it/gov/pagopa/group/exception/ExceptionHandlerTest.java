@@ -35,11 +35,11 @@ public class ExceptionHandlerTest {
     void raisedGroupNotFoundException(){
         ErrorDTO errorDTO = new ErrorDTO(GroupConstants.Exception.NotFound.CODE, "There is no group for initiativeId A1");
         BeneficiaryGroupException e = new BeneficiaryGroupException(GroupConstants.Exception.NotFound.CODE,
-                MessageFormat.format(GroupConstants.Exception.BadRequest.NO_GROUP_FOR_INITIATIVE_ID, "A1"),
-                HttpStatus.BAD_REQUEST);
+                MessageFormat.format(GroupConstants.Exception.NotFound.NO_GROUP_FOR_INITIATIVE_ID, "A1"),
+                HttpStatus.NOT_FOUND);
         ResponseEntity<ErrorDTO> responseEntity = restResponseExceptionHandler.handlerGroupNotFoundException(e);
         assertThat(responseEntity).isNotNull();
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(responseEntity.getBody()).isEqualTo(errorDTO);
     }
 }

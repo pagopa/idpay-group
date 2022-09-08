@@ -137,14 +137,13 @@ class BeneficiaryGroupServiceTest {
     }
 
     @Test
-    void whenGroupsNotFound_thenServiceBadRequest() {
-        Group group = new Group();
+    void whenGroupsNotFound_thenServiceNotFound() {
         //Instruct the Repo Mock to return Dummy Item
         when(groupRepository.getBeneficiaryList(anyString(), anyString())).thenThrow(
                 new BeneficiaryGroupException(
                         GroupConstants.Exception.NotFound.CODE,
-                        MessageFormat.format(GroupConstants.Exception.BadRequest.NO_GROUP_FOR_INITIATIVE_ID, "Id1"),
-                        HttpStatus.BAD_REQUEST)
+                        MessageFormat.format(GroupConstants.Exception.NotFound.NO_GROUP_FOR_INITIATIVE_ID, "Id1"),
+                        HttpStatus.NOT_FOUND)
         );
 
         //Try to call the Real Service (which is using the instructed Repo)
@@ -152,9 +151,9 @@ class BeneficiaryGroupServiceTest {
             beneficiaryGroupService.getCitizenStatusByCitizenToken(anyString(), anyString(), FISCAL_CODE_TOKENIZED);
         } catch (BeneficiaryGroupException e) {
             log.info("BeneficiaryGroupException: " + e.getCode());
-            assertEquals(HttpStatus.BAD_REQUEST, e.getHttpStatus());
+            assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
             assertEquals(GroupConstants.Exception.NotFound.CODE, e.getCode());
-            assertEquals(MessageFormat.format(GroupConstants.Exception.BadRequest.NO_GROUP_FOR_INITIATIVE_ID, "Id1"), e.getMessage());
+            assertEquals(MessageFormat.format(GroupConstants.Exception.NotFound.NO_GROUP_FOR_INITIATIVE_ID, "Id1"), e.getMessage());
 
             // you are expecting repo to be called once with correct param
             verify(groupRepository).getBeneficiaryList(anyString(), anyString());
