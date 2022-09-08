@@ -69,6 +69,8 @@ public class BeneficiaryGroupController implements BeneficiaryGroup {
         return ResponseEntity.ok(StatusGroupDTO.builder()
                 .status(group.getStatus())
                 .errorMessage(group.getExceptionMessage())
+                .fileUploadingDateTime(group.getCreationDate())
+                .fileName(group.getFileName())
                 .build());
     }
 
