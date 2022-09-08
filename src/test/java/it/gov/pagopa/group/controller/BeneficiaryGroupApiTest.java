@@ -3,6 +3,7 @@ package it.gov.pagopa.group.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.group.connector.initiative.InitiativeService;
 import it.gov.pagopa.group.constants.GroupConstants;
+import it.gov.pagopa.group.dto.CitizenStatusDTO;
 import it.gov.pagopa.group.dto.GroupUpdateDTO;
 import it.gov.pagopa.group.dto.InitiativeDTO;
 import it.gov.pagopa.group.dto.InitiativeGeneralDTO;
@@ -60,12 +61,15 @@ public class BeneficiaryGroupApiTest {
     @Value("${storage.file.path}")
     private String rootPath;
 
-    private static final String ORGANIZATION_ID_PLACEHOLDER = "{0}";
-    private static final String INITIATIVE_ID_PLACEHOLDER = "{1}";
-    private static final String BASE_URL = "http://localhost:8080/idpay";
-    private static final String GET_GROUP_STATUS_URL = "/organization/" + ORGANIZATION_ID_PLACEHOLDER + "/initiative/" + INITIATIVE_ID_PLACEHOLDER + "/status";
-
-    private static final String PUT_GROUP_FILE = "/organization/" + ORGANIZATION_ID_PLACEHOLDER + "/initiative/" + INITIATIVE_ID_PLACEHOLDER + "/upload";
+    private static final String ORGANIZATION_ID0_PLACEHOLDER = "{0}";
+    private static final String INITIATIVE_ID0_PLACEHOLDER = "{0}";
+    private static final String INITIATIVE_ID1_PLACEHOLDER = "{1}";
+    private static final String CITIZEN_TOKEN_ID1_PLACEHOLDER = "{1}";
+    private static final String CITIZEN_TOKEN = "CITIZEN_TOKEN";
+    private static final String BASE_URL = "http://localhost:8080/idpay/group";
+    private static final String GET_GROUP_STATUS_URL = "/organization/" + ORGANIZATION_ID0_PLACEHOLDER + "/initiative/" + INITIATIVE_ID1_PLACEHOLDER + "/status";
+    private static final String GET_CITIZEN_STATUS_URL = "/initiative/" + INITIATIVE_ID0_PLACEHOLDER + "/citizen/" + CITIZEN_TOKEN_ID1_PLACEHOLDER;
+    private static final String PUT_GROUP_FILE = "/organization/" + ORGANIZATION_ID0_PLACEHOLDER + "/initiative/" + INITIATIVE_ID1_PLACEHOLDER + "/upload";
     @Test
     void getGroupStatus_ok() throws Exception{
         Group group = createGroupValid_ok();
@@ -250,6 +254,44 @@ public class BeneficiaryGroupApiTest {
         mvc.perform(builder
                         .file(file))
                 .andExpect(MockMvcResultMatchers.status().isInternalServerError())
+                .andDo(print())
+                .andReturn();
+    }
+
+    @Test
+    void whenCitizenTokenExist_then_getCitizenStatus_isTrue() throws Exception{
+        Group group = createGroupValid_ok();
+
+        CitizenStatusDTO citizenStatusDTO = new CitizenStatusDTO();
+        citizenStatusDTO.setStatus(true);
+        String expectedResponseJson = objectMapper.writeValueAsString(citizenStatusDTO);
+
+        when(beneficiaryGroupService.getCitizenStatusByCitizenToken(anyString(), anyString())).thenReturn(true);
+
+        mvc.perform(MockMvcRequestBuilders.get(BASE_URL + MessageFormat.format(GET_CITIZEN_STATUS_URL, group.getInitiativeId(), CITIZEN_TOKEN))
+                                .contentType(MediaType.APPLICATION_JSON_VALUE).accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.content().json(expectedResponseJson))
+                .andDo(print())
+                .andReturn();
+    }
+
+    @Test
+    void whenCitizenTokenNotExist_then_getCitizenStatus_isFalse() throws Exception{
+        Group group = createGroupValid_ok();
+
+        CitizenStatusDTO citizenStatusDTO = new CitizenStatusDTO();
+        citizenStatusDTO.setStatus(false);
+        String expectedResponseJson = objectMapper.writeValueAsString(citizenStatusDTO);
+
+        when(beneficiaryGroupService.getCitizenStatusByCitizenToken(anyString(), anyString())).thenReturn(false);
+
+        mvc.perform(MockMvcRequestBuilders.get(BASE_URL + MessageFormat.format(GET_CITIZEN_STATUS_URL, group.getInitiativeId(), CITIZEN_TOKEN))
+                        .contentType(MediaType.APPLICATION_JSON_VALUE).accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.content().json(expectedResponseJson))
                 .andDo(print())
                 .andReturn();
     }
