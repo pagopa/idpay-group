@@ -73,9 +73,9 @@ public class BeneficiaryGroupController implements BeneficiaryGroup {
     }
 
     @Override
-    public ResponseEntity<CitizenStatusDTO> getCitizienStatus(String organizationId, String initiativeId, String citizenToken) {
+    public ResponseEntity<CitizenStatusDTO> getCitizenStatus(String initiativeId, String citizenToken) {
         CitizenStatusDTO citizenStatusDTO = new CitizenStatusDTO();
-        if(beneficiaryGroupService.getCitizenStatusByCitizenToken(initiativeId, organizationId, citizenToken)){
+        if(beneficiaryGroupService.getCitizenStatusByCitizenToken(initiativeId, citizenToken)){
             citizenStatusDTO.setStatus(true);
         }
         return ResponseEntity.ok(citizenStatusDTO);

@@ -16,5 +16,5 @@ public interface BeneficiaryGroupService {
 
     Group getStatusByInitiativeId(String initiativeId, String organizationId);
 
-    boolean getCitizenStatusByCitizenToken(String initiativeId, String organizationId, String citizenToken);
+    boolean getCitizenStatusByCitizenToken(String initiativeId, String citizenToken);
 }

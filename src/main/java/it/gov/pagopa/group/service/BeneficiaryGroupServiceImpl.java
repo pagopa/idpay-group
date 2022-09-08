@@ -201,8 +201,8 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
     }
 
     @Override
-    public boolean getCitizenStatusByCitizenToken(String initiativeId, String organizationId, String citizenToken) {
-        Group groupOnlyBeneficiaryList = groupRepository.getBeneficiaryList(initiativeId, organizationId)
+    public boolean getCitizenStatusByCitizenToken(String initiativeId, String citizenToken) {
+        Group groupOnlyBeneficiaryList = groupRepository.getBeneficiaryList(initiativeId)
                 .orElseThrow(() -> new BeneficiaryGroupException(GroupConstants.Exception.NotFound.CODE,
                         MessageFormat.format(GroupConstants.Exception.NotFound.NO_GROUP_FOR_INITIATIVE_ID, initiativeId),
                         HttpStatus.NOT_FOUND));
