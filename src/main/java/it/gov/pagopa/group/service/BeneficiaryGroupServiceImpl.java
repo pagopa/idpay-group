@@ -26,6 +26,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.text.MessageFormat;
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +50,9 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
 
     @Autowired
     private GroupQueryDAO groupQueryDAO;
+
+    @Autowired
+    private Clock clock;
 
 
     private void init(String organizationId) {
@@ -77,7 +81,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
                 anonymizationDone = true;
             } catch (Exception e) {
                 group.setExceptionMessage(e.getMessage());
-                group.setElabDateTime(LocalDateTime.now());
+                group.setElabDateTime(LocalDateTime.now(clock));
                 group.setRetry(1);
                 group.setStatus(GroupConstants.Status.PROC_KO);
             }
@@ -106,7 +110,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
                 anonymizationDone = true;
             } catch (Exception e) {
                 group.setExceptionMessage(e.getMessage());
-                group.setElabDateTime(LocalDateTime.now());
+                group.setElabDateTime(LocalDateTime.now(clock));
                 group.setRetry(group.getRetry()+1);
                 group.setStatus("PROC_KO");
             }
@@ -150,8 +154,8 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
             group.setOrganizationId(organizationId);
             group.setStatus(status);
             group.setFileName(file.getOriginalFilename());
-            group.setCreationDate(LocalDateTime.now());
-            group.setUpdateDate(LocalDateTime.now());
+            group.setCreationDate(LocalDateTime.now(clock));
+            group.setUpdateDate(LocalDateTime.now(clock));
             group.setCreationUser("admin"); //TODO recuperare info da apim
             group.setUpdateUser("admin"); //TODO recuperare info da apim
             group.setBeneficiaryList(null);

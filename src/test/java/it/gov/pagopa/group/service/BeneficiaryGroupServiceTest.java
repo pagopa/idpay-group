@@ -7,6 +7,7 @@ import it.gov.pagopa.group.model.Group;
 import it.gov.pagopa.group.repository.GroupQueryDAO;
 import it.gov.pagopa.group.repository.GroupRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -19,7 +20,10 @@ import org.springframework.test.context.TestPropertySource;
 import java.io.File;
 import java.io.FileInputStream;
 import java.text.MessageFormat;
+import java.time.Clock;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -40,8 +44,6 @@ import static org.mockito.Mockito.*;
 })
 class BeneficiaryGroupServiceTest {
 
-    private static final String FISCAL_CODE_TOKENIZED = "FISCAL_CODE_TOKENIZED";
-
     @Autowired
     BeneficiaryGroupService beneficiaryGroupService;
 
@@ -51,6 +53,23 @@ class BeneficiaryGroupServiceTest {
     GroupQueryDAO groupQueryDAO;
     @MockBean
     PdvEncryptRestConnector encryptRestConnector;
+    //Mock your clock bean
+    @MockBean
+    private Clock clock;
+
+    private static final String FISCAL_CODE_TOKENIZED = "FISCAL_CODE_TOKENIZED";
+
+    // Some fixed date to make your tests
+    private final static LocalDate LOCAL_DATE = LocalDate.of(2022, 1, 1);
+
+    @BeforeEach
+    void initMocks() {
+        //tell your tests to return the specified LOCAL_DATE when calling LocalDate.now(clock)
+        //field that will contain the fixed clock
+        Clock fixedClock = Clock.fixed(LOCAL_DATE.atStartOfDay(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault());
+        doReturn(fixedClock.instant()).when(clock).instant();
+        doReturn(fixedClock.getZone()).when(clock).getZone();
+    }
 
 
     @Test
@@ -168,9 +187,9 @@ class BeneficiaryGroupServiceTest {
         group.setFileName("ps_fiscal_code_groups_file_large_20.csv");
         group.setStatus("VALIDATED");
         group.setExceptionMessage(null);
-        group.setElabDateTime(LocalDateTime.now());
-        group.setCreationDate(LocalDateTime.now());
-        group.setUpdateDate(LocalDateTime.now());
+        group.setElabDateTime(LocalDateTime.now(clock));
+        group.setCreationDate(LocalDateTime.now(clock));
+        group.setUpdateDate(LocalDateTime.now(clock));
         group.setCreationUser("admin");
         group.setUpdateUser("admin");
         group.setBeneficiaryList(null);
