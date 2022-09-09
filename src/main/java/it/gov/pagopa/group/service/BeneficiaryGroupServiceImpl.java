@@ -130,7 +130,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
             int lineCounter = 0;
             while ((line = br.readLine()) != null) {
                 lineCounter++;
-                FiscalCodeTokenizedDTO fiscalCodeTokenizedDTO = pdvEncryptRestConnector.putPii(PiiDTO.builder().pii(line).build());
+                FiscalCodeTokenizedDTO fiscalCodeTokenizedDTO = pdvEncryptRestConnector.putPii(PiiDTO.builder().pii(line.toUpperCase()).build());
                 anonymousCFlist.add(fiscalCodeTokenizedDTO.getToken());
             }
             long after=System.currentTimeMillis();
