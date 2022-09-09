@@ -140,7 +140,6 @@ public class BeneficiaryGroupApiTest {
 
     @Test
     void upload_PUT_when_invalidFormatFileProvided_then200withKOmessage() throws Exception {
-        String organizationId = "O1"; //FIXME convert as a Constant
         String initiativeId = "A1";
         GroupUpdateDTO groupUpdateDTO = createGroupUpdateDTONotValidFormatFile_ko();
 
@@ -148,10 +147,10 @@ public class BeneficiaryGroupApiTest {
         FileInputStream inputFile = new FileInputStream(file1);
         MockMultipartFile file = new MockMultipartFile("file", "file.csv", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", inputFile);
 
-        when(initiativeRestConnector.getInitiative(initiativeId)).thenReturn(createInitiativeDTO(organizationId, initiativeId));
+        when(initiativeRestConnector.getInitiative(initiativeId)).thenReturn(createInitiativeDTO(InitiativeConstants.Test.ORGANIZATION_ID_TEST, initiativeId));
 
         MockMultipartHttpServletRequestBuilder builder =
-                MockMvcRequestBuilders.multipart((BASE_URL + MessageFormat.format(PUT_GROUP_FILE, organizationId, initiativeId)));
+                MockMvcRequestBuilders.multipart((BASE_URL + MessageFormat.format(PUT_GROUP_FILE, InitiativeConstants.Test.ORGANIZATION_ID_TEST, initiativeId)));
         builder.with(new RequestPostProcessor() {
             @Override
             public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
@@ -168,7 +167,6 @@ public class BeneficiaryGroupApiTest {
 
     @Test
     void upload_PUT_when_emptyFileProvided_then200withKOmessage() throws Exception{
-        String organizationId = "O1"; //FIXME convert as a Constant
         String initiativeId = "A1";
         GroupUpdateDTO groupUpdateDTO = createGroupUpdateDTONotValidFormatFile_ko();
 
@@ -177,10 +175,10 @@ public class BeneficiaryGroupApiTest {
         FileInputStream inputFile = new FileInputStream( file1);
         MockMultipartFile file = new MockMultipartFile("file", "file.csv", "text/csv", inputFile);
 
-        when(initiativeRestConnector.getInitiative(initiativeId)).thenReturn(createInitiativeDTO(organizationId, initiativeId));
+        when(initiativeRestConnector.getInitiative(initiativeId)).thenReturn(createInitiativeDTO(InitiativeConstants.Test.ORGANIZATION_ID_TEST, initiativeId));
 
         MockMultipartHttpServletRequestBuilder builder =
-                MockMvcRequestBuilders.multipart((BASE_URL + MessageFormat.format(PUT_GROUP_FILE, organizationId, initiativeId)));
+                MockMvcRequestBuilders.multipart((BASE_URL + MessageFormat.format(PUT_GROUP_FILE, InitiativeConstants.Test.ORGANIZATION_ID_TEST, initiativeId)));
         builder.with(new RequestPostProcessor() {
             @Override
             public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {

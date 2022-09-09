@@ -15,10 +15,14 @@ public class InitiativeConstants {
     }
 
     public static final class Validation {
-        public static final String [] allowedInitiativeStatusArray = {Status.DRAFT, Status.TO_CHECK};
+        public static final String [] ALLOWED_INITIATIVE_STATUS_ARRAY = {Status.DRAFT, Status.TO_CHECK};
     }
 
-    public static final class Exception extends AbstractContant{
+    public static final class Test{
+        public static final String ORGANIZATION_ID_TEST = "O1";
+    }
+
+    public static final class Exception extends AbstractCostant {
 
         public static final class UnprocessableEntity {
             public static final String CODE = BASE_CODE + "initiative.status.unprocessable.entity";

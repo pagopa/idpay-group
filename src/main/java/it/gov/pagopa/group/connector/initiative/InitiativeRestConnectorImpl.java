@@ -18,7 +18,7 @@ public class InitiativeRestConnectorImpl implements InitiativeRestConnector {
     @Override
     public InitiativeDTO getInitiative(String initiativeId) {
         InitiativeDTO initiativeDTO = initiativeService.getInitiative(initiativeId);
-        if(Arrays.asList(InitiativeConstants.Validation.allowedInitiativeStatusArray).contains(initiativeDTO.getStatus()))
+        if(Arrays.asList(InitiativeConstants.Validation.ALLOWED_INITIATIVE_STATUS_ARRAY).contains(initiativeDTO.getStatus()))
             return initiativeDTO;
         else
             throw new BeneficiaryGroupException(

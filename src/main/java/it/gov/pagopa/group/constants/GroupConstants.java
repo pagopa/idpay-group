@@ -22,7 +22,7 @@ public class GroupConstants {
         }
     }
 
-    public static final class Exception extends AbstractContant{
+    public static final class Exception extends AbstractCostant {
 
         public static final class NotFound {
             public static final String CODE = BASE_CODE + "not.found";
