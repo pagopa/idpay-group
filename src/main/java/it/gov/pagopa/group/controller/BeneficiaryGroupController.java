@@ -41,6 +41,7 @@ public class BeneficiaryGroupController implements BeneficiaryGroup {
     @Override
     public ResponseEntity<GroupUpdateDTO> uploadBeneficiaryGroupFile(@RequestParam("file") MultipartFile file, @PathVariable("organizationId") String organizationId, @PathVariable("initiativeId") String initiativeId){
         if (file.isEmpty()){
+            log.info("[UPLOAD_FILE_GROUP] - Initiative: {}. File is empty", initiativeId);
             return ResponseEntity.ok(GroupUpdateDTO.builder().status(GroupConstants.Status.KO).errorKey(GroupConstants.Status.KOkeyMessage.INVALID_FILE_EMPTY).elabTimeStamp(LocalDateTime.now(clock)).build());
         }
         if (!(GroupConstants.CONTENT_TYPE.equals(file.getContentType()))){
@@ -57,9 +58,11 @@ public class BeneficiaryGroupController implements BeneficiaryGroup {
                     beneficiaryGroupService.save(file, initiativeId, organizationId, GroupConstants.Status.VALIDATED);
                     return ResponseEntity.ok(GroupUpdateDTO.builder().status(GroupConstants.Status.VALIDATED).elabTimeStamp(LocalDateTime.now(clock)).build());
                 }else {
+                    log.info("[UPLOAD_FILE_GROUP] - Initiative: {}. Invalid beneficiary number", initiativeId);
                     return ResponseEntity.ok(GroupUpdateDTO.builder().status(GroupConstants.Status.KO).errorKey(GroupConstants.Status.KOkeyMessage.INVALID_FILE_BENEFICIARY_NUMBER_HIGH_FOR_BUDGET).elabTimeStamp(LocalDateTime.now(clock)).build());
                 }
             }else {
+                log.info("[UPLOAD_FILE_GROUP] - Initiative: {}. Wrong CF at row {}", initiativeId, Math.abs(counterCheckFile));
                 return ResponseEntity.ok(GroupUpdateDTO.builder().status(GroupConstants.Status.KO).errorRow(Math.abs(counterCheckFile)).errorKey(GroupConstants.Status.KOkeyMessage.INVALID_FILE_CF_WRONG).elabTimeStamp(LocalDateTime.now(clock)).build());
             }
         } catch (Exception e) {
@@ -71,6 +74,7 @@ public class BeneficiaryGroupController implements BeneficiaryGroup {
     @Override
     public ResponseEntity<StatusGroupDTO> getGroupStatus(@PathVariable("organizationId") String organizationId, @PathVariable("initiativeId") String initiativeId) {
         Group group = beneficiaryGroupService.getStatusByInitiativeId(initiativeId, organizationId);
+        log.info("[GET_FILE_GROUP] - Initiative {}. Status {}. ErrorMessage: {}. CreationDate: {}. File Name {}", initiativeId, group.getStatus(), group.getExceptionMessage(), group.getCreationDate(), group.getFileName());
         return ResponseEntity.ok(StatusGroupDTO.builder()
                 .status(group.getStatus())
                 .errorMessage(group.getExceptionMessage())
@@ -85,6 +89,7 @@ public class BeneficiaryGroupController implements BeneficiaryGroup {
         if(beneficiaryGroupService.getCitizenStatusByCitizenToken(initiativeId, citizenToken)){
             citizenStatusDTO.setStatus(true);
         }
+        log.info("[GET_CITIZEN_STATUS] [WhiteList-AllowedList] - Initiative {}. Citizen status: {}", initiativeId, citizenStatusDTO.isStatus());
         return ResponseEntity.ok(citizenStatusDTO);
     }
 }

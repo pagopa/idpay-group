@@ -47,6 +47,9 @@ class BeneficiaryGroupServiceTest {
     @Autowired
     BeneficiaryGroupService beneficiaryGroupService;
 
+    @Autowired
+    BeneficiaryGroupServiceImpl beneficiaryGroupServiceImpl;
+
     @MockBean
     GroupRepository groupRepository;
     @MockBean
@@ -81,6 +84,23 @@ class BeneficiaryGroupServiceTest {
 
         beneficiaryGroupService.save(file, group.getInitiativeId(), group.getOrganizationId(), group.getStatus());
 
+        verify(groupRepository, times(1)).save(any());
+    }
+
+    @Test
+    void scheduledValidatedGroupTest_ok() throws Exception{
+        Group group = createGroupValid_ok();
+        when(groupQueryDAO.findFirstByStatusAndUpdate(GroupConstants.Status.VALIDATED)).thenReturn(group);
+        beneficiaryGroupServiceImpl.scheduleValidatedGroup();
+        verify(groupRepository, times(1)).save(any());
+    }
+
+    @Test
+    void scheduledProcKoGroup_ok() throws Exception{
+        Group group = createGroupValidWithProcKo_ok();
+        when(groupRepository.findFirstByStatusAndRetryLessThan("PROC_KO", 3)).thenReturn(Optional.of(group));
+        beneficiaryGroupServiceImpl.scheduleProcKoGroup();
+        verify(groupRepository, times(1)).findFirstByStatusAndRetryLessThan("PROC_KO", 3);
         verify(groupRepository, times(1)).save(any());
     }
     @Test
@@ -186,6 +206,22 @@ class BeneficiaryGroupServiceTest {
         group.setOrganizationId("O1");
         group.setFileName("ps_fiscal_code_groups_file_large_20.csv");
         group.setStatus("VALIDATED");
+        group.setExceptionMessage(null);
+        group.setElabDateTime(LocalDateTime.now(clock));
+        group.setCreationDate(LocalDateTime.now(clock));
+        group.setUpdateDate(LocalDateTime.now(clock));
+        group.setCreationUser("admin");
+        group.setUpdateUser("admin");
+        group.setBeneficiaryList(null);
+        return group;
+    }
+    private Group createGroupValidWithProcKo_ok(){
+        Group group = new Group();
+        group.setGroupId("A1_O1");
+        group.setInitiativeId("A1");
+        group.setOrganizationId("O1");
+        group.setFileName("ps_fiscal_code_groups_file_large_20.csv");
+        group.setStatus("PROC_KO");
         group.setExceptionMessage(null);
         group.setElabDateTime(LocalDateTime.now(clock));
         group.setCreationDate(LocalDateTime.now(clock));

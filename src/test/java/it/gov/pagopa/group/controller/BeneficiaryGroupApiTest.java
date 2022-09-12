@@ -87,8 +87,13 @@ public class BeneficiaryGroupApiTest {
     private static final String CITIZEN_TOKEN = "CITIZEN_TOKEN";
     private static final String EXPECTED_JSON_CONTENT_BENEFICIARY_NUMBER_TOO_HIGH_FOR_BUDGET = "{\"status\":\"KO\",\"errorKey\":\"group.groups.invalid.file.beneficiary.number.budget\",\"elabTimeStamp\":\"2022-01-01T00:00:00\"}";
 
+    private static final String EXPECTED_JSON_CONTENT_INVALID_CF_IN_FILE = "{\"status\":\"KO\",\"errorKey\":\"group.groups.invalid.file.cf.wrong\",\"elabTimeStamp\":\"2022-01-01T00:00:00\"}";
+
     // Some fixed date to make your tests
     private final static LocalDate LOCAL_DATE = LocalDate.of(2022, 1, 1);
+
+    private static final String ORGANIZATION_ID_TEST = "O1";
+
 
     @BeforeEach
     void initMocks() {
@@ -100,7 +105,7 @@ public class BeneficiaryGroupApiTest {
     }
 
     @Test
-    void getGroupStatus_ok() throws Exception{
+    void GET_GroupStatus_then200WithGroupInfo() throws Exception{
         Group group = createGroupValid_ok();
 
         when(beneficiaryGroupService.getStatusByInitiativeId(anyString(), anyString())).thenReturn(group);
@@ -114,7 +119,7 @@ public class BeneficiaryGroupApiTest {
     }
 
     @Test
-    void uploadBeneficiaryGroupFile_ok() throws Exception{
+    void upload_PUT_when_FileIsValid_then200WithOkMessage() throws Exception{
         Group group = createGroupValid_ok();
         File file1 = new ClassPathResource("group" + File.separator + "ps_fiscal_code_groups_file_large_20.csv").getFile();
         FileInputStream inputFile = new FileInputStream( file1);
@@ -147,10 +152,10 @@ public class BeneficiaryGroupApiTest {
         FileInputStream inputFile = new FileInputStream(file1);
         MockMultipartFile file = new MockMultipartFile("file", "file.csv", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", inputFile);
 
-        when(initiativeRestConnector.getInitiative(initiativeId)).thenReturn(createInitiativeDTO(InitiativeConstants.Test.ORGANIZATION_ID_TEST, initiativeId));
+        when(initiativeRestConnector.getInitiative(initiativeId)).thenReturn(createInitiativeDTO(ORGANIZATION_ID_TEST, initiativeId));
 
         MockMultipartHttpServletRequestBuilder builder =
-                MockMvcRequestBuilders.multipart((BASE_URL + MessageFormat.format(PUT_GROUP_FILE, InitiativeConstants.Test.ORGANIZATION_ID_TEST, initiativeId)));
+                MockMvcRequestBuilders.multipart((BASE_URL + MessageFormat.format(PUT_GROUP_FILE, ORGANIZATION_ID_TEST, initiativeId)));
         builder.with(new RequestPostProcessor() {
             @Override
             public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
@@ -175,10 +180,10 @@ public class BeneficiaryGroupApiTest {
         FileInputStream inputFile = new FileInputStream( file1);
         MockMultipartFile file = new MockMultipartFile("file", "file.csv", "text/csv", inputFile);
 
-        when(initiativeRestConnector.getInitiative(initiativeId)).thenReturn(createInitiativeDTO(InitiativeConstants.Test.ORGANIZATION_ID_TEST, initiativeId));
+        when(initiativeRestConnector.getInitiative(initiativeId)).thenReturn(createInitiativeDTO(ORGANIZATION_ID_TEST, initiativeId));
 
         MockMultipartHttpServletRequestBuilder builder =
-                MockMvcRequestBuilders.multipart((BASE_URL + MessageFormat.format(PUT_GROUP_FILE, InitiativeConstants.Test.ORGANIZATION_ID_TEST, initiativeId)));
+                MockMvcRequestBuilders.multipart((BASE_URL + MessageFormat.format(PUT_GROUP_FILE, ORGANIZATION_ID_TEST, initiativeId)));
         builder.with(new RequestPostProcessor() {
             @Override
             public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
@@ -286,6 +291,38 @@ public class BeneficiaryGroupApiTest {
     }
 
     @Test
+    void upload_PUT_when_InvalidCfFile_then200withKOmessage() throws Exception {
+        Group group = createGroupValid_ok();
+
+        InitiativeDTO initiativeDTO = createInitiativeDTO(group.getOrganizationId(), group.getInitiativeId());
+
+        File file1 = new ClassPathResource("group" + File.separator + "ps_fiscal_code_groups_file_large_WrongCF.csv").getFile();
+
+        FileInputStream inputFile = new FileInputStream( file1);
+        MockMultipartFile file = new MockMultipartFile("file", file1.getName(), "text/csv", inputFile);
+
+        when(initiativeRestConnector.getInitiative(initiativeDTO.getInitiativeId())).thenReturn(initiativeDTO);
+        when(fileValidationService.rowFileCounterCheck(file)).thenReturn(-34);
+
+        MockMultipartHttpServletRequestBuilder builder =
+                MockMvcRequestBuilders.multipart((BASE_URL + MessageFormat.format(PUT_GROUP_FILE, "O1", "A1")));
+        builder.with(new RequestPostProcessor() {
+            @Override
+            public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+                request.setMethod("PUT");
+                return request;
+            }
+        });
+
+        mvc.perform(builder
+                        .file(file))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(content().json(EXPECTED_JSON_CONTENT_INVALID_CF_IN_FILE))
+                .andDo(print())
+                .andReturn();
+    }
+
+    @Test
     void upload_PUT_when_FileIOException_then500withGenericError() throws Exception{
 
         Group group = createGroupValid_ok();
@@ -331,7 +368,7 @@ public class BeneficiaryGroupApiTest {
     }
 
     @Test
-    void whenCitizenTokenNotExist_then_getCitizenStatus_isFalse() throws Exception{
+    void GET_whenCitizenTokenNotExist_then_getCitizenStatus_isFalse() throws Exception{
         Group group = createGroupValid_ok();
 
         CitizenStatusDTO citizenStatusDTO = new CitizenStatusDTO();

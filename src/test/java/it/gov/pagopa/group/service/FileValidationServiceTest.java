@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doReturn;
 
 
@@ -53,19 +54,19 @@ public class FileValidationServiceTest {
 
 
     @Test
-    void rowFileCounterCheck_validFile_ok() throws Exception{
+    void rowFileCounterCheck_whenFileIsValid() throws Exception{
         File file1 = new ClassPathResource("group" + File.separator + "ps_fiscal_code_groups_file_large_20.csv").getFile();
         FileInputStream inputFile = new FileInputStream( file1);
         MockMultipartFile file = new MockMultipartFile("file", file1.getName(), "text/csv", inputFile);
-
+        assertTrue(fileValidationService.rowFileCounterCheck(file)>0);
         assertEquals(EXPECTED_CSV_FILE_MAX_ROW_COUNTER, fileValidationService.rowFileCounterCheck(file));
     }
     @Test
-    void rowFileCounterCheck_InvalidFile_ko() throws Exception{
+    void rowFileCounterCheck_whenFileIsNotValid() throws Exception{
         File file1 = new ClassPathResource("group" + File.separator + "ps_fiscal_code_groups_file_large_WrongCF.csv").getFile();
         FileInputStream inputFile = new FileInputStream( file1);
         MockMultipartFile file = new MockMultipartFile("file", file1.getName(), "text/csv", inputFile);
-
+        assertTrue(fileValidationService.rowFileCounterCheck(file)<0);
         assertEquals(EXPECTED_CSV_FILE_INVALID_ROW_COUNTER, fileValidationService.rowFileCounterCheck(file));
     }
 }

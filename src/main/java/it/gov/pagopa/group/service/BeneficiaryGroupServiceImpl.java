@@ -180,7 +180,8 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
             else
                 throw new RuntimeException("Could not read the file!");
         } catch (MalformedURLException e) {
-            throw new RuntimeException("Error: " + e.getMessage());
+            log.error("[READ_FILE_GROUP] - Could not read the file: " + filename, e);
+            throw new RuntimeException(e);
         }
     }
 
