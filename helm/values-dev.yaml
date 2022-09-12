@@ -87,7 +87,6 @@ microservice-chart:
     APPLICATIONINSIGHTS_INSTRUMENTATION_MICROMETER_ENABLED: "false"
     PDV_ENCRYPT_SERVICE_CODE: pdv-ms-tokenizer
     GROUP_FILE_ROOT_PATH: /tmp/group
-    GROUP_FILE_MAX_FILE_SIZE: 102400 # 100 KB
 
   envConfigMapExternals:
     idpay-common:
