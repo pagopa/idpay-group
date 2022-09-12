@@ -5,7 +5,7 @@ spring:
       database: ${MONGODB_DBNAME}
   servlet:
     multipart:
-      max-file-size: 2097152
+      max-file-size: ${GROUP_FILE_MAX_FILE_SIZE:2097152}
 
 management:
   endpoints:
