@@ -35,6 +35,9 @@ microservice-chart:
   ingress:
     create: true
     host: "dev01.idpay.internal.dev.cstar.pagopa.it"
+    annotations: {
+      nginx.ingress.kubernetes.io/proxy-body-size=2m
+    }
     path: /idpaygroup/(.*)
 
   serviceAccount:
