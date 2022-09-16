@@ -5,12 +5,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import feign.Request;
+import feign.RequestTemplate;
+import feign.RetryableException;
 import it.gov.pagopa.group.config.RestConnectorConfig;
 import it.gov.pagopa.group.dto.FiscalCodeTokenizedDTO;
 import it.gov.pagopa.group.dto.PiiDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,6 +26,9 @@ import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.support.TestPropertySourceUtils;
+
+import java.nio.charset.Charset;
+import java.util.Collections;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -45,6 +53,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
                 HttpMessageConvertersAutoConfiguration.class
         })
 class PdvEncryptRestConnectorTest {
+
+    private static final String EXCEPTION_MESSAGE = "Exception Message";
+    private static final String RANDOM_CF = "AOISFN73R54B745Z";
 
     public static class WireMockInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
@@ -81,8 +92,7 @@ class PdvEncryptRestConnectorTest {
 
     @Test
     void verifyPdvCall() throws JsonProcessingException {
-        String randomCF = "AOISFN73R54B745Z";
-        PiiDTO piiDTO = PiiDTO.builder().pii(randomCF).build();
+        PiiDTO piiDTO = PiiDTO.builder().pii(RANDOM_CF).build();
 
         //Connector will call the fake server and expecting to reply what we Stub on src\resources\mappings
         FiscalCodeTokenizedDTO fiscalCodeTokenizedDTO = pdvEncryptRestConnector.putPii(piiDTO);
@@ -96,6 +106,23 @@ class PdvEncryptRestConnectorTest {
                 WireMock.putRequestedFor(WireMock.urlEqualTo("/tokens"))
                         .withRequestBody(equalToJson(json))
         );
+    }
+
+    @Test
+    void whenPDVRetryerHasMaximum3Attempts_thenOnly3TriesAllowed() throws Exception {
+        Request request = Request.create(Request.HttpMethod.PUT, wireMockServer.baseUrl(), Collections.emptyMap(), new byte[0], Charset.defaultCharset(), new RequestTemplate());
+        RetryableException e = new RetryableException(503, EXCEPTION_MESSAGE, null, null, request);
+        PdvClientRetryer pdvClientRetryer = new PdvClientRetryer(100, 1, 3);
+
+        //Retry #2
+        pdvClientRetryer.continueOrPropagate(e);
+        //Retry #3
+        pdvClientRetryer.continueOrPropagate(e);
+
+        //prepare Executable with invocation of the method on your system under test
+        Executable executable = () -> pdvClientRetryer.continueOrPropagate(e); //4th Retry. This time will go in Exception after 3rd retry
+        Exception exception = Assertions.assertThrows(RetryableException.class, executable);
+        assertEquals(EXCEPTION_MESSAGE, exception.getMessage());
     }
 
     @AfterEach
