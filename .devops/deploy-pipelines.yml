@@ -43,7 +43,7 @@ variables:
     containerRegistry: '$(DEV_CONTAINER_REGISTRY_NAME)'
     selfHostedAgentPool: $(DEV_AGENT_POOL)
     # postman environment secure file
-    postmanEnvFile: idpay_dev-group-portal.postman_environment.json
+    postmanEnvFile: idpay_dev-initiative-portal.postman_environment.json
 
   ${{ elseif startsWith(variables['Build.SourceBranch'], 'refs/heads/release-uat') }}:
     environment: 'UAT'
@@ -52,7 +52,7 @@ variables:
     containerRegistry: '$(UAT_CONTAINER_REGISTRY_NAME)'
     selfHostedAgentPool: $(UAT_AGENT_POOL)
     # postman environment secure file
-    postmanEnvFile: idpay_dev-group-portal.postman_environment.json
+    postmanEnvFile: idpay_dev-initiative-portal.postman_environment.json
 
   ${{ elseif startsWith(variables['Build.SourceBranch'], 'refs/heads/release-prod') }}:
     environment: 'PROD'
@@ -68,7 +68,7 @@ variables:
     containerRegistry: '$(DEV_CONTAINER_REGISTRY_NAME)'
     selfHostedAgentPool: $(DEV_AGENT_POOL)
     # postman environment secure file
-    postmanEnvFile: idpay_dev-group-portal.postman_environment.json
+    postmanEnvFile: idpay_dev-initiative-portal.postman_environment.json
 
 stages:
   - stage: 'pom_version'
@@ -206,6 +206,11 @@ stages:
             inputs:
               command: custom
               customCommand: install -g newman
+          - task: DownloadSecureFile@1
+            displayName: 'download postman environment'
+            name: postman_env
+            inputs:
+              secureFile: $(postmanEnvFile)
           - task: CmdLine@2
             displayName: Run newman
             continueOnError: true # Useful to avoid the skipping of result publishing task
