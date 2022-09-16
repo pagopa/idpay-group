@@ -206,6 +206,11 @@ stages:
             inputs:
               command: custom
               customCommand: install -g newman
+          - task: DownloadSecureFile@1
+            displayName: 'download postman environment'
+            name: postman_env
+            inputs:
+              secureFile: $(postmanEnvFile)
           - task: CmdLine@2
             displayName: Run newman
             continueOnError: true # Useful to avoid the skipping of result publishing task

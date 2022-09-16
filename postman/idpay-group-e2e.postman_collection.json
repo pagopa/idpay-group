@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "38802170-4895-427a-a6c2-7a2b00e04e13",
-		"name": "idpay-initiative-e2e",
+		"_postman_id": "37793a9c-29fa-4cfa-b8e7-606c4c34f924",
+		"name": "idpay-group-e2e",
 		"description": "IDPAY Welfare Portal Initiative",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "3194665"
@@ -79,135 +79,21 @@
 			]
 		},
 		{
-			"name": "UseCase1-With Ranking",
+			"name": "Initiative with Group file",
 			"item": [
 				{
-					"name": "Check required fields",
+					"name": "STEP1-Insert Initiative (Service Info)",
 					"event": [
 						{
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"let moment = require('moment');\r",
-									"//Format: YYYY-MM-DD\r",
-									"let today = String(moment().format('YYYY-MM-DD'));\r",
-									"let todayP1 = String(moment().add(1,'days').format('YYYY-MM-DD'));\r",
-									"let todayP2 = String(moment().add(2,'days').format('YYYY-MM-DD'));\r",
-									"let todayP3 = String(moment().add(3,'days').format('YYYY-MM-DD'));\r",
-									"\r",
-									"/*\r",
-									"var futureDate = pm.variables.replaceIn('{{$$randomDateFuture}}');\r",
-									"pm.collectionVariables.set('...', _.random(0, 180));\r",
-									"*/\r",
-									"\r",
-									"pm.collectionVariables.set('budget', _.floor(_.random(1000.0, 10000.0, true),2));\r",
-									"pm.collectionVariables.set('beneficiaryType', 'PF');\r",
-									"pm.collectionVariables.set('beneficiaryKnown', pm.variables.replaceIn('{{$randomBoolean}}'));\r",
-									"pm.collectionVariables.set('beneficiaryBudget', pm.variables.replaceIn('{{$randomInt}}'));\r",
-									"pm.collectionVariables.set('rankingStartDate', today);\r",
-									"pm.collectionVariables.set('rankingEndDate', today);\r",
-									"pm.collectionVariables.set('startDate', todayP2);\r",
-									"pm.collectionVariables.set('endDate', todayP3);\r",
-									"\r",
-									"pm.collectionVariables.set('serviceId', pm.variables.replaceIn('{{$randomUUID}}'));\r",
-									"pm.collectionVariables.set('serviceName', pm.variables.replaceIn('{{$randomProduct}}'));\r",
-									"pm.collectionVariables.set('argument', pm.variables.replaceIn('{{$randomLoremSentence}}'));\r",
-									"pm.collectionVariables.set('description', pm.variables.replaceIn('{{$randomLoremSentence}}'));"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status test 400\", function () {\r",
-									"    pm.response.to.have.status(400); // BAD REQUEST\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Verify response body Error with same Date on Ranking\", function () {\r",
-									"    let jsonResponse = pm.response.json()\r",
-									"    pm.expect(jsonResponse.code).equals('it.gov.pagopa.initiative.bad.request');\r",
-									"    pm.expect(jsonResponse.message).contain('[general.rankingEndDate]');\r",
-									"    pm.expect(jsonResponse.message).contain('[general]: Dates inserted do not meet the business case requirements');\r",
-									"});\r",
-									"\r",
-									"//response time is less than 1s\r",
-									"tests[\"Response time is less than 1s\"] = responseTime < 1000;"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"general\": {\n    \"budget\": \"{{budget}}\",\n    \"beneficiaryType\": \"{{beneficiaryType}}\",\n    \"beneficiaryKnown\": \"{{beneficiaryKnown}}\",\n    \"beneficiaryBudget\": \"{{beneficiaryBudget}}\",\n    \"rankingStartDate\": \"{{rankingStartDate}}\",\n    \"rankingEndDate\": \"{{rankingEndDate}}\",\n    \"startDate\": \"{{startDate}}\",\n    \"endDate\": \"{{endDate}}\"\n  },\n  \"additionalInfo\": {\n    \"serviceId\": \"{{serviceId}}\",\n    \"serviceName\": \"{{serviceName}}\",\n    \"argument\": \"{{argument}}\",\n    \"description\": \"{{description}}\"\n  }\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/general",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"general"
-							]
-						},
-						"description": "Save initiative and first subset of data 'general info'"
-					},
-					"response": []
-				},
-				{
-					"name": "Initiative Creation Step1",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"let moment = require('moment');\r",
-									"//Format: YYYY-MM-DD\r",
-									"let today = String(moment().format('YYYY-MM-DD'));\r",
-									"let todayP1 = String(moment().add(1,'days').format('YYYY-MM-DD'));\r",
-									"let todayP2 = String(moment().add(2,'days').format('YYYY-MM-DD'));\r",
-									"let todayP3 = String(moment().add(3,'days').format('YYYY-MM-DD'));\r",
-									"\r",
-									"/*\r",
-									"var futureDate = pm.variables.replaceIn('{{$$randomDateFuture}}');\r",
-									"pm.collectionVariables.set('...', _.random(0, 180));\r",
-									"*/\r",
-									"\r",
-									"pm.collectionVariables.set('budget', _.random(10000, 100000, false));\r",
-									"pm.collectionVariables.set('beneficiaryType', 'PF');\r",
-									"pm.collectionVariables.set('beneficiaryKnown', pm.variables.replaceIn('{{$randomBoolean}}'));\r",
-									"pm.collectionVariables.set('beneficiaryBudget', pm.variables.replaceIn('{{$randomInt}}'));//default max 1000\r",
-									"pm.collectionVariables.set('rankingStartDate', today);\r",
-									"pm.collectionVariables.set('rankingEndDate', todayP1);\r",
-									"pm.collectionVariables.set('startDate', todayP2);\r",
-									"pm.collectionVariables.set('endDate', todayP3);\r",
-									"\r",
 									"//pm.collectionVariables.set('serviceId', pm.variables.replaceIn('{{$randomUUID}}'));\r",
 									"pm.collectionVariables.set('serviceName', pm.variables.replaceIn('{{$randomProduct}}'));\r",
-									"pm.collectionVariables.set('argument', pm.variables.replaceIn('{{$randomLoremSentence}}'));\r",
 									"pm.collectionVariables.set('description', pm.variables.replaceIn('{{$randomLoremSentence}}'));\r",
 									"\r",
-									"pm.collectionVariables.set('channel_type', 'email');\r",
-									"pm.collectionVariables.set('channel_contact', pm.variables.replaceIn('{{$randomEmail}}'));"
+									"pm.collectionVariables.set('channel_type', 'web');\r",
+									"pm.collectionVariables.set('channel_contact', pm.variables.replaceIn('{{$randomUrl}}'));"
 								],
 								"type": "text/javascript"
 							}
@@ -228,11 +114,7 @@
 									"pm.test(\"Verify response body\", function () {\r",
 									"    let jsonResponse = pm.response.json();\r",
 									"    pm.expect(jsonResponse).have.property(\"initiativeId\");\r",
-									"});\r",
-									"\r",
-									"//response time is within a specific range\r",
-									"//(lower bound inclusive, upper bound exclusive)\r",
-									"tests[\"Response time is acceptable\"] = _.inRange(responseTime, 0, 1001);"
+									"});"
 								],
 								"type": "text/javascript"
 							}
@@ -252,7 +134,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"general\": {\n    \"budget\": {{budget}},\n    \"beneficiaryType\": \"{{beneficiaryType}}\",\n    \"beneficiaryKnown\": {{beneficiaryKnown}},\n    \"beneficiaryBudget\": {{beneficiaryBudget}},\n    \"rankingStartDate\": \"{{rankingStartDate}}\",\n    \"rankingEndDate\": \"{{rankingEndDate}}\",\n    \"startDate\": \"{{startDate}}\",\n    \"endDate\": \"{{endDate}}\"\n  },\n  \"additionalInfo\": {\n    \"serviceId\": \"{{serviceId}}\",\n    \"serviceName\": \"{{serviceName}}\",\n    \"argument\": \"{{argument}}\",\n    \"description\": \"{{description}}\",\n    \"channels\": [\n      {\n        \"type\": \"{{channel_type}}\",\n        \"contact\": \"{{channel_contact}}\"\n      }\n    ]\n  }\n}",
+							"raw": "{\n    \"serviceIO\": true,\n    \"serviceName\": \"{{serviceName}}\",\n    \"serviceScope\": \"LOCAL\",\n    \"description\": \"{{description}}\",\n    \"privacyLink\": \"https://www.google.it\",\n    \"tcLink\": \"https://www.google.com\",\n    \"channels\": [\n        {\n            \"type\": \"{{channel_type}}\",\n            \"contact\": \"{{channel_contact}}\"\n        }\n    ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -260,12 +142,12 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/general",
+							"raw": "{{baseUrlInitiative}}/info",
 							"host": [
-								"{{baseUrl}}"
+								"{{baseUrlInitiative}}"
 							],
 							"path": [
-								"general"
+								"info"
 							]
 						},
 						"description": "Save initiative and first subset of data 'general info'"
@@ -273,7 +155,7 @@
 					"response": []
 				},
 				{
-					"name": "Update Initiative with Step1 (general and additional Info)",
+					"name": "STEP2-Update Initiative (general Info)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -299,15 +181,7 @@
 									"pm.collectionVariables.set('rankingStartDate', today);\r",
 									"pm.collectionVariables.set('rankingEndDate', todayP1);\r",
 									"pm.collectionVariables.set('startDate', todayP2);\r",
-									"pm.collectionVariables.set('endDate', todayP3);\r",
-									"\r",
-									"//pm.collectionVariables.set('serviceId', pm.variables.replaceIn('{{$randomUUID}}'));\r",
-									"pm.collectionVariables.set('serviceName', pm.variables.replaceIn('{{$randomProduct}}'));\r",
-									"pm.collectionVariables.set('argument', pm.variables.replaceIn('{{$randomLoremSentence}}'));\r",
-									"pm.collectionVariables.set('description', pm.variables.replaceIn('{{$randomLoremSentence}}'));\r",
-									"\r",
-									"pm.collectionVariables.set('channel_type', 'web');\r",
-									"pm.collectionVariables.set('channel_contact', pm.variables.replaceIn('{{$randomUrl}}'));"
+									"pm.collectionVariables.set('endDate', todayP3);"
 								],
 								"type": "text/javascript"
 							}
@@ -318,10 +192,7 @@
 								"exec": [
 									"pm.test(\"Status test 204\", function () {\r",
 									"    pm.response.to.have.status(204);\r",
-									"});\r",
-									"\r",
-									"//response time is less than 1s\r",
-									"tests[\"Response time is less than 1s\"] = responseTime < 1000;"
+									"});"
 								],
 								"type": "text/javascript"
 							}
@@ -341,7 +212,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"general\": {\n    \"budget\": {{budget}},\n    \"beneficiaryType\": \"{{beneficiaryType}}\",\n    \"beneficiaryKnown\": {{beneficiaryKnown}},\n    \"beneficiaryBudget\": {{beneficiaryBudget}},\n    \"rankingStartDate\": \"{{rankingStartDate}}\",\n    \"rankingEndDate\": \"{{rankingEndDate}}\",\n    \"startDate\": \"{{startDate}}\",\n    \"endDate\": \"{{endDate}}\"\n  },\n  \"additionalInfo\": {\n    \"serviceId\": \"{{serviceId}}\",\n    \"serviceName\": \"{{serviceName}}\",\n    \"argument\": \"{{argument}}\",\n    \"description\": \"{{description}}\",\n    \"channels\": [\n      {\n        \"type\": \"{{channel_type}}\",\n        \"contact\": \"{{channel_contact}}\"\n      }\n    ]\n  }\n}",
+							"raw": "{\n    \"budget\": {{budget}},\n    \"beneficiaryType\": \"{{beneficiaryType}}\",\n    \"beneficiaryKnown\": {{beneficiaryKnown}},\n    \"beneficiaryBudget\": {{beneficiaryBudget}},\n    \"rankingStartDate\": \"{{rankingStartDate}}\",\n    \"rankingEndDate\": \"{{rankingEndDate}}\",\n    \"startDate\": \"{{startDate}}\",\n    \"endDate\": \"{{endDate}}\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -349,9 +220,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/:initiativeId/general",
+							"raw": "{{baseUrlInitiative}}/:initiativeId/general",
 							"host": [
-								"{{baseUrl}}"
+								"{{baseUrlInitiative}}"
 							],
 							"path": [
 								":initiativeId",
@@ -370,7 +241,160 @@
 					"response": []
 				},
 				{
-					"name": "Returns fixed automated Criteria",
+					"name": "Get Status on Groups for DRAFT Initiative",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status test 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify response body - Group not found because of problems on validation\", function () {\r",
+									"    let jsonResponse = pm.response.json()\r",
+									"    pm.expect(jsonResponse.code).equals('it.gov.pagopa.group.not.found');\r",
+									"    pm.expect(jsonResponse.message).contain('There is no group for initiativeId');\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrlGroup}}/:initiativeId/status",
+							"host": [
+								"{{baseUrlGroup}}"
+							],
+							"path": [
+								":initiativeId",
+								"status"
+							],
+							"variable": [
+								{
+									"key": "initiativeId",
+									"value": "{{initiativeId}}",
+									"description": "(Required) The initiative ID"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Citizen Status when no Groups are persisted for DRAFT Initiative",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status test 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify response body - Group not found because never persisted for initiativeId\", function () {\r",
+									"    let jsonResponse = pm.response.json()\r",
+									"    pm.expect(jsonResponse.code).equals('it.gov.pagopa.group.not.found');\r",
+									"    pm.expect(jsonResponse.message).contain('There is no group for initiativeId');\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrlGroup}}/:initiativeId/citizen/:citizenToken",
+							"host": [
+								"{{baseUrlGroup}}"
+							],
+							"path": [
+								":initiativeId",
+								"citizen",
+								":citizenToken"
+							],
+							"variable": [
+								{
+									"key": "initiativeId",
+									"value": "{{initiativeId}}",
+									"description": "(Required) The initiative ID"
+								},
+								{
+									"key": "citizenToken",
+									"value": "b0e78244-9bdf-47ab-8843-8546787c0734"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "STEP3 Update Groups - upload WrongCF file",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -389,671 +413,123 @@
 									"    pm.response.to.have.status(200);\r",
 									"});\r",
 									"\r",
-									"let jsonResponse = pm.response.json();\r",
-									"pm.test(\"Verify response body structure\", function () {\r",
-									"    pm.expect(jsonResponse).to.be.an(\"array\");\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Verify response body\", () => {\r",
-									"    _.each(jsonResponse, (item) => {\r",
-									"            pm.expect(item).have.property(\"code\");\r",
-									"            pm.expect(item).have.property(\"authority\");\r",
-									"            pm.expect(item).have.property(\"operator\");\r",
-									"            pm.expect(item).have.property(\"checked\");\r",
-									"        })\r",
-									"});\r",
-									"\r",
-									"//response time is less than 1s\r",
-									"tests[\"Response time is less than 1s\"] = responseTime < 1000;"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrlInternal}}/config/beneficiary/rule",
-							"host": [
-								"{{baseUrlInternal}}"
-							],
-							"path": [
-								"config",
-								"beneficiary",
-								"rule"
-							]
-						},
-						"description": "Returns the detail of an active initiative"
-					},
-					"response": []
-				},
-				{
-					"name": "Update Initiative in DRAFT with Step2 (Beneficiary Rules)",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"//pm.collectionVariables.set('sDC_code_B', getRandomInt(10));\r",
-									"const conditionTwoValue= [\"BTW_CLOSED\",\"BTW_OPEN\"];\r",
-									"random2 = _.random(0, conditionTwoValue.length-1);\r",
-									"\r",
-									"pm.collectionVariables.set('sDC_type_B', 'boolean');\r",
-									"pm.collectionVariables.set('sDC_description_B', pm.variables.replaceIn('{{$randomLoremSentence}}'));\r",
-									"pm.collectionVariables.set('sDC_value_B', pm.variables.replaceIn('{{$randomBoolean}}'));\r",
-									"pm.collectionVariables.set('sDC_code_B', '1');\r",
-									"\r",
-									"pm.collectionVariables.set('sDC_type_M', 'multi');\r",
-									"pm.collectionVariables.set('sDC_description_M', pm.variables.replaceIn('{{$randomLoremSentence}}'));\r",
-									"pm.collectionVariables.set('sDC_value1_M', pm.variables.replaceIn('{{$randomDepartment}}'));\r",
-									"pm.collectionVariables.set('sDC_value2_M', pm.variables.replaceIn('{{$randomDepartment}}'));\r",
-									"pm.collectionVariables.set('sDC_value3_M', pm.variables.replaceIn('{{$randomDepartment}}'));\r",
-									"pm.collectionVariables.set('sDC_code_M', '2');\r",
-									"\r",
-									"pm.collectionVariables.set('aC0_authority', 'INPS');\r",
-									"pm.collectionVariables.set('aC0_code', 'ISEE');\r",
-									"pm.collectionVariables.set('aC0_operator', conditionTwoValue[random2]);\r",
-									"pm.collectionVariables.set('aC0_value', '20000');\r",
-									"pm.collectionVariables.set('aC0_value2', '25000');"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status test 204\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
-									"});\r",
-									"\r",
-									"//response time is less than 1s\r",
-									"tests[\"Response time is less than 1s\"] = responseTime < 1000;"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"selfDeclarationCriteria\": [\n    {\n      \"_type\": \"{{sDC_type_B}}\",\n      \"description\": \"{{sDC_description_B}}\",\n      \"value\": {{sDC_value_B}},\n      \"code\": \"{{sDC_code_B}}\"\n    },\n    {\n      \"_type\": \"{{sDC_type_M}}\",\n      \"description\": \"{{sDC_description_M}}\",\n      \"value\": [\n        \"{{sDC_value1_M}}\",\n        \"{{sDC_value2_M}}\",\n        \"{{sDC_value3_M}}\"\n      ],\n      \"code\": \"{{sDC_code_M}}\"\n    }\n  ],\n  \"automatedCriteria\": [\n    {\n      \"authority\": \"{{aC0_authority}}\",\n      \"code\": \"{{aC0_code}}\",\n      \"operator\": \"{{aC0_operator}}\",\n      \"value\": \"{{aC0_value}}\",\n      \"value2\": \"{{aC0_value2}}\"\n    }\n  ]\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/:initiativeId/beneficiary/draft",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								":initiativeId",
-								"beneficiary",
-								"draft"
-							],
-							"variable": [
-								{
-									"key": "initiativeId",
-									"value": "{{initiativeId}}",
-									"description": "(Required) The initiative ID"
-								}
-							]
-						},
-						"description": "Association of beneficiary rules to an initiative"
-					},
-					"response": []
-				},
-				{
-					"name": "Update Initiative with Step2 (Beneficiary Rules)",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"//pm.collectionVariables.set('sDC_code_B', getRandomInt(10));\r",
-									"const conditionOneValue = [\"EQ\",\"NOT_EQ\",\"LT\",\"LE\",\"GT\",\"GE\",\"INSTANCE_OF\"];\r",
-									"random = _.random(0, conditionOneValue.length-1);\r",
-									"\r",
-									"const conditionTwoValue = [\"BTW_CLOSED\",\"BTW_OPEN\"];\r",
-									"random2 = _.random(0, conditionTwoValue.length-1);\r",
-									"\r",
-									"pm.collectionVariables.set('sDC_type_B', 'boolean');\r",
-									"pm.collectionVariables.set('sDC_description_B', pm.variables.replaceIn('{{$randomLoremSentence}}'));\r",
-									"pm.collectionVariables.set('sDC_value_B', pm.variables.replaceIn('{{$randomBoolean}}'));\r",
-									"pm.collectionVariables.set('sDC_code_B', '1');\r",
-									"\r",
-									"pm.collectionVariables.set('sDC_type_M', 'multi');\r",
-									"pm.collectionVariables.set('sDC_description_M', pm.variables.replaceIn('{{$randomLoremSentence}}'));\r",
-									"pm.collectionVariables.set('sDC_value1_M', pm.variables.replaceIn('{{$randomDepartment}}'));\r",
-									"pm.collectionVariables.set('sDC_value2_M', pm.variables.replaceIn('{{$randomDepartment}}'));\r",
-									"pm.collectionVariables.set('sDC_value3_M', pm.variables.replaceIn('{{$randomDepartment}}'));\r",
-									"pm.collectionVariables.set('sDC_code_M', '2');\r",
-									"\r",
-									"const aC1_value = _.floor(_.random(1, 10, true),2);\r",
-									"const aC1_value2 = _.floor(_.random(11, 100, true),2);\r",
-									"pm.collectionVariables.set('aC0_authority', 'INPS');\r",
-									"pm.collectionVariables.set('aC0_code', 'ISEE');\r",
-									"pm.collectionVariables.set('aC0_operator', conditionTwoValue[random2]);\r",
-									"pm.collectionVariables.set('aC0_value', aC1_value);\r",
-									"pm.collectionVariables.set('aC0_value2', aC1_value2);\r",
-									"\r",
-									"pm.collectionVariables.set('aC1_authority', 'AUTH2');\r",
-									"pm.collectionVariables.set('aC1_code', 'RESIDENCE');\r",
-									"pm.collectionVariables.set('aC1_field', 'city');\r",
-									"pm.collectionVariables.set('aC1_operator', conditionOneValue[random]);\r",
-									"pm.collectionVariables.set('aC1_value', 'Roma');\r",
-									"\r",
-									"let moment = require('moment');\r",
-									"//Format: YYYY-MM-DD\r",
-									"let today = String(moment().format('YYYY'));\r",
-									"const aC3_value = _.random(1800, today, false).toString();\r",
-									"random = _.random(0, conditionTwoValue.length-1);\r",
-									"pm.collectionVariables.set('aC2_authority', 'AUTH1');\r",
-									"pm.collectionVariables.set('aC2_code', 'BIRTHDATE');\r",
-									"pm.collectionVariables.set('aC2_field', 'year');\r",
-									"pm.collectionVariables.set('aC2_operator', conditionOneValue[random]);\r",
-									"pm.collectionVariables.set('aC2_value', aC3_value);"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status test 204\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
-									"});\r",
-									"\r",
-									"//response time is less than 1s\r",
-									"tests[\"Response time is less than 1s\"] = responseTime < 1000;"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"selfDeclarationCriteria\": [\n    {\n      \"_type\": \"{{sDC_type_B}}\",\n      \"description\": \"{{sDC_description_B}}\",\n      \"value\": {{sDC_value_B}},\n      \"code\": \"{{sDC_code_B}}\"\n    },\n    {\n      \"_type\": \"{{sDC_type_M}}\",\n      \"description\": \"{{sDC_description_M}}\",\n      \"value\": [\n        \"{{sDC_value1_M}}\",\n        \"{{sDC_value2_M}}\",\n        \"{{sDC_value3_M}}\"\n      ],\n      \"code\": \"{{sDC_code_M}}\"\n    }\n  ],\n  \"automatedCriteria\": [\n    {\n      \"authority\": \"{{aC0_authority}}\",\n      \"code\": \"{{aC0_code}}\",\n      \"operator\": \"{{aC0_operator}}\",\n      \"value\": \"{{aC0_value}}\",\n      \"value2\": \"{{aC0_value2}}\"\n    },\n    {\n      \"authority\": \"{{aC1_authority}}\",\n      \"code\": \"{{aC1_code}}\",\n      \"field\": \"{{aC1_field}}\",\n      \"operator\": \"{{aC1_operator}}\",\n      \"value\": \"{{aC1_value}}\"\n    },\n    {\n      \"authority\": \"{{aC2_authority}}\",\n      \"code\": \"{{aC2_code}}\",\n      \"field\": \"{{aC2_field}}\",\n      \"operator\": \"{{aC2_operator}}\",\n      \"value\": \"{{aC2_value}}\"\n    }\n  ]\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/:initiativeId/beneficiary",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								":initiativeId",
-								"beneficiary"
-							],
-							"variable": [
-								{
-									"key": "initiativeId",
-									"value": "{{initiativeId}}",
-									"description": "(Required) The initiative ID"
-								}
-							]
-						},
-						"description": "Association of beneficiary rules to an initiative"
-					},
-					"response": []
-				},
-				{
-					"name": "Return transaction config rules content",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status test 200\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"let jsonResponse = pm.response.json();\r",
-									"pm.test(\"Verify response body structure\", function () {\r",
-									"    pm.expect(jsonResponse).to.be.an(\"array\");\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Verify response body\", () => {\r",
-									"    _.each(jsonResponse, (item) => {\r",
-									"            pm.expect(item).have.property(\"code\");\r",
-									"            pm.expect(item).have.property(\"description\");\r",
-									"            pm.expect(item).have.property(\"enabled\");\r",
-									"            pm.expect(item).have.property(\"checked\");\r",
-									"        })\r",
-									"});\r",
-									"\r",
-									"//response time is less than 1s\r",
-									"tests[\"Response time is less than 1s\"] = responseTime < 1000;"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrlInternal}}/config/transaction/rule",
-							"host": [
-								"{{baseUrlInternal}}"
-							],
-							"path": [
-								"config",
-								"transaction",
-								"rule"
-							]
-						},
-						"description": "Return transaction config rules content"
-					},
-					"response": []
-				},
-				{
-					"name": "Return MCC config contents",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status test 200\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"let jsonResponse = pm.response.json();\r",
-									"pm.test(\"Verify response body structure\", function () {\r",
-									"    pm.expect(jsonResponse).to.be.an(\"array\");\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Verify response body\", () => {\r",
-									"    _.each(jsonResponse, (item) => {\r",
-									"            pm.expect(item).have.property(\"code\");\r",
-									"            pm.expect(item).have.property(\"description\");\r",
-									"        })\r",
-									"});\r",
-									"\r",
-									"//response time is less than 1s\r",
-									"tests[\"Response time is less than 1s\"] = responseTime < 1000;"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrlInternal}}/config/transaction/mcc",
-							"host": [
-								"{{baseUrlInternal}}"
-							],
-							"path": [
-								"config",
-								"transaction",
-								"mcc"
-							]
-						},
-						"description": "Return MCC config contents"
-					},
-					"response": []
-				},
-				{
-					"name": "Update Initiative in DRAFT Step3-Trx and reward rules",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"const d = new Date();\r",
-									"dateString = d.toISOString()\r",
-									"let endTime = dateString.split('T');\r",
-									"endTime = endTime[1].split('Z');\r",
-									"\r",
-									"pm.collectionVariables.set('rewardRuleType', 'rewardGroups');\r",
-									"pm.collectionVariables.set('rewardRuleFrom', 0.25);\r",
-									"pm.collectionVariables.set('rewardRuleTo', 1);\r",
-									"pm.collectionVariables.set('rewardRuleValue', 100);\r",
-									"\r",
-									"pm.collectionVariables.set('trxDaysOfWeek', pm.variables.replaceIn('{{$randomWeekday}}').toString().toUpperCase());\r",
-									"pm.collectionVariables.set('trxDayEndTime', endTime[0]);\r",
-									"pm.collectionVariables.set('trxThresholdFrom', 10);\r",
-									"pm.collectionVariables.set('trxThresholdTo', 50);\r",
-									"pm.collectionVariables.set('trxCountFrom', 1);\r",
-									"pm.collectionVariables.set('trxCountTo', 3);\r",
-									"pm.collectionVariables.set('trxRewardLimitFrequency', 'DAILY');\r",
-									"pm.collectionVariables.set('trxRewardLimitValue', 3);"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status test 204\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
-									"});\r",
-									"\r",
-									"//response time is less than 1s\r",
-									"tests[\"Response time is less than 1s\"] = responseTime < 1000;"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"rewardRule\": {\n    \"_type\": \"{{rewardRuleType}}\",\n    \"rewardGroups\": [\n      {\n        \"from\": {{rewardRuleFrom}},\n        \"to\": {{rewardRuleTo}},\n        \"rewardValue\": {{rewardRuleValue}}\n      }\n    ]\n  },\n  \"trxRule\": {\n    \"daysOfWeek\": [\n      {\n        \"daysOfWeek\": [\n          \"{{trxDaysOfWeek}}\"\n        ],\n        \"intervals\": [\n          {\n            \"startTime\": \"00:00:00.000\",\n            \"endTime\": \"{{trxDayEndTime}}\"\n          }\n        ]\n      }\n    ],\n    \"threshold\": {\n      \"from\": {{trxThresholdFrom}},\n      \"fromIncluded\": true,\n      \"to\": {{trxThresholdTo}},\n      \"toIncluded\": true\n    },\n    \"mccFilter\": {\n      \"allowedList\": true,\n      \"values\": [\n        \"0742\", \"0743\", \"0744\"\n      ]\n    },\n    \"trxCount\": {\n      \"from\": {{trxCountFrom}},\n      \"fromIncluded\": true,\n      \"to\": {{trxCountTo}},\n      \"toIncluded\": true\n    },\n    \"rewardLimits\": [\n      {\n        \"frequency\": \"{{trxRewardLimitFrequency}}\",\n        \"rewardLimit\": {{trxRewardLimitValue}}\n      }\n    ]\n  }\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/:initiativeId/reward/draft",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								":initiativeId",
-								"reward",
-								"draft"
-							],
-							"variable": [
-								{
-									"key": "initiativeId",
-									"value": "{{initiativeId}}",
-									"description": "(Required) The initiative ID"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update Initiative Step3-Trx and reward rules",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"const d = new Date();\r",
-									"dateString = d.toISOString()\r",
-									"let endTime = dateString.split('T');\r",
-									"endTime = endTime[1].split('Z');\r",
-									"\r",
-									"pm.collectionVariables.set('rewardRuleType', 'rewardGroups');\r",
-									"pm.collectionVariables.set('rewardRuleFrom', 0.25);\r",
-									"pm.collectionVariables.set('rewardRuleTo', 1);\r",
-									"pm.collectionVariables.set('rewardRuleValue', 100);\r",
-									"\r",
-									"pm.collectionVariables.set('trxDaysOfWeek', pm.variables.replaceIn('{{$randomWeekday}}').toString().toUpperCase());\r",
-									"pm.collectionVariables.set('trxDayEndTime', endTime[0]);\r",
-									"pm.collectionVariables.set('trxThresholdFrom', 10);\r",
-									"pm.collectionVariables.set('trxThresholdTo', 50);\r",
-									"pm.collectionVariables.set('trxCountFrom', 1);\r",
-									"pm.collectionVariables.set('trxCountTo', 3);\r",
-									"pm.collectionVariables.set('trxRewardLimitFrequency', 'DAILY');\r",
-									"pm.collectionVariables.set('trxRewardLimitValue', 3);"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status test 204\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
-									"});\r",
-									"\r",
-									"//response time is less than 1s\r",
-									"tests[\"Response time is less than 1s\"] = responseTime < 1000;"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"rewardRule\": {\n    \"_type\": \"{{rewardRuleType}}\",\n    \"rewardGroups\": [\n      {\n        \"from\": {{rewardRuleFrom}},\n        \"to\": {{rewardRuleTo}},\n        \"rewardValue\": {{rewardRuleValue}}\n      }\n    ]\n  },\n  \"trxRule\": {\n    \"daysOfWeek\": [\n      {\n        \"daysOfWeek\": [\n          \"{{trxDaysOfWeek}}\"\n        ],\n        \"intervals\": [\n          {\n            \"startTime\": \"00:00:00.000\",\n            \"endTime\": \"{{trxDayEndTime}}\"\n          }\n        ]\n      }\n    ],\n    \"threshold\": {\n      \"from\": {{trxThresholdFrom}},\n      \"fromIncluded\": true,\n      \"to\": {{trxThresholdTo}},\n      \"toIncluded\": true\n    },\n    \"mccFilter\": {\n      \"allowedList\": true,\n      \"values\": [\n        \"0742\", \"0743\", \"0744\"\n      ]\n    },\n    \"trxCount\": {\n      \"from\": {{trxCountFrom}},\n      \"fromIncluded\": true,\n      \"to\": {{trxCountTo}},\n      \"toIncluded\": true\n    },\n    \"rewardLimits\": [\n      {\n        \"frequency\": \"{{trxRewardLimitFrequency}}\",\n        \"rewardLimit\": {{trxRewardLimitValue}}\n      }\n    ]\n  }\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/:initiativeId/reward",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								":initiativeId",
-								"reward"
-							],
-							"variable": [
-								{
-									"key": "initiativeId",
-									"value": "{{initiativeId}}",
-									"description": "(Required) The initiative ID"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Returns the detail of active initiative",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"//pm.collectionVariables.get('initiativeId');"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status test 200\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
 									"pm.test(\"Verify response body\", function () {\r",
 									"    let jsonResponse = pm.response.json();\r",
-									"    pm.expect(jsonResponse).have.property(\"initiativeId\");\r",
-									"    pm.expect(jsonResponse).have.property(\"organizationId\");\r",
-									"    pm.expect(jsonResponse).have.property(\"general\");\r",
-									"    pm.expect(jsonResponse).have.property(\"additionalInfo\");\r",
-									"    pm.expect(jsonResponse).have.property(\"beneficiaryRule\");\r",
-									"\r",
-									"    pm.expect(jsonResponse).have.nested.property(\"general.budget\").that.eql(pm.collectionVariables.get('budget'));\r",
-									"    pm.expect(jsonResponse).have.nested.property(\"general.beneficiaryType\").that.eql(pm.collectionVariables.get('beneficiaryType'));\r",
-									"    // pm.expect(jsonResponse).have.nested.property(\"general.beneficiaryKnown\").that.eql(pm.collectionVariables.get('beneficiaryKnown'));\r",
-									"    // pm.expect(jsonResponse).have.nested.property(\"general.beneficiaryBudget\").that.eql(pm.collectionVariables.get('beneficiaryBudget'));\r",
-									"    pm.expect(jsonResponse).have.nested.property(\"general.startDate\").that.eql(pm.collectionVariables.get('startDate'));\r",
-									"    pm.expect(jsonResponse).have.nested.property(\"general.endDate\").that.eql(pm.collectionVariables.get('endDate'));\r",
-									"    pm.expect(jsonResponse).have.nested.property(\"general.rankingStartDate\").that.eql(pm.collectionVariables.get('rankingStartDate'));\r",
-									"    pm.expect(jsonResponse).have.nested.property(\"general.rankingEndDate\").that.eql(pm.collectionVariables.get('rankingEndDate'));\r",
-									"\r",
-									"    pm.expect(jsonResponse).have.nested.property(\"additionalInfo.channels\").to.be.an(\"array\");\r",
-									"});\r",
-									"\r",
-									"//response time is within a specific range\r",
-									"//(lower bound inclusive, upper bound exclusive)\r",
-									"tests[\"Response time is acceptable\"] = _.inRange(responseTime, 000, 1001);"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/:initiativeId",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								":initiativeId"
-							],
-							"variable": [
-								{
-									"key": "initiativeId",
-									"value": "{{initiativeId}}",
-									"description": "(Required) The initiative ID"
-								}
-							]
-						},
-						"description": "Returns the detail of an active initiative"
-					},
-					"response": []
-				},
-				{
-					"name": "Returns the detail of active initiative for Beneficiary",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"//pm.collectionVariables.get('initiativeId');"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status test 200\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Verify response body\", function () {\r",
-									"    let jsonResponse = pm.response.json();\r",
-									"    pm.expect(jsonResponse).have.property(\"initiativeId\");\r",
 									"    pm.expect(jsonResponse).have.property(\"status\");\r",
-									"    pm.expect(jsonResponse).have.property(\"general\");\r",
-									"    pm.expect(jsonResponse).have.property(\"additionalInfo\");\r",
-									"    pm.expect(jsonResponse).have.property(\"beneficiaryRule\");\r",
-									"\r",
-									"    pm.expect(jsonResponse).have.nested.property(\"general.budget\").that.eql(pm.collectionVariables.get('budget'));\r",
-									"    pm.expect(jsonResponse).have.nested.property(\"general.beneficiaryType\").that.eql(pm.collectionVariables.get('beneficiaryType'));\r",
-									"    // pm.expect(jsonResponse).have.nested.property(\"general.beneficiaryKnown\").that.eql(pm.collectionVariables.get('beneficiaryKnown'));\r",
-									"    // pm.expect(jsonResponse).have.nested.property(\"general.beneficiaryBudget\").that.eql(pm.collectionVariables.get('beneficiaryBudget'));\r",
-									"    pm.expect(jsonResponse).have.nested.property(\"general.startDate\").that.eql(pm.collectionVariables.get('startDate'));\r",
-									"    pm.expect(jsonResponse).have.nested.property(\"general.endDate\").that.eql(pm.collectionVariables.get('endDate'));\r",
-									"    pm.expect(jsonResponse).have.nested.property(\"general.rankingStartDate\").that.eql(pm.collectionVariables.get('rankingStartDate'));\r",
-									"    pm.expect(jsonResponse).have.nested.property(\"general.rankingEndDate\").that.eql(pm.collectionVariables.get('rankingEndDate'));\r",
-									"\r",
-									"    pm.expect(jsonResponse).have.nested.property(\"additionalInfo.channels\").to.be.an(\"array\");\r",
-									"});\r",
-									"\r",
-									"//response time is within a specific range\r",
-									"//(lower bound inclusive, upper bound exclusive)\r",
-									"tests[\"Response time is acceptable\"] = _.inRange(responseTime, 000, 1001);"
+									"    pm.expect(jsonResponse.status).contain('KO');\r",
+									"    pm.expect(jsonResponse).have.property(\"errorRow\");\r",
+									"    pm.expect(jsonResponse).have.property(\"errorKey\");\r",
+									"    pm.expect(jsonResponse.errorKey).contain('group.groups.invalid.file.cf');\r",
+									"    pm.expect(jsonResponse).have.property(\"elabTimeStamp\");\r",
+									"});"
 								],
 								"type": "text/javascript"
 							}
 						}
 					],
 					"request": {
-						"method": "GET",
+						"method": "PUT",
 						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
 						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "ps_fiscal_code_groups_file_large_WrongCF.csv"
+								}
+							]
+						},
 						"url": {
-							"raw": "{{baseUrlInternal}}/:initiativeId/beneficiary/view",
+							"raw": "{{baseUrlGroup}}/:initiativeId/upload",
 							"host": [
-								"{{baseUrlInternal}}"
+								"{{baseUrlGroup}}"
 							],
 							"path": [
 								":initiativeId",
-								"beneficiary",
-								"view"
+								"upload"
+							],
+							"variable": [
+								{
+									"key": "initiativeId",
+									"value": "{{initiativeId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2nd Get Status on Groups for DRAFT Initiative",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status test 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify response body - Group not found because of problems on validation\", function () {\r",
+									"    let jsonResponse = pm.response.json()\r",
+									"    pm.expect(jsonResponse.code).equals('it.gov.pagopa.group.not.found');\r",
+									"    pm.expect(jsonResponse.message).contain('There is no group for initiativeId');\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrlGroup}}/:initiativeId/status",
+							"host": [
+								"{{baseUrlGroup}}"
+							],
+							"path": [
+								":initiativeId",
+								"status"
 							],
 							"variable": [
 								{
@@ -1062,14 +538,22 @@
 									"description": "(Required) The initiative ID"
 								}
 							]
-						},
-						"description": "Returns the detail of an active initiative"
+						}
 					},
 					"response": []
 				},
 				{
-					"name": "Returns the list of initiatives names for a specific organization",
+					"name": "STEP3 Update Groups - upload Wrong file format",
 					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
 						{
 							"listen": "test",
 							"script": {
@@ -1078,53 +562,891 @@
 									"    pm.response.to.have.status(200);\r",
 									"});\r",
 									"\r",
-									"let jsonResponse = pm.response.json();\r",
-									"\r",
-									"pm.test(\"Verify response body structure\", function () {\r",
-									"    pm.expect(jsonResponse).to.be.an(\"array\");\r",
-									"    // pm.expect(jsonResponse).have.nested.property(\"initiativeId\");\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Verify response body\", () => {\r",
-									"    _.each(jsonResponse, (item) => {\r",
-									"            // pm.expect(jsonData.initiativeId).to.include('+33 ')\r",
-									"            pm.expect(item).have.property(\"initiativeId\");\r",
-									"        })\r",
-									"});\r",
-									"\r",
-									"//response time is less than 1s\r",
-									"tests[\"Response time is less than 1s\"] = responseTime < 1000;"
+									"pm.test(\"Verify response body\", function () {\r",
+									"    let jsonResponse = pm.response.json();\r",
+									"    pm.expect(jsonResponse).have.property(\"status\");\r",
+									"    pm.expect(jsonResponse.status).contain('KO');\r",
+									"    pm.expect(jsonResponse).have.property(\"errorKey\");\r",
+									"    pm.expect(jsonResponse.errorKey).contain('group.groups.invalid.file.format');\r",
+									"    pm.expect(jsonResponse).have.property(\"elabTimeStamp\");\r",
+									"});"
 								],
 								"type": "text/javascript"
 							}
 						}
 					],
 					"request": {
-						"method": "GET",
+						"method": "PUT",
 						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
 						],
-						"url": {
-							"raw": "{{baseUrl}}/summary",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"summary"
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "invalid_format.xlsx"
+								}
 							]
 						},
-						"description": "Returns the list of initiatives names for a specific organization"
+						"url": {
+							"raw": "{{baseUrlGroup}}/:initiativeId/upload",
+							"host": [
+								"{{baseUrlGroup}}"
+							],
+							"path": [
+								":initiativeId",
+								"upload"
+							],
+							"variable": [
+								{
+									"key": "initiativeId",
+									"value": "{{initiativeId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3rd Get Status on Groups for DRAFT Initiative",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status test 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify response body - Group not found because of problems on validation\", function () {\r",
+									"    let jsonResponse = pm.response.json()\r",
+									"    pm.expect(jsonResponse.code).equals('it.gov.pagopa.group.not.found');\r",
+									"    pm.expect(jsonResponse.message).contain('There is no group for initiativeId');\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrlGroup}}/:initiativeId/status",
+							"host": [
+								"{{baseUrlGroup}}"
+							],
+							"path": [
+								":initiativeId",
+								"status"
+							],
+							"variable": [
+								{
+									"key": "initiativeId",
+									"value": "{{initiativeId}}",
+									"description": "(Required) The initiative ID"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "STEP3 Update Groups - upload Wrong file (empty first line)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status test 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify response body\", function () {\r",
+									"    let jsonResponse = pm.response.json();\r",
+									"    pm.expect(jsonResponse).have.property(\"status\");\r",
+									"    pm.expect(jsonResponse.status).contain('KO');\r",
+									"    pm.expect(jsonResponse).have.property(\"errorRow\");\r",
+									"    pm.expect(jsonResponse.errorRow).equals(1);\r",
+									"    pm.expect(jsonResponse).have.property(\"errorKey\");\r",
+									"    pm.expect(jsonResponse.errorKey).contain('group.groups.invalid.file.cf');\r",
+									"    pm.expect(jsonResponse).have.property(\"elabTimeStamp\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "empty_file.csv"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrlGroup}}/:initiativeId/upload",
+							"host": [
+								"{{baseUrlGroup}}"
+							],
+							"path": [
+								":initiativeId",
+								"upload"
+							],
+							"variable": [
+								{
+									"key": "initiativeId",
+									"value": "{{initiativeId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4th Get Status on Groups for DRAFT Initiative",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status test 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify response body - Group not found because of problems on validation\", function () {\r",
+									"    let jsonResponse = pm.response.json()\r",
+									"    pm.expect(jsonResponse.code).equals('it.gov.pagopa.group.not.found');\r",
+									"    pm.expect(jsonResponse.message).contain('There is no group for initiativeId');\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrlGroup}}/:initiativeId/status",
+							"host": [
+								"{{baseUrlGroup}}"
+							],
+							"path": [
+								":initiativeId",
+								"status"
+							],
+							"variable": [
+								{
+									"key": "initiativeId",
+									"value": "{{initiativeId}}",
+									"description": "(Required) The initiative ID"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "STEP3 Update Groups - upload NO file",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status test 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify response body\", function () {\r",
+									"    let jsonResponse = pm.response.json();\r",
+									"    pm.expect(jsonResponse).have.property(\"status\");\r",
+									"    pm.expect(jsonResponse.status).contain('KO');\r",
+									"    pm.expect(jsonResponse).have.property(\"errorKey\");\r",
+									"    pm.expect(jsonResponse.errorKey).contain('group.groups.invalid.file.empty');\r",
+									"    pm.expect(jsonResponse).have.property(\"elabTimeStamp\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrlGroup}}/:initiativeId/upload",
+							"host": [
+								"{{baseUrlGroup}}"
+							],
+							"path": [
+								":initiativeId",
+								"upload"
+							],
+							"variable": [
+								{
+									"key": "initiativeId",
+									"value": "{{initiativeId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5th Get Status on Groups for DRAFT Initiative",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status test 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify response body - Group not found because of problems on validation\", function () {\r",
+									"    let jsonResponse = pm.response.json()\r",
+									"    pm.expect(jsonResponse.code).equals('it.gov.pagopa.group.not.found');\r",
+									"    pm.expect(jsonResponse.message).contain('There is no group for initiativeId');\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrlGroup}}/:initiativeId/status",
+							"host": [
+								"{{baseUrlGroup}}"
+							],
+							"path": [
+								":initiativeId",
+								"status"
+							],
+							"variable": [
+								{
+									"key": "initiativeId",
+									"value": "{{initiativeId}}",
+									"description": "(Required) The initiative ID"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "STEP3 Update Groups - upload Wrong file size",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Verify response body\", function () {\r",
+									"    let jsonResponse = pm.response.json();\r",
+									"    pm.expect(jsonResponse).have.property(\"status\");\r",
+									"    pm.expect(jsonResponse.status).contain('KO');\r",
+									"    pm.expect(jsonResponse).have.property(\"errorKey\");\r",
+									"    pm.expect(jsonResponse.errorKey).contain('group.groups.invalid.file.size');\r",
+									"    pm.expect(jsonResponse).have.property(\"elabTimeStamp\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Ocp-Apim-Trace",
+								"value": "true",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Ocp-Apim-Subscription-Key",
+								"value": "a77ce741c13d43359e49a491d6990540",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "ps_fiscal_code_groups_file_large_OVER_SIZE.csv"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrlGroup}}/:initiativeId/upload",
+							"host": [
+								"{{baseUrlGroup}}"
+							],
+							"path": [
+								":initiativeId",
+								"upload"
+							],
+							"variable": [
+								{
+									"key": "initiativeId",
+									"value": "{{initiativeId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "6th Get Status on Groups for DRAFT Initiative",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status test 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify response body - Group not found because of problems on validation\", function () {\r",
+									"    let jsonResponse = pm.response.json()\r",
+									"    pm.expect(jsonResponse.code).equals('it.gov.pagopa.group.not.found');\r",
+									"    pm.expect(jsonResponse.message).contain('There is no group for initiativeId');\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrlGroup}}/:initiativeId/status",
+							"host": [
+								"{{baseUrlGroup}}"
+							],
+							"path": [
+								":initiativeId",
+								"status"
+							],
+							"variable": [
+								{
+									"key": "initiativeId",
+									"value": "{{initiativeId}}",
+									"description": "(Required) The initiative ID"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "STEP3 Update Groups - upload correct file",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status test 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify response body\", function () {\r",
+									"    let jsonResponse = pm.response.json();\r",
+									"    pm.expect(jsonResponse).have.property(\"status\");\r",
+									"    pm.expect(jsonResponse.status).contain('VALIDATED');\r",
+									"    pm.expect(jsonResponse).have.property(\"elabTimeStamp\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "ps_fiscal_code_groups_file_large_20_lowercase.csv"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrlGroup}}/:initiativeId/upload",
+							"host": [
+								"{{baseUrlGroup}}"
+							],
+							"path": [
+								":initiativeId",
+								"upload"
+							],
+							"variable": [
+								{
+									"key": "initiativeId",
+									"value": "{{initiativeId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "7th Get Status on Groups for DRAFT Initiative",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"setTimeout(function(){}, 10000); //milliseconds"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status test 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify response body status in 'OK' in case PDV has Tokenized CF correctly\", function () {\r",
+									"    let jsonResponse = pm.response.json()\r",
+									"    pm.expect(jsonResponse).have.property(\"status\");\r",
+									"    pm.expect(jsonResponse.status).equals('OK');\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrlGroup}}/:initiativeId/status",
+							"host": [
+								"{{baseUrlGroup}}"
+							],
+							"path": [
+								":initiativeId",
+								"status"
+							],
+							"variable": [
+								{
+									"key": "initiativeId",
+									"value": "{{initiativeId}}",
+									"description": "(Required) The initiative ID"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Citizen Status on Groups for DRAFT Initiative Not Present",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status test 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify response body (in case PDV has Tokenized CF correctly previously) - Citizen not found because not present in the Group\", function () {\r",
+									"    let jsonResponse = pm.response.json()\r",
+									"    pm.expect(jsonResponse.status).equals(false);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrlGroup}}/:initiativeId/citizen/:citizenToken",
+							"host": [
+								"{{baseUrlGroup}}"
+							],
+							"path": [
+								":initiativeId",
+								"citizen",
+								":citizenToken"
+							],
+							"variable": [
+								{
+									"key": "initiativeId",
+									"value": "{{initiativeId}}",
+									"description": "(Required) The initiative ID"
+								},
+								{
+									"key": "citizenToken",
+									"value": "a0a00000-0aaa-00aa-0000-0000000a0000"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Citizen Status on Groups for DRAFT Initiative Present",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status test 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify response body (in case PDV has Tokenized CF correctly previously) - Citizen found because is present in the beneficiaryList of Group\", function () {\r",
+									"    let jsonResponse = pm.response.json()\r",
+									"    pm.expect(jsonResponse.status).equals(true);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrlGroup}}/:initiativeId/citizen/:citizenToken",
+							"host": [
+								"{{baseUrlGroup}}"
+							],
+							"path": [
+								":initiativeId",
+								"citizen",
+								":citizenToken"
+							],
+							"variable": [
+								{
+									"key": "initiativeId",
+									"value": "{{initiativeId}}",
+									"description": "(Required) The initiative ID"
+								},
+								{
+									"key": "citizenToken",
+									"value": "b0e78244-9bdf-47ab-8843-8546787c0734"
+								}
+							]
+						}
 					},
 					"response": []
 				}
 			]
-		},
-		{
-			"name": "UseCase2",
-			"item": []
 		}
 	],
 	"auth": {
@@ -1255,154 +1577,6 @@
 		},
 		{
 			"key": "initiativeId",
-			"value": ""
-		},
-		{
-			"key": "sDC_type_B",
-			"value": ""
-		},
-		{
-			"key": "sDC_description_B",
-			"value": ""
-		},
-		{
-			"key": "sDC_value_B",
-			"value": ""
-		},
-		{
-			"key": "sDC_code_B",
-			"value": ""
-		},
-		{
-			"key": "sDC_type_M",
-			"value": ""
-		},
-		{
-			"key": "sDC_description_M",
-			"value": ""
-		},
-		{
-			"key": "sDC_value1_M",
-			"value": ""
-		},
-		{
-			"key": "sDC_value2_M",
-			"value": ""
-		},
-		{
-			"key": "sDC_value3_M",
-			"value": ""
-		},
-		{
-			"key": "sDC_code_M",
-			"value": ""
-		},
-		{
-			"key": "aC0_authority",
-			"value": ""
-		},
-		{
-			"key": "aC0_code",
-			"value": ""
-		},
-		{
-			"key": "aC0_operator",
-			"value": ""
-		},
-		{
-			"key": "aC0_value",
-			"value": ""
-		},
-		{
-			"key": "aC0_value2",
-			"value": ""
-		},
-		{
-			"key": "aC1_authority",
-			"value": ""
-		},
-		{
-			"key": "aC1_code",
-			"value": ""
-		},
-		{
-			"key": "aC1_field",
-			"value": ""
-		},
-		{
-			"key": "aC1_operator",
-			"value": ""
-		},
-		{
-			"key": "aC1_value",
-			"value": ""
-		},
-		{
-			"key": "aC2_authority",
-			"value": ""
-		},
-		{
-			"key": "aC2_code",
-			"value": ""
-		},
-		{
-			"key": "aC2_field",
-			"value": ""
-		},
-		{
-			"key": "aC2_operator",
-			"value": ""
-		},
-		{
-			"key": "aC2_value",
-			"value": ""
-		},
-		{
-			"key": "rewardRuleType",
-			"value": ""
-		},
-		{
-			"key": "rewardRuleFrom",
-			"value": ""
-		},
-		{
-			"key": "rewardRuleTo",
-			"value": ""
-		},
-		{
-			"key": "rewardRuleValue",
-			"value": ""
-		},
-		{
-			"key": "trxDaysOfWeek",
-			"value": ""
-		},
-		{
-			"key": "trxDayEndTime",
-			"value": ""
-		},
-		{
-			"key": "trxThresholdFrom",
-			"value": ""
-		},
-		{
-			"key": "trxThresholdTo",
-			"value": ""
-		},
-		{
-			"key": "trxCountFrom",
-			"value": ""
-		},
-		{
-			"key": "trxCountTo",
-			"value": ""
-		},
-		{
-			"key": "trxRewardLimitFrequency",
-			"value": ""
-		},
-		{
-			"key": "trxRewardLimitValue",
 			"value": ""
 		}
 	]

@@ -30,6 +30,7 @@ import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequ
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.web.client.ResourceAccessException;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,8 +43,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
@@ -75,6 +75,8 @@ public class BeneficiaryGroupApiTest {
     @Value("${storage.file.path}")
     private String rootPath;
 
+    private static final String INITIATIVE_ID = "Id1";
+    private static final String ORGANIZATION_ID = "O1";
     private static final String ORGANIZATION_ID0_PLACEHOLDER = "{0}";
     private static final String INITIATIVE_ID0_PLACEHOLDER = "{0}";
     private static final String INITIATIVE_ID1_PLACEHOLDER = "{1}";
@@ -231,6 +233,33 @@ public class BeneficiaryGroupApiTest {
                     .andExpect(MockMvcResultMatchers.status().isUnprocessableEntity())
                     .andDo(print())
                     .andReturn();
+    }
+
+    @Test
+    void upload_PUT_when_InitiativeServiceIsNotReachable_then_500RaisedResourceAccessException() throws Exception{
+        File file1 = new ClassPathResource("group" + File.separator + "ps_fiscal_code_groups_file_large_20.csv").getFile();
+
+        FileInputStream inputFile = new FileInputStream( file1);
+        MockMultipartFile file = new MockMultipartFile("file", "file.csv", "text/csv", inputFile);
+
+        //doThrow InitiativeException for Void method
+        doThrow(new ResourceAccessException("Exception Message"))
+                .when(initiativeRestConnector).getInitiative(INITIATIVE_ID);
+
+        MockMultipartHttpServletRequestBuilder builder =
+                MockMvcRequestBuilders.multipart((BASE_URL + MessageFormat.format(PUT_GROUP_FILE, ORGANIZATION_ID, INITIATIVE_ID)));
+        builder.with(new RequestPostProcessor() {
+            @Override
+            public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+                request.setMethod("PUT");
+                return request;
+            }
+        });
+
+        mvc.perform(builder.file(file))
+                .andExpect(MockMvcResultMatchers.status().is5xxServerError())
+                .andDo(print())
+                .andReturn();
     }
 
     @Test
