@@ -445,7 +445,7 @@
 								{
 									"key": "file",
 									"type": "file",
-									"src": "\/postman\/ps_fiscal_code_groups_file_large_WrongCF.csv"
+									"src": "./postman/ps_fiscal_code_groups_file_large_WrongCF.csv"
 								}
 							]
 						},
@@ -594,7 +594,7 @@
 									"key": "file",
 									"type": "file",
 									"enabled": true,
-									"src": "/postman/invalid_format.xlsx"
+									"src": "./postman/invalid_format.xlsx"
 								}
 							]
 						},
@@ -744,7 +744,7 @@
 								{
 									"key": "file",
 									"type": "file",
-									"src": "./empty_file.csv"
+									"src": "./postman/empty_file.csv"
 								}
 							]
 						},
@@ -891,8 +891,7 @@
 							"formdata": [
 								{
 									"key": "file",
-									"type": "file",
-									"src": []
+									"type": "file"
 								}
 							]
 						},
@@ -1048,7 +1047,7 @@
 								{
 									"key": "file",
 									"type": "file",
-									"src": ".\/postman\/ps_fiscal_code_groups_file_large_OVER_SIZE.csv"
+									"src": "./postman/ps_fiscal_code_groups_file_large_OVER_SIZE.csv"
 								}
 							]
 						},
