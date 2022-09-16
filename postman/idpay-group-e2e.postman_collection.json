@@ -593,7 +593,6 @@
 								{
 									"key": "file",
 									"type": "file",
-									"enabled": true,
 									"src": "./postman/invalid_format.xlsx"
 								}
 							]
@@ -842,153 +841,6 @@
 					"response": []
 				},
 				{
-					"name": "STEP3 Update Groups - upload NO file",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status test 200\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Verify response body\", function () {\r",
-									"    let jsonResponse = pm.response.json();\r",
-									"    pm.expect(jsonResponse).have.property(\"status\");\r",
-									"    pm.expect(jsonResponse.status).contain('KO');\r",
-									"    pm.expect(jsonResponse).have.property(\"errorKey\");\r",
-									"    pm.expect(jsonResponse.errorKey).contain('group.groups.invalid.file.empty');\r",
-									"    pm.expect(jsonResponse).have.property(\"elabTimeStamp\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "file",
-									"type": "file"
-								}
-							]
-						},
-						"url": {
-							"raw": "{{baseUrlGroup}}/:initiativeId/upload",
-							"host": [
-								"{{baseUrlGroup}}"
-							],
-							"path": [
-								":initiativeId",
-								"upload"
-							],
-							"variable": [
-								{
-									"key": "initiativeId",
-									"value": "{{initiativeId}}"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "5th Get Status on Groups for DRAFT Initiative",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status test 404\", function () {\r",
-									"    pm.response.to.have.status(404);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Verify response body - Group not found because of problems on validation\", function () {\r",
-									"    let jsonResponse = pm.response.json()\r",
-									"    pm.expect(jsonResponse.code).equals('it.gov.pagopa.group.not.found');\r",
-									"    pm.expect(jsonResponse.message).contain('There is no group for initiativeId');\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrlGroup}}/:initiativeId/status",
-							"host": [
-								"{{baseUrlGroup}}"
-							],
-							"path": [
-								":initiativeId",
-								"status"
-							],
-							"variable": [
-								{
-									"key": "initiativeId",
-									"value": "{{initiativeId}}",
-									"description": "(Required) The initiative ID"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "STEP3 Update Groups - upload Wrong file size",
 					"event": [
 						{
@@ -1071,7 +923,7 @@
 					"response": []
 				},
 				{
-					"name": "6th Get Status on Groups for DRAFT Initiative",
+					"name": "5th Get Status on Groups for DRAFT Initiative",
 					"event": [
 						{
 							"listen": "test",
@@ -1217,7 +1069,7 @@
 					"response": []
 				},
 				{
-					"name": "7th Get Status on Groups for DRAFT Initiative",
+					"name": "6th Get Status on Groups for DRAFT Initiative",
 					"event": [
 						{
 							"listen": "prerequest",
