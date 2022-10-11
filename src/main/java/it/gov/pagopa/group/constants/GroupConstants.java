@@ -31,6 +31,14 @@ public class GroupConstants {
         }
         public static final class BadRequest {
             public static final String CODE = "it.gov.pagopa.group.bad.request";
+            public static final String INTEGRATION_FAILED_NOTIFY_CITIZEN = "Something gone wrong while notify publishing of Initiative to Citizen";
+        }
+    }
+
+    public static final class Producer {
+
+        public static final class NotifyCitizen {
+            public static final String OPERATION_TYPE = "ALLOWED_CITIZEN_PUBLISH";
         }
     }
 }

@@ -9,7 +9,7 @@ public class InitiativeConstants {
         public static final String TO_CHECK = "TO_CHECK"; //Da controllare/revisionare
         public static final String IN_REVISION = "IN_REVISION"; //In revisione
         public static final String APPROVED = "APPROVED"; //Approvata
-        public static final String PUBLISHED = "PUBLISHED"; //In corso / Pubblicata ??
+        public static final String PUBLISHED = "PUBLISHED"; //In corso / Pubblicata
         public static final String CLOSED = "CLOSED"; //Terminata
         public static final String SUSPENDED = "SUSPENDED"; //Sospesa
     }

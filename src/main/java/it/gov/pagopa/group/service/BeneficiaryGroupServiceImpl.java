@@ -1,9 +1,11 @@
 package it.gov.pagopa.group.service;
 
+import it.gov.pagopa.group.connector.notification_manager.NotificationConnector;
 import it.gov.pagopa.group.connector.pdv.PdvEncryptRestConnector;
 import it.gov.pagopa.group.constants.GroupConstants;
 import it.gov.pagopa.group.dto.FiscalCodeTokenizedDTO;
 import it.gov.pagopa.group.dto.PiiDTO;
+import it.gov.pagopa.group.event.NotificationProducerImpl;
 import it.gov.pagopa.group.exception.BeneficiaryGroupException;
 import it.gov.pagopa.group.model.Group;
 import it.gov.pagopa.group.repository.GroupQueryDAO;
@@ -37,6 +39,7 @@ import java.util.Optional;
 public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
 
     public static final String KEY_SEPARATOR = "_";
+
     @Value("${file.storage.path}")
     private String rootPath;
     @Value("${file.storage.deletion}")
@@ -53,6 +56,12 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
 
     @Autowired
     private Clock clock;
+
+    @Autowired
+    private NotificationProducerImpl notificationProducer;
+
+    @Autowired
+    private NotificationConnector notificationConnector;
 
 
     private void init(String organizationId) {
@@ -207,7 +216,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
 
     @Override
     public boolean getCitizenStatusByCitizenToken(String initiativeId, String citizenToken) {
-        Group groupOnlyBeneficiaryList = groupRepository.getBeneficiaryList(initiativeId)
+        Group groupOnlyBeneficiaryList = groupRepository.findBeneficiaryList(initiativeId)
                 .orElseThrow(() -> new BeneficiaryGroupException(GroupConstants.Exception.NotFound.CODE,
                         MessageFormat.format(GroupConstants.Exception.NotFound.NO_GROUP_FOR_INITIATIVE_ID, initiativeId),
                         HttpStatus.NOT_FOUND));
@@ -217,6 +226,18 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
                 MessageFormat.format(GroupConstants.Exception.NotFound.NO_BENEFICIARY_LIST_PROVIDED_FOR_INITIATIVE_ID, initiativeId),
                 HttpStatus.NOT_FOUND);
         return beneficiaryList.stream().anyMatch(beneficiary -> beneficiary.equals(citizenToken));
+    }
+
+    @Override
+    public void sendInitiativeNotificationForCitizen(String initiativeId, String initiativeName, String serviceId) {
+        log.info("[NOTIFY_TO_NOTIFICATION_MANAGER] - [DB] Get Group with allowed beneficiaries");
+        Group groupWithBeneficiaryList = groupRepository.findBeneficiaryList(initiativeId)
+                .orElseThrow(() -> new BeneficiaryGroupException(GroupConstants.Exception.NotFound.CODE,
+                        MessageFormat.format(GroupConstants.Exception.NotFound.NO_GROUP_FOR_INITIATIVE_ID, initiativeId),
+                        HttpStatus.NOT_FOUND));
+        log.debug("[NOTIFY_TO_NOTIFICATION_MANAGER] - Get list of beneficiaries from Group");
+        List<String> beneficiaryTokenizedList = groupWithBeneficiaryList.getBeneficiaryList();
+        notificationConnector.sendAllowedCitizen(beneficiaryTokenizedList, initiativeId, initiativeName, serviceId);
     }
 
 }

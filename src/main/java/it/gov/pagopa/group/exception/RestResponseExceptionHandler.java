@@ -47,4 +47,10 @@ public class RestResponseExceptionHandler {
         log.error("[HANDLER] [RUNTIME_EXCEPTION] - Error: {}", ex.getMessage());
         return new ResponseEntity<>(new ErrorDTO("500", ex.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @ExceptionHandler({IntegrationException.class})
+    public ResponseEntity<ErrorDTO> handleIntegrationException(IntegrationException ex) {
+        return new ResponseEntity<>(
+                new ErrorDTO(ex.getCode(), ex.getMessage()), ex.getHttpStatus());
+    }
 }

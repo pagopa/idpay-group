@@ -6,6 +6,36 @@ spring:
   servlet:
     multipart:
       max-file-size: ${GROUP_FILE_MAX_FILE_SIZE:2097152}
+  cloud:
+    stream:
+      binders:
+        kafka-notification:
+          type: kafka
+          environment:
+            spring:
+              cloud:
+                stream:
+                  kafka:
+                    binder:
+                      brokers: ${KAFKA_NOTIFICATION_ALLOWED_CITIZEN_ENDPOINT_BROKER:${KAFKA_BROKER:}}
+                      configuration:
+                        sasl:
+                          jaas:
+                            config: ${KAFKA_NOTIFICATION_PRODUCER_SASL_JAAS_CONFIG:}
+      bindings:
+        allowedCitizen-out-0:
+          binder: kafka-notification
+          content-type: ${KAFKA_CONTENT_TYPE:application/json}
+          destination: ${KAFKA_TOPIC_NOTIFICATION:idpay-notification-request}
+      kafka:
+        binder:
+          auto-create-topics: false
+          configuration:
+            heartbeat.interval.ms: ${KAFKA_CONFIG_HEARTBEAT_INTERVAL_MS:30000}
+            session.timeout.ms: ${KAFKA_CONFIG_SESSION_TIMEOUT_MS:60000}
+            request.timeout.ms: ${KAFKA_CONFIG_REQUEST_TIMEOUT_MS:60000}
+            sasl.mechanism: ${KAFKA_CONFIG_SASL_MECHANISM:PLAIN}
+            security.protocol: ${KAFKA_CONFIG_SECURITY_PROTOCOL:SASL_SSL}
 
 management:
   endpoints:
@@ -66,3 +96,8 @@ logging:
     javax.persistence: ${LOG_LEVEL_JAVAX_PERSISTENCE:INFO}
     org.hibernate: ${LOG_LEVEL_ORG_HIBERNATE:INFO}
     org.mongodb.driver: ${LOG_LEVEL_MONGODB_DRIVER:WARN}
+
+utils:
+  task:
+    execution:
+      parallelPool: ${UTILS_TASK_EXECUTION_PARALLEL_POOL:8}

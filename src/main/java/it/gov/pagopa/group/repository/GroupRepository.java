@@ -1,10 +1,12 @@
 package it.gov.pagopa.group.repository;
 
 import it.gov.pagopa.group.model.Group;
+import org.springframework.data.domain.Page;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public interface GroupRepository extends MongoRepository<Group, String> {
 
@@ -14,5 +16,8 @@ public interface GroupRepository extends MongoRepository<Group, String> {
     Optional<Group> getStatus(String initiativeId, String organizationId);
 
     @Query(value = "{initiativeId : ?0}", fields = "{beneficiaryList : 1}")
-    Optional<Group> getBeneficiaryList(String initiativeId);
+    Optional<Group> findBeneficiaryList(String initiativeId);
+
+    @Query(value = "{initiativeId : ?0}", fields = "{beneficiaryList : 1}")
+    Stream<String> findGroupByInitiativeId(String initiativeId);
 }
