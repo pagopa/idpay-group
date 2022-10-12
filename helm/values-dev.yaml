@@ -8,51 +8,8 @@ microservice-chart:
     tag: latest
     pullPolicy: Always
 
-  livenessProbe:
-    httpGet:
-      path: /actuator/health
-      port: 8080
-    initialDelaySeconds: 120
-    failureThreshold: 6
-    periodSeconds: 10
-
-  readinessProbe:
-    httpGet:
-      path: /actuator/health
-      port: 8080
-    initialDelaySeconds: 120
-    failureThreshold: 6
-    periodSeconds: 10
-
-  deployment:
-    create: true
-
-  service:
-    create: true
-    type: ClusterIP
-    port: 8080
-
   ingress:
-    create: true
     host: "dev01.idpay.internal.dev.cstar.pagopa.it"
-    annotations: {
-      nginx.ingress.kubernetes.io/proxy-body-size=2m
-    }
-    path: /idpaygroup/(.*)
-
-  serviceAccount:
-    create: false
-    annotations: {}
-    name: ""
-
-  podAnnotations: {}
-
-  podSecurityContext:
-    seccompProfile:
-      type: RuntimeDefault
-
-  securityContext:
-    allowPrivilegeEscalation: false
 
   resources:
     requests:
@@ -83,26 +40,8 @@ microservice-chart:
 #          targetValue: "30"
 
 
-  envConfig:
-    MONGODB_DBNAME: idpay
-    APPLICATIONINSIGHTS_ROLE_NAME: "idpaygroup"
-    APPLICATIONINSIGHTS_INSTRUMENTATION_LOGGING_LEVEL: "OFF"
-    APPLICATIONINSIGHTS_INSTRUMENTATION_MICROMETER_ENABLED: "false"
-    PDV_ENCRYPT_SERVICE_CODE: pdv-ms-tokenizer
-    GROUP_FILE_ROOT_PATH: /tmp/group
-
-  envConfigMapExternals:
-    idpay-common:
-      TZ: TZ
-      JAVA_TOOL_OPTIONS: JAVA_TOOL_OPTIONS
-    rest-client:
-      INITIATIVE_MS_BASE_URL: initiative_ms_base_url
-      PDV_ENCRYPT_BASE_URL: pdv_decrypt_base_url
-
   envSecret:
     aks-api-url: cstar-d-weu-dev01-aks-apiserver-url
-    MONGODB_URI: mongodb-connection-string
-    PDV_ENCRYPT_API_KEY: pdv-api-key
 
   keyvault:
     name: "cstar-d-idpay-kv"
