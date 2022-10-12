@@ -1,17 +1,12 @@
 package it.gov.pagopa.group.connector.notification_manager;
 
-import it.gov.pagopa.group.dto.event.NotificationCitizenOnQueueDTO;
-import it.gov.pagopa.group.dto.event.NotificationQueueDTO;
-import it.gov.pagopa.group.utils.ParallelStreamUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
-import java.util.concurrent.Callable;
-
-import static it.gov.pagopa.group.constants.GroupConstants.Producer.NotifyCitizen.OPERATION_TYPE;
 
 @Slf4j
 @Service
@@ -28,19 +23,16 @@ public class NotificationConnectorImpl implements NotificationConnector {
 
     @Override
     public void sendAllowedCitizen(List<String> beneficiaryTokenizedList, String initiativeId, String initiativeName, String serviceId) {
-        log.debug("[NOTIFY_TO_NOTIFICATION_MANAGER] - Get list of beneficiaries from Group");
         if (!beneficiaryTokenizedList.isEmpty()) {
-//            Callable<Object> runnable = () -> {
-//                beneficiaryTokenizedList.stream().parallel().forEach(beneficiaryTokenized ->
-//                        notificationManagerService.sendToNotificationManager(initiativeId, initiativeName, serviceId, beneficiaryTokenized));
-//                return null;
-//            };
-//            ParallelStreamUtils.goForParallelExecution(runnable, parallelPool);
-            beneficiaryTokenizedList.forEach(beneficiaryTokenized ->
+            log.info("[NOTIFY_TO_NOTIFICATION_MANAGER] - Sending citizen to Notification Manager is about to begin...");
+            Instant start = Instant.now();
+            beneficiaryTokenizedList.stream().parallel().forEach(beneficiaryTokenized ->
                     notificationManagerService.sendToNotificationManager(initiativeId, initiativeName, serviceId, beneficiaryTokenized));
+            Instant end = Instant.now();
+            log.debug("[NOTIFY_TO_NOTIFICATION_MANAGER] - Time to sent beneficiaries: {}", Duration.between(start, end).toString());
         }
         else{
-            log.debug("[NOTIFY_TO_NOTIFICATION_MANAGER] - No beneficiaries found");
+            log.info("[NOTIFY_TO_NOTIFICATION_MANAGER] - No beneficiaries found");
         }
     }
 

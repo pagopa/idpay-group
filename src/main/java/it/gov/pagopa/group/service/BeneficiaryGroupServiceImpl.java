@@ -230,12 +230,12 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
 
     @Override
     public void sendInitiativeNotificationForCitizen(String initiativeId, String initiativeName, String serviceId) {
-        log.info("[NOTIFY_TO_NOTIFICATION_MANAGER] - [DB] Get Group with allowed beneficiaries");
+        log.info("[NOTIFY_TO_NOTIFICATION_MANAGER] - [DB] Getting Group with allowed beneficiaries");
         Group groupWithBeneficiaryList = groupRepository.findBeneficiaryList(initiativeId)
                 .orElseThrow(() -> new BeneficiaryGroupException(GroupConstants.Exception.NotFound.CODE,
                         MessageFormat.format(GroupConstants.Exception.NotFound.NO_GROUP_FOR_INITIATIVE_ID, initiativeId),
                         HttpStatus.NOT_FOUND));
-        log.debug("[NOTIFY_TO_NOTIFICATION_MANAGER] - Get list of beneficiaries from Group");
+        log.debug("[NOTIFY_TO_NOTIFICATION_MANAGER] - Getting of beneficiaries from Group -> DONE");
         List<String> beneficiaryTokenizedList = groupWithBeneficiaryList.getBeneficiaryList();
         notificationConnector.sendAllowedCitizen(beneficiaryTokenizedList, initiativeId, initiativeName, serviceId);
     }
