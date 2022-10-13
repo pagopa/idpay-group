@@ -1,7 +1,7 @@
 package it.gov.pagopa.group.connector.notification_manager;
 
 import it.gov.pagopa.group.dto.event.NotificationCitizenOnQueueDTO;
-import it.gov.pagopa.group.event.NotificationProducerImpl;
+import it.gov.pagopa.group.event.NotificationProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +11,7 @@ import static it.gov.pagopa.group.constants.GroupConstants.Producer.NotifyCitize
 public class NotificationManagerServiceImpl implements NotificationManagerService {
 
     @Autowired
-    NotificationProducerImpl notificationProducer;
+    NotificationProducer notificationProducer;
 
     @Override
     public void sendToNotificationManager(String initiativeId, String initiativeName, String serviceId, String beneficiaryTokenized) {

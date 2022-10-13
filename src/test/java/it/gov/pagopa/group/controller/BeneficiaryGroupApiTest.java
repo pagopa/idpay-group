@@ -41,6 +41,7 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -53,6 +54,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 //@Import(ClockConfig.class)
 public class BeneficiaryGroupApiTest {
 
+    private static final String FIRST_BENEFICIARY_IN_LIST = "FIRST_BENEFICIARY_IN_LIST";
     @MockBean
     private BeneficiaryGroupService beneficiaryGroupService;
 
@@ -428,7 +430,7 @@ public class BeneficiaryGroupApiTest {
         group.setUpdateDate(LocalDateTime.now(clock));
         group.setCreationUser("admin");
         group.setUpdateUser("admin");
-        group.setBeneficiaryList(null);
+        group.setBeneficiaryList(List.of(FIRST_BENEFICIARY_IN_LIST));
         return group;
     }
 
