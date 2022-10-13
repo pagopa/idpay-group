@@ -19,5 +19,7 @@ public class StatusGroupDTO {
 
     private String fileName;
 
+    private Integer beneficiariesReached;
+
     private String errorMessage;
 }

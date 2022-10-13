@@ -1,5 +1,6 @@
 package it.gov.pagopa.group.service;
 
+import it.gov.pagopa.group.connector.notification_manager.NotificationConnector;
 import it.gov.pagopa.group.connector.pdv.PdvEncryptRestConnector;
 import it.gov.pagopa.group.constants.GroupConstants;
 import it.gov.pagopa.group.exception.BeneficiaryGroupException;
@@ -46,7 +47,6 @@ class BeneficiaryGroupServiceTest {
 
     @Autowired
     BeneficiaryGroupService beneficiaryGroupService;
-
     @Autowired
     BeneficiaryGroupServiceImpl beneficiaryGroupServiceImpl;
 
@@ -56,6 +56,9 @@ class BeneficiaryGroupServiceTest {
     GroupQueryDAO groupQueryDAO;
     @MockBean
     PdvEncryptRestConnector encryptRestConnector;
+    @MockBean
+    NotificationConnector notificationConnector;
+
     //Mock your clock bean
     @MockBean
     private Clock clock;
@@ -199,6 +202,9 @@ class BeneficiaryGroupServiceTest {
             verify(groupRepository).findBeneficiaryList(anyString());
         }
     }
+
+//    @Test
+//    void
 
     private Group createGroupValid_ok(){
         Group group = new Group();

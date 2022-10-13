@@ -5,10 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import it.gov.pagopa.group.dto.CitizenStatusDTO;
-import it.gov.pagopa.group.dto.ErrorDTO;
-import it.gov.pagopa.group.dto.GroupUpdateDTO;
-import it.gov.pagopa.group.dto.StatusGroupDTO;
+import it.gov.pagopa.group.dto.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,7 +37,7 @@ public interface BeneficiaryGroup {
             @ApiResponse(responseCode = "429", description = "Too many Request", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
             @ApiResponse(responseCode = "500", description = "Server ERROR", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class)))})
     @PostMapping(value = "/group/initiative/{initiativeId}/notify")
-    ResponseEntity<Void> notifyInitiativeToCitizen(@PathVariable("initiativeId") String initiativeId, @RequestParam("initiativeName") String initiativeName, @RequestParam("serviceId") String serviceId);
+    ResponseEntity<Void> notifyInitiativeToCitizen(@PathVariable("initiativeId") String initiativeId, @RequestBody InitiativeNotificationDTO initiativeNotificationDTO);
 
     @Operation(operationId = "getGroupOfBeneficiaryStatusAndDetails", summary = "Return Group of Beneficiary CSV file upload status with relative error detail if present", description = "", tags = {"group"})
     @ApiResponses(value = {

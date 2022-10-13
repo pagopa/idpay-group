@@ -2,10 +2,7 @@ package it.gov.pagopa.group.controller;
 
 import it.gov.pagopa.group.connector.initiative.InitiativeRestConnector;
 import it.gov.pagopa.group.constants.GroupConstants;
-import it.gov.pagopa.group.dto.CitizenStatusDTO;
-import it.gov.pagopa.group.dto.GroupUpdateDTO;
-import it.gov.pagopa.group.dto.InitiativeDTO;
-import it.gov.pagopa.group.dto.StatusGroupDTO;
+import it.gov.pagopa.group.dto.*;
 import it.gov.pagopa.group.exception.IntegrationException;
 import it.gov.pagopa.group.model.Group;
 import it.gov.pagopa.group.service.BeneficiaryGroupService;
@@ -78,9 +75,9 @@ public class BeneficiaryGroupController implements BeneficiaryGroup {
     }
 
     @Override
-    public ResponseEntity<Void> notifyInitiativeToCitizen(String initiativeId, String initiativeName, String serviceId){
+    public ResponseEntity<Void> notifyInitiativeToCitizen(String initiativeId, InitiativeNotificationDTO initiativeNotificationDTO){
         log.info("[NOTIFY_TO_NOTIFICATION_MANAGER] - Start processing...");
-        beneficiaryGroupService.sendInitiativeNotificationForCitizen(initiativeId, initiativeName, serviceId);
+        beneficiaryGroupService.sendInitiativeNotificationForCitizen(initiativeId, initiativeNotificationDTO.getInitiativeName(), initiativeNotificationDTO.getServiceId());
         log.info("[NOTIFY_TO_NOTIFICATION_MANAGER] - Completed");
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
@@ -90,11 +87,12 @@ public class BeneficiaryGroupController implements BeneficiaryGroup {
         Group group = beneficiaryGroupService.getStatusByInitiativeId(initiativeId, organizationId);
         log.info("[GET_FILE_GROUP] - Initiative {}. Status {}. ErrorMessage: {}. CreationDate: {}. File Name {}", initiativeId, group.getStatus(), group.getExceptionMessage(), group.getCreationDate(), group.getFileName());
         return ResponseEntity.ok(StatusGroupDTO.builder()
-                .status(group.getStatus())
-                .errorMessage(group.getExceptionMessage())
-                .fileUploadingDateTime(group.getCreationDate())
-                .fileName(group.getFileName())
-                .build());
+                        .status(group.getStatus())
+                        .errorMessage(group.getExceptionMessage())
+                        .fileUploadingDateTime(group.getCreationDate())
+                        .fileName(group.getFileName())
+                        .beneficiariesReached(group.getBeneficiaryList().size())
+                        .build());
     }
 
     @Override
