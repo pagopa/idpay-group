@@ -5,6 +5,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @Service
 public interface BeneficiaryGroupService {
 
@@ -17,4 +19,6 @@ public interface BeneficiaryGroupService {
     Group getStatusByInitiativeId(String initiativeId, String organizationId);
 
     boolean getCitizenStatusByCitizenToken(String initiativeId, String citizenToken);
+
+    void sendInitiativeNotificationForCitizen(String initiativeId, String initiativeName, String serviceId);
 }

@@ -81,10 +81,16 @@ microservice-chart:
     rest-client:
       INITIATIVE_MS_BASE_URL: initiative_ms_base_url
       PDV_ENCRYPT_BASE_URL: pdv_decrypt_base_url
+    idpay-eventhub-00:
+      KAFKA_BROKER: kafka_broker
+      KAFKA_CONFIG_SASL_MECHANISM: kafka_sasl_mechanism
+      KAFKA_CONFIG_SECURITY_PROTOCOL: kafka_security_protocol
+      KAFKA_TOPIC_NOTIFICATION: idpay_notification_request_topic
 
   envSecret:
     MONGODB_URI: mongodb-connection-string
     PDV_ENCRYPT_API_KEY: pdv-api-key
+    KAFKA_NOTIFICATION_PRODUCER_SASL_JAAS_CONFIG: evh-idpay-notification-request-idpay-notification-request-producer-jaas-config-idpay-00
 
 
   # nodeSelector: {}

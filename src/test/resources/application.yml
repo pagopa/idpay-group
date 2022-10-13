@@ -1,8 +1,68 @@
 #spring.data.mongodb.database=${MONGODB_DBNAME}
 #spring.data.mongodb.uri=${MONGODB_URI}
+test:
+  topic: embedded-test-topic
+
 spring:
   mongodb:
     embedded:
       version: 4.0.21
 #      features: ONLY_WITH_SSL,ONLY_WINDOWS_2008_SERVER
-
+  kafka:
+    consumer:
+      auto-offset-reset: earliest
+      group-id: test-group-id
+  servlet:
+    multipart:
+      max-file-size: ${GROUP_FILE_MAX_FILE_SIZE:2097152}
+  cloud:
+    stream:
+      function:
+        definition: notificationAnyConsumer
+      binders:
+        kafka-notification:
+          type: kafka
+          environment:
+            spring:
+              cloud:
+                stream:
+                  kafka:
+                    binder:
+                      brokers: localhost:9092
+      #                      configuration:
+      #                        sasl:
+      #                          jaas:
+      #                            config: ${KAFKA_NOTIFICATION_PRODUCER_SASL_JAAS_CONFIG:}
+      bindings:
+        notificationAnyConsumer-in-0:
+          binder: kafka-notification
+          content-type: ${KAFKA_CONTENT_TYPE:application/json}
+          destination: embedded-test-topic
+#          group: ${KAFKA_NOTIFICATION_GROUP_IN:}
+        allowedCitizen-out-0:
+          binder: kafka-notification
+          content-type: ${KAFKA_CONTENT_TYPE:application/json}
+          destination: embedded-test-topic
+      kafka:
+        binder:
+          auto-create-topics: false
+          configuration:
+            heartbeat.interval.ms: ${KAFKA_CONFIG_HEARTBEAT_INTERVAL_MS:30000}
+            session.timeout.ms: ${KAFKA_CONFIG_SESSION_TIMEOUT_MS:60000}
+            request.timeout.ms: ${KAFKA_CONFIG_REQUEST_TIMEOUT_MS:60000}
+        #            sasl.mechanism: ${KAFKA_CONFIG_SASL_MECHANISM:PLAIN}
+        #            security.protocol: ${KAFKA_CONFIG_SECURITY_PROTOCOL:SASL_SSL}
+        bindings:
+          notificationAnyConsumer-in-0:
+            consumer:
+              autoCommitOffset: ${KAFKA_NOTIFICATION_AUTO_COMMIT:${KAFKA_CONSUMER_CONFIG_AUTO_COMMIT:true}}
+              configuration:
+                connections.max.idle.ms: ${KAFKA_NOTIFICATION_REQUEST_CONNECTIONS_MAX_IDLE_MS:${KAFKA_CONSUMER_CONFIG_CONNECTIONS_MAX_IDLE_MS:300000}}
+                max.poll:
+                  interval.ms: ${KAFKA_NOTIFICATION_INTERVAL_TIMEOUT_MS:${KAFKA_CONFIG_MAX_POLL_INTERVAL_TIMEOUT_MS:300000}}
+                  records: ${KAFKA_NOTIFICATION_MAX_POLL_SIZE:${KAFKA_CONSUMER_CONFIG_MAX_POLL_SIZE:500}}
+                socket.connection.setup.timeout:
+                  max.ms: ${KAFKA_NOTIFICATION_REQUEST_CONNECTION_TIMEOUT_MAX_MS:${KAFKA_CONSUMER_CONFIG_CONNECTION_TIMEOUT_MAX_MS:200000}}
+                  ms: ${KAFKA_NOTIFICATION_REQUEST_CONNECTION_TIMEOUT_MS:${KAFKA_CONSUMER_CONFIG_CONNECTION_TIMEOUT_MS:100000}}
+              standardHeaders: ${KAFKA_NOTIFICATION_STANDARD_HEADERS:${KAFKA_CONSUMER_CONFIG_STANDARD_HEADERS:both}}
+              startOffset: ${KAFKA_NOTIFICATION_REQUEST_START_OFFSET:${KAFKA_CONSUMER_CONFIG_START_OFFSET:earliest}}
