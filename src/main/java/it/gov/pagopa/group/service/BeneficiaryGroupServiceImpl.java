@@ -5,7 +5,6 @@ import it.gov.pagopa.group.connector.pdv.PdvEncryptRestConnector;
 import it.gov.pagopa.group.constants.GroupConstants;
 import it.gov.pagopa.group.dto.FiscalCodeTokenizedDTO;
 import it.gov.pagopa.group.dto.PiiDTO;
-import it.gov.pagopa.group.event.NotificationProducerImpl;
 import it.gov.pagopa.group.exception.BeneficiaryGroupException;
 import it.gov.pagopa.group.model.Group;
 import it.gov.pagopa.group.repository.GroupQueryDAO;
@@ -56,9 +55,6 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
 
     @Autowired
     private Clock clock;
-
-    @Autowired
-    private NotificationProducerImpl notificationProducer;
 
     @Autowired
     private NotificationConnector notificationConnector;

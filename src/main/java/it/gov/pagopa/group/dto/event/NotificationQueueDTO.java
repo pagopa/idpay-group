@@ -1,8 +1,6 @@
 package it.gov.pagopa.group.dto.event;
 
-import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
 @Data
