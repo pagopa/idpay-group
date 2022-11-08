@@ -12,12 +12,9 @@ import java.util.List;
 @Service
 public class NotificationConnectorImpl implements NotificationConnector {
 
-    private final int parallelPool;
     private final NotificationService notificationService;
 
-    public NotificationConnectorImpl(@Value("${utils.task.execution.parallelPool}") int parallelPool,
-                                     NotificationService notificationService){
-        this.parallelPool = parallelPool;
+    public NotificationConnectorImpl(NotificationService notificationService){
         this.notificationService = notificationService;
     }
 

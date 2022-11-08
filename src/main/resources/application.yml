@@ -125,7 +125,7 @@ logging:
     org.hibernate: ${LOG_LEVEL_ORG_HIBERNATE:INFO}
     org.mongodb.driver: ${LOG_LEVEL_MONGODB_DRIVER:WARN}
 
-utils:
-  task:
-    execution:
-      parallelPool: ${UTILS_TASK_EXECUTION_PARALLEL_POOL:8}
+#utils:
+#  task:
+#    execution:
+#      parallelPool: ${UTILS_TASK_EXECUTION_PARALLEL_POOL:2}
