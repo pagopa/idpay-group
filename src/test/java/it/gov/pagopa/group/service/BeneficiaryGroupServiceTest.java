@@ -1,6 +1,6 @@
 package it.gov.pagopa.group.service;
 
-import it.gov.pagopa.group.connector.notification_manager.NotificationConnector;
+import it.gov.pagopa.group.connector.notification.NotificationConnector;
 import it.gov.pagopa.group.connector.pdv.PdvEncryptRestConnector;
 import it.gov.pagopa.group.constants.GroupConstants;
 import it.gov.pagopa.group.exception.BeneficiaryGroupException;

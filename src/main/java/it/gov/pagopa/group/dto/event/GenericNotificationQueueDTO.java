@@ -5,7 +5,7 @@ import lombok.experimental.SuperBuilder;
 
 @Data
 @SuperBuilder
-public class NotificationQueueDTO {
+public class GenericNotificationQueueDTO {
 
   private String operationType;
   private String userId;
