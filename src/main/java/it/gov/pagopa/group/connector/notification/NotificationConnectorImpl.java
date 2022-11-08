@@ -1,4 +1,4 @@
-package it.gov.pagopa.group.connector.notification_manager;
+package it.gov.pagopa.group.connector.notification;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,26 +13,26 @@ import java.util.List;
 public class NotificationConnectorImpl implements NotificationConnector {
 
     private final int parallelPool;
-    private final NotificationManagerService notificationManagerService;
+    private final NotificationService notificationService;
 
     public NotificationConnectorImpl(@Value("${utils.task.execution.parallelPool}") int parallelPool,
-                                     NotificationManagerService notificationManagerService){
+                                     NotificationService notificationService){
         this.parallelPool = parallelPool;
-        this.notificationManagerService = notificationManagerService;
+        this.notificationService = notificationService;
     }
 
     @Override
     public void sendAllowedCitizen(List<String> beneficiaryTokenizedList, String initiativeId, String initiativeName, String serviceId) {
         if (!beneficiaryTokenizedList.isEmpty()) {
-            log.info("[NOTIFY_TO_NOTIFICATION_MANAGER] - Sending citizen to Notification Manager is about to begin...");
+            log.info("[NOTIFY_ALLOWED_CITIZEN] - Sending citizen into Topics is about to begin...");
             Instant start = Instant.now();
             beneficiaryTokenizedList.stream().parallel().forEach(beneficiaryTokenized ->
-                    notificationManagerService.sendToNotificationManager(initiativeId, initiativeName, serviceId, beneficiaryTokenized));
+                    notificationService.sendToNotificationManager(initiativeId, initiativeName, serviceId, beneficiaryTokenized));
             Instant end = Instant.now();
-            log.debug("[NOTIFY_TO_NOTIFICATION_MANAGER] - Time to sent beneficiaries: {}", Duration.between(start, end).toString());
+            log.debug("[NOTIFY_ALLOWED_CITIZEN] - Time to sent beneficiaries: {}", Duration.between(start, end).toString());
         }
         else{
-            log.info("[NOTIFY_TO_NOTIFICATION_MANAGER] - No beneficiaries found");
+            log.info("[NOTIFY_ALLOWED_CITIZEN] - No beneficiaries found");
         }
     }
 
