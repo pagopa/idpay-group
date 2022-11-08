@@ -86,7 +86,7 @@ microservice-chart:
       KAFKA_CONFIG_SASL_MECHANISM: kafka_sasl_mechanism
       KAFKA_CONFIG_SECURITY_PROTOCOL: kafka_security_protocol
       KAFKA_TOPIC_NOTIFICATION: idpay_notification_request_topic
-#      KAFKA_TOPIC_ONBOARDING_NOTIFICATION: idpay-onboarding-notification_topic
+      KAFKA_TOPIC_ONBOARDING_NOTIFICATION: idpay_onboarding_notification_topic
 
   envSecret:
     MONGODB_URI: mongodb-connection-string
