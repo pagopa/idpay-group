@@ -1,4 +1,4 @@
-package it.gov.pagopa.group.connector.notification_manager;
+package it.gov.pagopa.group.connector.notification;
 
 import java.util.List;
 

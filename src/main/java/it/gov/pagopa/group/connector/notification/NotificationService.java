@@ -1,6 +1,6 @@
-package it.gov.pagopa.group.connector.notification_manager;
+package it.gov.pagopa.group.connector.notification;
 
-public interface NotificationManagerService {
+public interface NotificationService {
 
     void sendToNotificationManager(String initiativeId, String initiativeName, String serviceId, String beneficiaryTokenized);
 

@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Slf4j
 @RestController
@@ -71,9 +72,9 @@ public class BeneficiaryGroupController implements BeneficiaryGroup {
 
     @Override
     public ResponseEntity<Void> notifyInitiativeToCitizen(String initiativeId, InitiativeNotificationDTO initiativeNotificationDTO){
-        log.info("[NOTIFY_TO_NOTIFICATION_MANAGER] - Start processing...");
+        log.info("[NOTIFY_ALLOWED_CITIZEN] - Start processing...");
         beneficiaryGroupService.sendInitiativeNotificationForCitizen(initiativeId, initiativeNotificationDTO.getInitiativeName(), initiativeNotificationDTO.getServiceId());
-        log.info("[NOTIFY_TO_NOTIFICATION_MANAGER] - Completed");
+        log.info("[NOTIFY_ALLOWED_CITIZEN] - Completed");
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
 
@@ -86,7 +87,7 @@ public class BeneficiaryGroupController implements BeneficiaryGroup {
                         .errorMessage(group.getExceptionMessage())
                         .fileUploadingDateTime(group.getCreationDate())
                         .fileName(group.getFileName())
-                        .beneficiariesReached(group.getBeneficiaryList().size())
+                        .beneficiariesReached(Objects.isNull(group.getBeneficiaryList()) ? null : group.getBeneficiaryList().size())
                         .build());
     }
 
