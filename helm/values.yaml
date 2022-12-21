@@ -77,7 +77,6 @@ microservice-chart:
   envConfigMapExternals:
     idpay-common:
       TZ: TZ
-      JAVA_TOOL_OPTIONS: JAVA_TOOL_OPTIONS
     rest-client:
       INITIATIVE_MS_BASE_URL: initiative_ms_base_url
       PDV_ENCRYPT_BASE_URL: pdv_decrypt_base_url

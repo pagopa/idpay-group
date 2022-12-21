@@ -1,7 +1,7 @@
 package it.gov.pagopa.group.connector.notification;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -19,14 +19,15 @@ public class NotificationConnectorImpl implements NotificationConnector {
     }
 
     @Override
+    @Async
     public void sendAllowedCitizen(List<String> beneficiaryTokenizedList, String initiativeId, String initiativeName, String serviceId) {
         if (!beneficiaryTokenizedList.isEmpty()) {
-            log.info("[NOTIFY_ALLOWED_CITIZEN] - Sending citizen into Topics is about to begin...");
+            log.info("[NOTIFY_ALLOWED_CITIZEN] - Sending No. of {} citizen into Topics is about to begin...", beneficiaryTokenizedList.size());
             Instant start = Instant.now();
             beneficiaryTokenizedList.stream().parallel().forEach(beneficiaryTokenized ->
-                    notificationService.sendToNotificationManager(initiativeId, initiativeName, serviceId, beneficiaryTokenized));
+                    notificationService.sendNotification(initiativeId, initiativeName, serviceId, beneficiaryTokenized));
             Instant end = Instant.now();
-            log.debug("[NOTIFY_ALLOWED_CITIZEN] - Time to sent beneficiaries: {}", Duration.between(start, end).toString());
+            log.debug("[NOTIFY_ALLOWED_CITIZEN] - Time to sent notification: {}", Duration.between(start, end).toString());
         }
         else{
             log.info("[NOTIFY_ALLOWED_CITIZEN] - No beneficiaries found");

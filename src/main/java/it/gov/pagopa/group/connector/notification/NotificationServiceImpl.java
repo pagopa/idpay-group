@@ -22,7 +22,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void sendToNotificationManager(String initiativeId, String initiativeName, String serviceId, String beneficiaryTokenized) {
+    public void sendNotification(String initiativeId, String initiativeName, String serviceId, String beneficiaryTokenized) {
         CitizenNotificationOnQueueDTO citizenNotificationOnQueueDTO = CitizenNotificationOnQueueDTO.builder()
                 .userId(beneficiaryTokenized)
                 .initiativeId(initiativeId)
