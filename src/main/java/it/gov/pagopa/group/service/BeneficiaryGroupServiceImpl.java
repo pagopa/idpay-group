@@ -10,7 +10,6 @@ import it.gov.pagopa.group.model.Group;
 import it.gov.pagopa.group.repository.GroupQueryDAO;
 import it.gov.pagopa.group.repository.GroupRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -39,25 +38,30 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
 
     public static final String KEY_SEPARATOR = "_";
 
-    @Value("${file.storage.path}")
-    private String rootPath;
-    @Value("${file.storage.deletion}")
-    private boolean isFilesOnStorageToBeDeleted;
+    private final String rootPath;
+    private final boolean isFilesOnStorageToBeDeleted;
+    private final GroupRepository groupRepository;
+    private final PdvEncryptRestConnector pdvEncryptRestConnector;
+    private final GroupQueryDAO groupQueryDAO;
+    private final Clock clock;
+    private final NotificationConnector notificationConnector;
 
-    @Autowired
-    private GroupRepository groupRepository;
-
-    @Autowired
-    private PdvEncryptRestConnector pdvEncryptRestConnector;
-
-    @Autowired
-    private GroupQueryDAO groupQueryDAO;
-
-    @Autowired
-    private Clock clock;
-
-    @Autowired
-    private NotificationConnector notificationConnector;
+    public BeneficiaryGroupServiceImpl(
+            @Value("${file.storage.path}") String rootPath,
+            @Value("${file.storage.deletion}") boolean isFilesOnStorageToBeDeleted,
+            GroupRepository groupRepository,
+            PdvEncryptRestConnector pdvEncryptRestConnector,
+            GroupQueryDAO groupQueryDAO,
+            Clock clock,
+            NotificationConnector notificationConnector) {
+        this.rootPath = rootPath;
+        this.isFilesOnStorageToBeDeleted = isFilesOnStorageToBeDeleted;
+        this.groupRepository = groupRepository;
+        this.pdvEncryptRestConnector = pdvEncryptRestConnector;
+        this.groupQueryDAO = groupQueryDAO;
+        this.clock = clock;
+        this.notificationConnector = notificationConnector;
+    }
 
 
     private void init(String organizationId) {
@@ -69,7 +73,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
         }
     }
 
-    @Scheduled(fixedRate = 4000, initialDelay = 4000)
+    @Scheduled(fixedRate = 10000, initialDelay = 130000)
     public void scheduleValidatedGroup() throws IOException {
         boolean anonymizationDone = false;
         Group group = groupQueryDAO.findFirstByStatusAndUpdate(GroupConstants.Status.VALIDATED);
@@ -97,7 +101,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
         }
     }
 
-    @Scheduled(fixedRate = 10000, initialDelay = 8000)
+    @Scheduled(fixedRate = 15000, initialDelay = 140000)
     public void scheduleProcKoGroup() throws IOException {
         boolean anonymizationDone = false;
         Optional<Group> groupOptional = groupRepository.findFirstByStatusAndRetryLessThan(GroupConstants.Status.PROC_KO, 3);

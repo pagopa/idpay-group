@@ -3,15 +3,20 @@ package it.gov.pagopa.group.connector.notification;
 import it.gov.pagopa.group.dto.event.CitizenNotificationOnQueueDTO;
 import it.gov.pagopa.group.event.NotificationManagerProducer;
 import it.gov.pagopa.group.event.OnboardingNotificationProducer;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.atomic.AtomicLong;
 
 import static it.gov.pagopa.group.constants.GroupConstants.Producer.NotifyCitizen.OPERATION_TYPE;
 
 @Service
+@Slf4j
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationManagerProducer notificationManagerProducer;
     private final OnboardingNotificationProducer onboardingNotificationProducer;
+    public AtomicLong count = new AtomicLong(0);
 
     public NotificationServiceImpl(
             NotificationManagerProducer notificationManagerProducer,
@@ -31,10 +36,10 @@ public class NotificationServiceImpl implements NotificationService {
                 .serviceId(serviceId)
                 .build();
         if(!notificationManagerProducer.sendAllowedCitizen(citizenNotificationOnQueueDTO)){
-            throw new IllegalStateException("[NOTIFY_TO_NOTIFICATION_MANAGER] - Something gone wrong while notify Initiative to NotificationManager MS");
+            log.error("[NOTIFY_TO_NOTIFICATION_MANAGER] - Something gone wrong while notify Initiative [{}] to NotificationManager MS for userId: {}", citizenNotificationOnQueueDTO.getInitiativeId(), citizenNotificationOnQueueDTO.getUserId());
         }
         if(!onboardingNotificationProducer.sendAllowedCitizen(citizenNotificationOnQueueDTO)){
-            throw new IllegalStateException("[NOTIFY_TO_ONBOARDING] - Something gone wrong while notify Initiative to Onboarding MS");
+            log.error("[NOTIFY_TO_ONBOARDING] - Something gone wrong while notify Initiative [{}] to Onboarding MS for userId: {}", citizenNotificationOnQueueDTO.getInitiativeId(), citizenNotificationOnQueueDTO.getUserId());
         }
     }
 }
