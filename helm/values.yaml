@@ -8,7 +8,7 @@ microservice-chart:
       path: /actuator/health
       port: 8080
     initialDelaySeconds: 120
-    failureThreshold: 6
+    failureThreshold: 15
     periodSeconds: 10
 
   readinessProbe:
@@ -16,7 +16,7 @@ microservice-chart:
       path: /actuator/health
       port: 8080
     initialDelaySeconds: 120
-    failureThreshold: 6
+    failureThreshold: 15
     periodSeconds: 10
 
   deployment:
@@ -77,7 +77,6 @@ microservice-chart:
   envConfigMapExternals:
     idpay-common:
       TZ: TZ
-      JAVA_TOOL_OPTIONS: JAVA_TOOL_OPTIONS
     rest-client:
       INITIATIVE_MS_BASE_URL: initiative_ms_base_url
       PDV_ENCRYPT_BASE_URL: pdv_decrypt_base_url

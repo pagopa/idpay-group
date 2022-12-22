@@ -74,7 +74,7 @@ public class BeneficiaryGroupController implements BeneficiaryGroup {
     public ResponseEntity<Void> notifyInitiativeToCitizen(String initiativeId, InitiativeNotificationDTO initiativeNotificationDTO){
         log.info("[NOTIFY_ALLOWED_CITIZEN] - Start processing...");
         beneficiaryGroupService.sendInitiativeNotificationForCitizen(initiativeId, initiativeNotificationDTO.getInitiativeName(), initiativeNotificationDTO.getServiceId());
-        log.info("[NOTIFY_ALLOWED_CITIZEN] - Completed");
+        log.info("[NOTIFY_ALLOWED_CITIZEN] - Request Sent");
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
 

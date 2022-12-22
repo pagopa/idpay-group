@@ -39,6 +39,8 @@ microservice-chart:
 #          metricAggregationType: Count
 #          targetValue: "30"
 
+  envConfig:
+    JAVA_TOOL_OPTIONS: "-Xms128m -Xmx2g -Djava.util.concurrent.ForkJoinPool.common.parallelism=7 -javaagent:/app/applicationinsights-agent.jar"
 
   envSecret:
     aks-api-url: cstar-d-weu-dev01-aks-apiserver-url
