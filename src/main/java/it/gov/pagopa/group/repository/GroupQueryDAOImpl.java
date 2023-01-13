@@ -2,7 +2,9 @@ package it.gov.pagopa.group.repository;
 
 import it.gov.pagopa.group.constants.GroupConstants;
 import it.gov.pagopa.group.model.Group;
+import it.gov.pagopa.group.model.Group.Fields;
 import java.util.List;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -29,15 +31,8 @@ public class GroupQueryDAOImpl implements GroupQueryDAO {
   }
 
   @Override
-  public void setBeneficiaryList(String initiativeId, List<String> beneficiaryList) {
-    Query query = new Query(Criteria.where("initiativeId").is(initiativeId));
-    Update update = new Update().set("beneficiaryList", beneficiaryList);
-    mongoTemplate.updateFirst(query, update, Group.class);
-  }
-
-  @Override
-  public void pushBeneficiaryList(String initiativeId, List<String> beneficiaryList) {
-    Query query = new Query(Criteria.where("initiativeId").is(initiativeId));
+  public void pushBeneficiaryList(String groupId, List<String> beneficiaryList) {
+    Query query = new Query(Criteria.where(Fields.groupId).is(groupId));
     Update update = new Update().push("beneficiaryList").each(beneficiaryList);
     mongoTemplate.updateFirst(query, update, Group.class);
   }

@@ -88,7 +88,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
       List<String> anonymousCFlist = null;
       try {
         anonymousCFlist = cfAnonymizer(file);
-        pushBeneficiaryListToDb(group.getInitiativeId(), anonymousCFlist);
+        pushBeneficiaryListToDb(group.getGroupId(), anonymousCFlist);
         group.setStatus(GroupConstants.Status.OK);
         anonymizationDone = true;
       } catch (Exception e) {
@@ -121,7 +121,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
       try {
         log.info("Retry to communicate with PDV num: {}", group.getRetry() + 1);
         anonymousCFlist = cfAnonymizer(file);
-        pushBeneficiaryListToDb(group.getInitiativeId(), anonymousCFlist);
+        pushBeneficiaryListToDb(group.getGroupId(), anonymousCFlist);
         group.setStatus("OK");
         anonymizationDone = true;
       } catch (Exception e) {
@@ -149,8 +149,6 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
     log.info(
         "[GROUP_SCHEDULING] [ANONYMIZER] Pushing beneficiary list to database [rows: {}, in {} chunks of 50K and one chunk of {}]",
         size, pushIterations, lastIterationSize);
-
-    groupQueryDAO.setBeneficiaryList(initiativeId, new ArrayList<>());
 
     for (int i = 0; i < pushIterations; i++) {
       groupQueryDAO.pushBeneficiaryList(initiativeId,

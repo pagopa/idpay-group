@@ -6,7 +6,5 @@ import java.util.List;
 public interface GroupQueryDAO {
     Group findFirstByStatusAndUpdate(String status);
 
-    void pushBeneficiaryList(String initiativeId, List<String> beneficiaryList);
-
-    void setBeneficiaryList(String initiativeId, List<String> beneficiaryList);
+    void pushBeneficiaryList(String groupId, List<String> beneficiaryList);
 }
