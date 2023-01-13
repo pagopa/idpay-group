@@ -88,17 +88,13 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
       List<String> anonymousCFlist = null;
       try {
         anonymousCFlist = cfAnonymizer(file);
-        pushBeneficiaryListToDb(group.getGroupId(), anonymousCFlist);
-        group.setStatus(GroupConstants.Status.OK);
+        pushBeneficiaryListToDb(group.getInitiativeId(), anonymousCFlist);
+        groupQueryDAO.setStatusOk(group.getInitiativeId());
         anonymizationDone = true;
       } catch (Exception e) {
-        group.setExceptionMessage(e.getMessage());
-        group.setElabDateTime(LocalDateTime.now(clock));
-        group.setRetry(1);
-        group.setStatus(GroupConstants.Status.PROC_KO);
-        group.setBeneficiaryList(null);
+        groupQueryDAO.setGroupForException(group.getInitiativeId(), e.getMessage(),
+            LocalDateTime.now(clock), 1);
       }
-      groupRepository.save(group);
       if (isFilesOnStorageToBeDeleted && anonymizationDone) {
         delete(group.getOrganizationId(), fileName);
       }
@@ -121,17 +117,13 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
       try {
         log.info("Retry to communicate with PDV num: {}", group.getRetry() + 1);
         anonymousCFlist = cfAnonymizer(file);
-        pushBeneficiaryListToDb(group.getGroupId(), anonymousCFlist);
-        group.setStatus("OK");
+        pushBeneficiaryListToDb(group.getInitiativeId(), anonymousCFlist);
+        groupQueryDAO.setStatusOk(group.getInitiativeId());
         anonymizationDone = true;
       } catch (Exception e) {
-        group.setExceptionMessage(e.getMessage());
-        group.setElabDateTime(LocalDateTime.now(clock));
-        group.setRetry(group.getRetry() + 1);
-        group.setStatus("PROC_KO");
-        group.setBeneficiaryList(null);
+        groupQueryDAO.setGroupForException(group.getInitiativeId(), e.getMessage(),
+            LocalDateTime.now(clock), group.getRetry() + 1);
       }
-      groupRepository.save(group);
       if (isFilesOnStorageToBeDeleted && (anonymizationDone || group.getRetry() >= 3)) {
         delete(group.getOrganizationId(), fileName);
       }
