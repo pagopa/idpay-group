@@ -29,6 +29,13 @@ public class GroupQueryDAOImpl implements GroupQueryDAO {
   }
 
   @Override
+  public void setBeneficiaryList(String initiativeId, List<String> beneficiaryList) {
+    Query query = new Query(Criteria.where("initiativeId").is(initiativeId));
+    Update update = new Update().set("beneficiaryList", beneficiaryList);
+    mongoTemplate.updateFirst(query, update, Group.class);
+  }
+
+  @Override
   public void pushBeneficiaryList(String initiativeId, List<String> beneficiaryList) {
     Query query = new Query(Criteria.where("initiativeId").is(initiativeId));
     Update update = new Update().push("beneficiaryList").each(beneficiaryList);

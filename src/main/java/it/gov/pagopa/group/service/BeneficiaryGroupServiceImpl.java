@@ -140,13 +140,17 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
 
   private void pushBeneficiaryListToDb(String initiativeId, List<String> anonymousCFList) {
 
-    log.info("[GROUP_SCHEDULING] [ANONYMIZER] Pushing beneficiary list to database");
-
     long start = System.currentTimeMillis();
 
     int size = anonymousCFList.size();
     int pushIterations = size / UPDATE_CHUNK;
     int lastIterationSize = size % UPDATE_CHUNK;
+
+    log.info(
+        "[GROUP_SCHEDULING] [ANONYMIZER] Pushing beneficiary list to database [rows: {}, in {} chunks of 50K and one chunk of {}]",
+        size, pushIterations, lastIterationSize);
+
+    groupQueryDAO.setBeneficiaryList(initiativeId, new ArrayList<>());
 
     for (int i = 0; i < pushIterations; i++) {
       groupQueryDAO.pushBeneficiaryList(initiativeId,
@@ -160,7 +164,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
 
     long end = System.currentTimeMillis();
 
-    log.info("[GROUP_SCHEDULING] [ANONYMIZER] Time spent pushing {} lines to db: {}", size,
+    log.info("[GROUP_SCHEDULING] [ANONYMIZER] Time spent pushing {} rows to db: {}", size,
         end - start);
   }
 
