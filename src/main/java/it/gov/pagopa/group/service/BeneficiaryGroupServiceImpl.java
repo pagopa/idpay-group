@@ -144,7 +144,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
 
     for (int i = 0; i < pushIterations; i++) {
       groupQueryDAO.pushBeneficiaryList(initiativeId,
-          anonymousCFList.subList(UPDATE_CHUNK * i, (UPDATE_CHUNK * i + 1)));
+          anonymousCFList.subList(UPDATE_CHUNK * i, UPDATE_CHUNK * (i + 1)));
     }
 
     if (lastIterationSize != 0) {
