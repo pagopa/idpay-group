@@ -37,7 +37,7 @@ import java.util.Optional;
 public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
 
   public static final String KEY_SEPARATOR = "_";
-  public static final int UPDATE_CHUNK = 50000;
+  public static final int UPDATE_CHUNK = 10000;
 
   private final String rootPath;
   private final boolean isFilesOnStorageToBeDeleted;
@@ -143,6 +143,8 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
         size, pushIterations, lastIterationSize);
 
     for (int i = 0; i < pushIterations; i++) {
+      log.info("[GROUP_SCHEDULING] [ANONYMIZER] Pushing user IDs from {} to {}",
+          UPDATE_CHUNK * i, UPDATE_CHUNK * (i + 1));
       groupQueryDAO.pushBeneficiaryList(initiativeId,
           anonymousCFList.subList(UPDATE_CHUNK * i, UPDATE_CHUNK * (i + 1)));
     }
@@ -167,9 +169,10 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
       int lineCounter = 0;
       while ((line = br.readLine()) != null) {
         lineCounter++;
-        FiscalCodeTokenizedDTO fiscalCodeTokenizedDTO = pdvEncryptRestConnector.putPii(
-            PiiDTO.builder().pii(line.toUpperCase()).build());
-        anonymousCFlist.add(fiscalCodeTokenizedDTO.getToken());
+//        FiscalCodeTokenizedDTO fiscalCodeTokenizedDTO = pdvEncryptRestConnector.putPii(
+//            PiiDTO.builder().pii(line.toUpperCase()).build());
+//        anonymousCFlist.add(fiscalCodeTokenizedDTO.getToken());
+        anonymousCFlist.add(line.toUpperCase());
       }
       long after = System.currentTimeMillis();
       log.info("[ANONYMIZER] Time to finish {} PDV calls: {} ms", lineCounter, after - before);
