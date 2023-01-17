@@ -52,7 +52,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         BeneficiaryGroup.class}, excludeAutoConfiguration = SecurityAutoConfiguration.class)
 @Slf4j
 //@Import(ClockConfig.class)
-public class BeneficiaryGroupApiTest {
+class BeneficiaryGroupApiTest {
 
     private static final String FIRST_BENEFICIARY_IN_LIST = "FIRST_BENEFICIARY_IN_LIST";
     @MockBean

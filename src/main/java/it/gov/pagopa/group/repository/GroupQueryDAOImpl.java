@@ -1,7 +1,6 @@
 package it.gov.pagopa.group.repository;
 
 import it.gov.pagopa.group.constants.GroupConstants;
-import it.gov.pagopa.group.constants.GroupConstants.Status;
 import it.gov.pagopa.group.model.Group;
 import it.gov.pagopa.group.model.Group.Fields;
 import it.gov.pagopa.group.model.GroupUserWhitelist;
