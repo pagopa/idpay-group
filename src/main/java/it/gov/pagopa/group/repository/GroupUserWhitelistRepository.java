@@ -7,5 +7,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 public interface GroupUserWhitelistRepository extends MongoRepository<Group, String> {
 
     List<String> findByInitiativeId(String initiativeId);
-    Long deleteByGroupId(String groupId);
+    void deleteGroupUserWhitelistByGroupId(String groupId);
 }

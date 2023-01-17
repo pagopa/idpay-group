@@ -98,7 +98,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
       } catch (Exception e) {
         groupQueryDAO.setGroupForException(group.getInitiativeId(), e.getMessage(),
             LocalDateTime.now(clock), 1);
-        groupUserWhitelistRepository.deleteByGroupId(group.getGroupId());
+        groupUserWhitelistRepository.deleteGroupUserWhitelistByGroupId(group.getGroupId());
       }
       if (isFilesOnStorageToBeDeleted && anonymizationDone) {
         delete(group.getOrganizationId(), fileName);
@@ -128,7 +128,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
       } catch (Exception e) {
         groupQueryDAO.setGroupForException(group.getInitiativeId(), e.getMessage(),
             LocalDateTime.now(clock), group.getRetry() + 1);
-        groupUserWhitelistRepository.deleteByGroupId(group.getGroupId());
+        groupUserWhitelistRepository.deleteGroupUserWhitelistByGroupId(group.getGroupId());
       }
       if (isFilesOnStorageToBeDeleted && (anonymizationDone || group.getRetry() >= 3)) {
         delete(group.getOrganizationId(), fileName);
@@ -199,7 +199,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
       group.setCreationUser("admin"); //TODO recuperare info da apim
       group.setUpdateUser("admin"); //TODO recuperare info da apim
       group.setBeneficiariesReached(null);
-      groupUserWhitelistRepository.deleteByGroupId(groupId);
+      groupUserWhitelistRepository.deleteGroupUserWhitelistByGroupId(groupId);
       groupRepository.save(group);
     } catch (Exception e) {
       throw new RuntimeException("Could not store the file. Error: " + e.getMessage());
