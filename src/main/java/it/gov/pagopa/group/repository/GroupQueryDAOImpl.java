@@ -50,6 +50,12 @@ public class GroupQueryDAOImpl implements GroupQueryDAO {
   }
 
   @Override
+  public void removeWhitelistByGroupId(String groupId) {
+    Query query = new Query(Criteria.where(Fields.groupId).is(groupId));
+    mongoTemplate.remove(query, GroupUserWhitelist.class);
+  }
+
+  @Override
   public void pushBeneficiaryList(List<GroupUserWhitelist> beneficiaryList) {
     mongoTemplate.insertAll(beneficiaryList);
   }

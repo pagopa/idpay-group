@@ -10,6 +10,6 @@ public interface GroupQueryDAO {
 
     void pushBeneficiaryList(List<GroupUserWhitelist> beneficiaryList);
     void setStatusOk(String initiativeId, int beneficiariesReached);
-
     void setGroupForException(String initiativeId, String exceptionMessage, LocalDateTime elabDateTime, int retry);
+    void removeWhitelistByGroupId(String groupId);
 }
