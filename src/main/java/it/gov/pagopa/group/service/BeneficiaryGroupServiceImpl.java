@@ -89,10 +89,10 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
           "[GROUP_SCHEDULING] [ANONYMIZER] Found beneficiary's group for {} with status {} on Organization {}",
           fileName, GroupConstants.Status.VALIDATED, group.getOrganizationId());
       Resource file = load(group.getOrganizationId(), fileName);
-      List<String> anonymousCFlist = null;
+      List<GroupUserWhitelist> anonymousCFlist = null;
       try {
-        anonymousCFlist = cfAnonymizer(file);
-        pushBeneficiaryListToDb(group.getGroupId(), group.getInitiativeId(), anonymousCFlist);
+        anonymousCFlist = cfAnonymizer(file, group.getGroupId(), group.getInitiativeId());
+        pushBeneficiaryListToDb(anonymousCFlist);
         groupQueryDAO.setStatusOk(group.getInitiativeId(), anonymousCFlist.size());
         anonymizationDone = true;
       } catch (Exception e) {
@@ -118,11 +118,11 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
           "[GROUP_SCHEDULING] [ANONYMIZER] Found beneficiary's group for {} with status {} on Organization {}",
           fileName, GroupConstants.Status.PROC_KO, group.getOrganizationId());
       Resource file = load(group.getOrganizationId(), fileName);
-      List<String> anonymousCFlist = null;
+      List<GroupUserWhitelist> anonymousCFlist = null;
       try {
         log.info("Retry to communicate with PDV num: {}", group.getRetry() + 1);
-        anonymousCFlist = cfAnonymizer(file);
-        pushBeneficiaryListToDb(group.getGroupId(), group.getInitiativeId(), anonymousCFlist);
+        anonymousCFlist = cfAnonymizer(file, group.getGroupId(), group.getInitiativeId());
+        pushBeneficiaryListToDb(anonymousCFlist);
         groupQueryDAO.setStatusOk(group.getInitiativeId(), anonymousCFlist.size());
         anonymizationDone = true;
       } catch (Exception e) {
@@ -136,7 +136,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
     }
   }
 
-  private void pushBeneficiaryListToDb(String groupId, String initiativeId, List<String> anonymousCFList) {
+  private void pushBeneficiaryListToDb(List<GroupUserWhitelist> anonymousCFList) {
 
     long start = System.currentTimeMillis();
     int size = anonymousCFList.size();
@@ -144,13 +144,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
     log.info(
         "[GROUP_SCHEDULING] [ANONYMIZER] Pushing beneficiary list to database [rows: {}]", size);
 
-    List<GroupUserWhitelist> whiteList = new ArrayList<>();
-
-    anonymousCFList.forEach(anonymousCf ->
-      whiteList.add(new GroupUserWhitelist(null, groupId, initiativeId, anonymousCf))
-    );
-
-    groupQueryDAO.pushBeneficiaryList(whiteList);
+    groupQueryDAO.pushBeneficiaryList(anonymousCFList);
 
     long end = System.currentTimeMillis();
 
@@ -158,8 +152,8 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
         end - start);
   }
 
-  private List<String> cfAnonymizer(Resource file) throws Exception {
-    List<String> anonymousCFlist = new ArrayList<>();
+  private List<GroupUserWhitelist> cfAnonymizer(Resource file, String groupId, String initiativeId) throws Exception {
+    List<GroupUserWhitelist> anonymousCFlist = new ArrayList<>();
     String line;
     InputStream is = file.getInputStream();
     try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
@@ -169,7 +163,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
         lineCounter++;
         FiscalCodeTokenizedDTO fiscalCodeTokenizedDTO = pdvEncryptRestConnector.putPii(
             PiiDTO.builder().pii(line.toUpperCase()).build());
-        anonymousCFlist.add(fiscalCodeTokenizedDTO.getToken());
+        anonymousCFlist.add(new GroupUserWhitelist(null, groupId, initiativeId, fiscalCodeTokenizedDTO.getToken()));
       }
       long after = System.currentTimeMillis();
       log.info("[ANONYMIZER] Time to finish {} PDV calls: {} ms", lineCounter, after - before);
