@@ -199,7 +199,8 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
       group.setCreationUser("admin"); //TODO recuperare info da apim
       group.setUpdateUser("admin"); //TODO recuperare info da apim
       group.setBeneficiariesReached(null);
-      groupUserWhitelistRepository.deleteByGroupId(groupId);
+      Long deletedRecords = groupUserWhitelistRepository.deleteByGroupId(groupId);
+      log.info("[GROUP_SCHEDULING] [SAVE] Deleted {} records", deletedRecords);
       groupRepository.save(group);
     } catch (Exception e) {
       throw new RuntimeException("Could not store the file. Error: " + e.getMessage());
