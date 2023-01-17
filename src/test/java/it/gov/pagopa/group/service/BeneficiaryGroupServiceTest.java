@@ -7,6 +7,7 @@ import it.gov.pagopa.group.exception.BeneficiaryGroupException;
 import it.gov.pagopa.group.model.Group;
 import it.gov.pagopa.group.repository.GroupQueryDAO;
 import it.gov.pagopa.group.repository.GroupRepository;
+import it.gov.pagopa.group.repository.GroupUserWhitelistRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -58,6 +60,8 @@ class BeneficiaryGroupServiceTest {
     PdvEncryptRestConnector encryptRestConnector;
     @MockBean
     NotificationConnector notificationConnector;
+    @MockBean
+    GroupUserWhitelistRepository groupUserWhitelistRepository;
 
     //Mock your clock bean
     @MockBean
@@ -123,47 +127,42 @@ class BeneficiaryGroupServiceTest {
 
     @Test
     void whenBeneficiaryListContainCitizenToken_thenServiceReturnTrue() {
-        Group group = new Group();
         List<String> beneficiaryList = new ArrayList<>();
         beneficiaryList.add(FISCAL_CODE_TOKENIZED);
-        group.setBeneficiaryList(beneficiaryList);
         //Instruct the Repo Mock to return Dummy Item
-        when(groupRepository.findBeneficiaryList(anyString())).thenReturn(Optional.of(group));
+        when(groupUserWhitelistRepository.findByInitiativeId(anyString())).thenReturn(beneficiaryList);
 
         //Try to call the Real Service (which is using the instructed Repo)
         boolean citizenStatusByCitizenToken = beneficiaryGroupService.getCitizenStatusByCitizenToken(anyString(), FISCAL_CODE_TOKENIZED);
 
         //Check the equality of the results
-        assertEquals(true, citizenStatusByCitizenToken);
+        assertTrue(citizenStatusByCitizenToken);
 
         // you are expecting repo to be called once with correct param
-        verify(groupRepository).findBeneficiaryList(anyString());
+        verify(groupUserWhitelistRepository).findByInitiativeId(anyString());
     }
 
     @Test
     void whenBeneficiaryListNotContainCitizenToken_thenServiceReturnFalse() {
-        Group group = new Group();
         List<String> beneficiaryList = new ArrayList<>();
         beneficiaryList.add(FISCAL_CODE_TOKENIZED);
-        group.setBeneficiaryList(beneficiaryList);
         //Instruct the Repo Mock to return Dummy Item
-        when(groupRepository.findBeneficiaryList(anyString())).thenReturn(Optional.of(group));
+        when(groupUserWhitelistRepository.findByInitiativeId(anyString())).thenReturn(beneficiaryList);
 
         //Try to call the Real Service (which is using the instructed Repo)
         boolean citizenStatusByCitizenToken = beneficiaryGroupService.getCitizenStatusByCitizenToken(anyString(), "NotPresent");
 
         //Check the equality of the results
-        assertEquals(false, citizenStatusByCitizenToken);
+        assertFalse(citizenStatusByCitizenToken);
 
         // you are expecting repo to be called once with correct param
-        verify(groupRepository).findBeneficiaryList(anyString());
+        verify(groupUserWhitelistRepository).findByInitiativeId(anyString());
     }
 
     @Test
     void whenBeneficiaryListIsNull_thenServiceBeneficiaryListNotFound() {
-        Group group = new Group();
         //Instruct the Repo Mock to return Dummy Item
-        when(groupRepository.findBeneficiaryList(anyString())).thenReturn(Optional.of(group));
+        when(groupUserWhitelistRepository.findByInitiativeId(anyString())).thenReturn(List.of());
 
         //Try to call the Real Service (which is using the instructed Repo)
         try {
@@ -175,31 +174,7 @@ class BeneficiaryGroupServiceTest {
             assertEquals(MessageFormat.format(GroupConstants.Exception.NotFound.NO_BENEFICIARY_LIST_PROVIDED_FOR_INITIATIVE_ID, "Id1"), e.getMessage());
 
             // you are expecting repo to be called once with correct param
-            verify(groupRepository).findBeneficiaryList(anyString());
-        }
-    }
-
-    @Test
-    void whenGroupsNotFound_thenServiceNotFound() {
-        //Instruct the Repo Mock to return Dummy Item
-        when(groupRepository.findBeneficiaryList(anyString())).thenThrow(
-                new BeneficiaryGroupException(
-                        GroupConstants.Exception.NotFound.CODE,
-                        MessageFormat.format(GroupConstants.Exception.NotFound.NO_GROUP_FOR_INITIATIVE_ID, "Id1"),
-                        HttpStatus.NOT_FOUND)
-        );
-
-        //Try to call the Real Service (which is using the instructed Repo)
-        try {
-            beneficiaryGroupService.getCitizenStatusByCitizenToken(anyString(), FISCAL_CODE_TOKENIZED);
-        } catch (BeneficiaryGroupException e) {
-            log.info("BeneficiaryGroupException: " + e.getCode());
-            assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
-            assertEquals(GroupConstants.Exception.NotFound.CODE, e.getCode());
-            assertEquals(MessageFormat.format(GroupConstants.Exception.NotFound.NO_GROUP_FOR_INITIATIVE_ID, "Id1"), e.getMessage());
-
-            // you are expecting repo to be called once with correct param
-            verify(groupRepository).findBeneficiaryList(anyString());
+            verify(groupUserWhitelistRepository).findByInitiativeId(anyString());
         }
     }
 
@@ -219,7 +194,6 @@ class BeneficiaryGroupServiceTest {
         group.setUpdateDate(LocalDateTime.now(clock));
         group.setCreationUser("admin");
         group.setUpdateUser("admin");
-        group.setBeneficiaryList(null);
         return group;
     }
     private Group createGroupValidWithProcKo_ok(){
@@ -235,7 +209,6 @@ class BeneficiaryGroupServiceTest {
         group.setUpdateDate(LocalDateTime.now(clock));
         group.setCreationUser("admin");
         group.setUpdateUser("admin");
-        group.setBeneficiaryList(null);
         return group;
     }
 }

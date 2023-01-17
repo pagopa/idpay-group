@@ -41,5 +41,5 @@ public class Group {
 
     private String updateUser;
 
-    private List<String> beneficiaryList;
+    private Integer beneficiariesReached;
 }

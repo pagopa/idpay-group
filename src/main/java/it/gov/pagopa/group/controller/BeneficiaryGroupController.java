@@ -87,7 +87,7 @@ public class BeneficiaryGroupController implements BeneficiaryGroup {
                         .errorMessage(group.getExceptionMessage())
                         .fileUploadingDateTime(group.getCreationDate())
                         .fileName(group.getFileName())
-                        .beneficiariesReached(Objects.isNull(group.getBeneficiaryList()) ? null : group.getBeneficiaryList().size())
+                        .beneficiariesReached(group.getBeneficiariesReached())
                         .build());
     }
 

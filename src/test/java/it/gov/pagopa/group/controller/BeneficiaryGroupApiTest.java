@@ -430,7 +430,6 @@ public class BeneficiaryGroupApiTest {
         group.setUpdateDate(LocalDateTime.now(clock));
         group.setCreationUser("admin");
         group.setUpdateUser("admin");
-        group.setBeneficiaryList(List.of(FIRST_BENEFICIARY_IN_LIST));
         return group;
     }
 

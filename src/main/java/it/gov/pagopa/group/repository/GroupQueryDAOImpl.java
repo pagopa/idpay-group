@@ -4,6 +4,7 @@ import it.gov.pagopa.group.constants.GroupConstants;
 import it.gov.pagopa.group.constants.GroupConstants.Status;
 import it.gov.pagopa.group.model.Group;
 import it.gov.pagopa.group.model.Group.Fields;
+import it.gov.pagopa.group.model.GroupUserWhitelist;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,9 +33,10 @@ public class GroupQueryDAOImpl implements GroupQueryDAO {
   }
 
   @Override
-  public void setStatusOk(String initiativeId) {
+  public void setStatusOk(String initiativeId, int beneficiariesReached) {
     Query query = new Query(Criteria.where(Fields.initiativeId).is(initiativeId));
-    Update update = new Update().set(Fields.status, GroupConstants.Status.OK);
+    Update update = new Update().set(Fields.status, GroupConstants.Status.OK)
+        .set(Fields.beneficiariesReached, beneficiariesReached);
     mongoTemplate.updateFirst(query, update, Group.class);
   }
 
@@ -44,14 +46,12 @@ public class GroupQueryDAOImpl implements GroupQueryDAO {
     Query query = new Query(Criteria.where(Fields.initiativeId).is(initiativeId));
     Update update = new Update().set(Fields.exceptionMessage, exceptionMessage)
         .set(Fields.elabDateTime, elabDateTime).set(Fields.retry, retry)
-        .set(Fields.status, Status.PROC_KO).unset(Fields.beneficiaryList);
+        .unset(Fields.beneficiariesReached);
     mongoTemplate.updateFirst(query, update, Group.class);
   }
 
   @Override
-  public void pushBeneficiaryList(String initiativeId, List<String> beneficiaryList) {
-    Query query = new Query(Criteria.where(Fields.initiativeId).is(initiativeId));
-    Update update = new Update().push("beneficiaryList").each(beneficiaryList);
-    mongoTemplate.updateFirst(query, update, Group.class);
+  public void pushBeneficiaryList(List<GroupUserWhitelist> beneficiaryList) {
+    mongoTemplate.insertAll(beneficiaryList);
   }
 }
