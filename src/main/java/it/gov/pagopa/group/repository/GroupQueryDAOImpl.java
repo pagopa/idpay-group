@@ -54,7 +54,8 @@ public class GroupQueryDAOImpl implements GroupQueryDAO {
     Query query = new Query(Criteria.where(Fields.groupId).is(groupId)).limit(1000);
     boolean deletedAll = false;
     while(!deletedAll) {
-      long count = mongoTemplate.remove(query, GroupUserWhitelist.class).getDeletedCount();
+      List<GroupUserWhitelist> toDelete = mongoTemplate.find(query, GroupUserWhitelist.class);
+      long count = mongoTemplate.remove(toDelete).getDeletedCount();
       deletedAll = count == 0;
     }
   }
