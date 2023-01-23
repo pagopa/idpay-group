@@ -39,7 +39,7 @@ import java.util.Optional;
 public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
 
   public static final String KEY_SEPARATOR = "_";
-  public static final int WHITELIST_CHUNK = 50000;
+  public static final int WHITELIST_CHUNK = 25000;
 
   private final String rootPath;
   private final boolean isFilesOnStorageToBeDeleted;
