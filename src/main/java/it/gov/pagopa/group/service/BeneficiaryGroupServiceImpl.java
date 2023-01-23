@@ -39,6 +39,7 @@ import java.util.Optional;
 public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
 
   public static final String KEY_SEPARATOR = "_";
+  public static final int WHITELIST_CHUNK = 50000;
 
   private final String rootPath;
   private final boolean isFilesOnStorageToBeDeleted;
@@ -89,10 +90,10 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
           "[GROUP_SCHEDULING] [ANONYMIZER] Found beneficiary's group for {} with status {} on Organization {}",
           fileName, GroupConstants.Status.VALIDATED, group.getOrganizationId());
       Resource file = load(group.getOrganizationId(), fileName);
-      List<GroupUserWhitelist> anonymousCFlist = null;
+      List<String> anonymousCFlist = null;
       try {
-        anonymousCFlist = cfAnonymizer(file, group.getGroupId(), group.getInitiativeId());
-        pushBeneficiaryListToDb(anonymousCFlist);
+        anonymousCFlist = cfAnonymizer(file);
+        pushBeneficiaryListToDb(anonymousCFlist, group.getGroupId(), group.getInitiativeId());
         groupQueryDAO.setStatusOk(group.getInitiativeId(), anonymousCFlist.size());
         anonymizationDone = true;
       } catch (Exception e) {
@@ -118,11 +119,11 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
           "[GROUP_SCHEDULING] [ANONYMIZER] Found beneficiary's group for {} with status {} on Organization {}",
           fileName, GroupConstants.Status.PROC_KO, group.getOrganizationId());
       Resource file = load(group.getOrganizationId(), fileName);
-      List<GroupUserWhitelist> anonymousCFlist = null;
+      List<String> anonymousCFlist = null;
       try {
         log.info("Retry to communicate with PDV num: {}", group.getRetry() + 1);
-        anonymousCFlist = cfAnonymizer(file, group.getGroupId(), group.getInitiativeId());
-        pushBeneficiaryListToDb(anonymousCFlist);
+        anonymousCFlist = cfAnonymizer(file);
+        pushBeneficiaryListToDb(anonymousCFlist, group.getGroupId(), group.getInitiativeId());
         groupQueryDAO.setStatusOk(group.getInitiativeId(), anonymousCFlist.size());
         anonymizationDone = true;
       } catch (Exception e) {
@@ -136,15 +137,32 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
     }
   }
 
-  private void pushBeneficiaryListToDb(List<GroupUserWhitelist> anonymousCFList) {
+  private void pushBeneficiaryListToDb(List<String> anonymousCFList, String groupId,
+      String initiativeId) {
 
     long start = System.currentTimeMillis();
     int size = anonymousCFList.size();
 
+    int chunkNumber = size / WHITELIST_CHUNK;
+    int lastChunkSize = size % WHITELIST_CHUNK;
+
+    List<GroupUserWhitelist> whitelist = new ArrayList<>();
     log.info(
         "[GROUP_SCHEDULING] [ANONYMIZER] Pushing beneficiary list to database [rows: {}]", size);
 
-    groupQueryDAO.pushBeneficiaryList(anonymousCFList);
+    for (int i = 0; i < chunkNumber; i++) {
+      GroupUserWhitelist groupUserWhitelist = new GroupUserWhitelist(null, groupId, initiativeId,
+          anonymousCFList.subList(i * WHITELIST_CHUNK, (i + 1) * WHITELIST_CHUNK));
+      whitelist.add(groupUserWhitelist);
+    }
+
+    if(lastChunkSize != 0){
+      GroupUserWhitelist groupUserWhitelist = new GroupUserWhitelist(null, groupId, initiativeId,
+          anonymousCFList.subList(chunkNumber * WHITELIST_CHUNK, lastChunkSize));
+      whitelist.add(groupUserWhitelist);
+    }
+
+    groupQueryDAO.pushBeneficiaryList(whitelist);
 
     long end = System.currentTimeMillis();
 
@@ -152,8 +170,9 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
         end - start);
   }
 
-  private List<GroupUserWhitelist> cfAnonymizer(Resource file, String groupId, String initiativeId) throws Exception {
-    List<GroupUserWhitelist> anonymousCFlist = new ArrayList<>();
+  private List<String> cfAnonymizer(Resource file)
+      throws Exception {
+    List<String> anonymousCFlist = new ArrayList<>();
     String line;
     InputStream is = file.getInputStream();
     try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
@@ -163,7 +182,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
         lineCounter++;
         FiscalCodeTokenizedDTO fiscalCodeTokenizedDTO = pdvEncryptRestConnector.putPii(
             PiiDTO.builder().pii(line.toUpperCase()).build());
-        anonymousCFlist.add(new GroupUserWhitelist(null, groupId, initiativeId, fiscalCodeTokenizedDTO.getToken()));
+        anonymousCFlist.add(fiscalCodeTokenizedDTO.getToken());
       }
       long after = System.currentTimeMillis();
       log.info("[ANONYMIZER] Time to finish {} PDV calls: {} ms", lineCounter, after - before);
@@ -244,7 +263,8 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
 
   @Override
   public boolean getCitizenStatusByCitizenToken(String initiativeId, String citizenToken) {
-    List<String> beneficiaryList = groupUserWhitelistRepository.findByInitiativeId(initiativeId);
+    List<String> beneficiaryList = groupUserWhitelistRepository.findByInitiativeId(initiativeId)
+        .stream().map(GroupUserWhitelist::getUserId).flatMap(List::stream).toList();
     if (CollectionUtils.isEmpty(beneficiaryList)) {
       throw new BeneficiaryGroupException(GroupConstants.Exception.NotFound.CODE,
           MessageFormat.format(
@@ -259,7 +279,8 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
   public void sendInitiativeNotificationForCitizen(String initiativeId, String initiativeName,
       String serviceId) {
     log.info("[NOTIFY_ALLOWED_CITIZEN] - [DB] Getting Group with allowed beneficiaries");
-    List<String> beneficiaryTokenizedList = groupUserWhitelistRepository.findByInitiativeId(initiativeId);
+    List<String> beneficiaryTokenizedList = groupUserWhitelistRepository.findByInitiativeId(
+        initiativeId).stream().map(GroupUserWhitelist::getUserId).flatMap(List::stream).toList();
     if (CollectionUtils.isEmpty(beneficiaryTokenizedList)) {
       throw new BeneficiaryGroupException(GroupConstants.Exception.NotFound.CODE,
           MessageFormat.format(

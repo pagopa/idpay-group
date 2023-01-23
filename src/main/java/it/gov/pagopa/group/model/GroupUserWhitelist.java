@@ -1,5 +1,6 @@
 package it.gov.pagopa.group.model;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,5 +25,5 @@ public class GroupUserWhitelist {
 
     private String initiativeId;
 
-    private String userId;
+    private List<String> userId; //TODO Rinominare
 }
