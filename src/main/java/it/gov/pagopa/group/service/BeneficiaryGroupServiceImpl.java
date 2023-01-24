@@ -39,7 +39,6 @@ import java.util.Optional;
 public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
 
   public static final String KEY_SEPARATOR = "_";
-  public static final int WHITELIST_CHUNK = 25000;
 
   private final String rootPath;
   private final boolean isFilesOnStorageToBeDeleted;
@@ -49,10 +48,12 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
   private final GroupQueryDAO groupQueryDAO;
   private final Clock clock;
   private final NotificationConnector notificationConnector;
+  private final int whitelistMaxSize;
 
   public BeneficiaryGroupServiceImpl(
       @Value("${file.storage.path}") String rootPath,
       @Value("${file.storage.deletion}") boolean isFilesOnStorageToBeDeleted,
+      @Value("${file.whitelist.document.max-size}") int whitelistMaxSize,
       GroupRepository groupRepository,
       GroupUserWhitelistRepository groupUserWhitelistRepository,
       PdvEncryptRestConnector pdvEncryptRestConnector,
@@ -67,6 +68,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
     this.groupQueryDAO = groupQueryDAO;
     this.clock = clock;
     this.notificationConnector = notificationConnector;
+    this.whitelistMaxSize = whitelistMaxSize;
   }
 
 
@@ -143,8 +145,8 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
     long start = System.currentTimeMillis();
     int size = anonymousCFList.size();
 
-    int chunkNumber = size / WHITELIST_CHUNK;
-    int lastChunkSize = size % WHITELIST_CHUNK;
+    int chunkNumber = size / whitelistMaxSize;
+    int lastChunkSize = size % whitelistMaxSize;
 
     List<GroupUserWhitelist> whitelist = new ArrayList<>();
     log.info(
@@ -152,13 +154,13 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
 
     for (int i = 0; i < chunkNumber; i++) {
       GroupUserWhitelist groupUserWhitelist = new GroupUserWhitelist(null, groupId, initiativeId,
-          anonymousCFList.subList(i * WHITELIST_CHUNK, (i + 1) * WHITELIST_CHUNK));
+          anonymousCFList.subList(i * whitelistMaxSize, (i + 1) * whitelistMaxSize));
       whitelist.add(groupUserWhitelist);
     }
 
     if(lastChunkSize != 0){
       GroupUserWhitelist groupUserWhitelist = new GroupUserWhitelist(null, groupId, initiativeId,
-          anonymousCFList.subList(chunkNumber * WHITELIST_CHUNK, lastChunkSize));
+          anonymousCFList.subList(chunkNumber * whitelistMaxSize, lastChunkSize));
       whitelist.add(groupUserWhitelist);
     }
 

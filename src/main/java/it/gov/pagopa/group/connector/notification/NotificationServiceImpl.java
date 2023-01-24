@@ -35,11 +35,12 @@ public class NotificationServiceImpl implements NotificationService {
                 .initiativeName(initiativeName)
                 .serviceId(serviceId)
                 .build();
-        if(!notificationManagerProducer.sendAllowedCitizen(citizenNotificationOnQueueDTO)){
-            log.error("[NOTIFY_TO_NOTIFICATION_MANAGER] - Something gone wrong while notify Initiative [{}] to NotificationManager MS for userId: {}", citizenNotificationOnQueueDTO.getInitiativeId(), citizenNotificationOnQueueDTO.getUserId());
-        }
-        if(!onboardingNotificationProducer.sendAllowedCitizen(citizenNotificationOnQueueDTO)){
-            log.error("[NOTIFY_TO_ONBOARDING] - Something gone wrong while notify Initiative [{}] to Onboarding MS for userId: {}", citizenNotificationOnQueueDTO.getInitiativeId(), citizenNotificationOnQueueDTO.getUserId());
-        }
+//        if(!notificationManagerProducer.sendAllowedCitizen(citizenNotificationOnQueueDTO)){
+//            log.error("[NOTIFY_TO_NOTIFICATION_MANAGER] - Something gone wrong while notify Initiative [{}] to NotificationManager MS for userId: {}", citizenNotificationOnQueueDTO.getInitiativeId(), citizenNotificationOnQueueDTO.getUserId());
+//        }
+//        if(!onboardingNotificationProducer.sendAllowedCitizen(citizenNotificationOnQueueDTO)){
+//            log.error("[NOTIFY_TO_ONBOARDING] - Something gone wrong while notify Initiative [{}] to Onboarding MS for userId: {}", citizenNotificationOnQueueDTO.getInitiativeId(), citizenNotificationOnQueueDTO.getUserId());
+//        }
+        log.info("[TEST_NOTIFICATION] Sending notification to {}", beneficiaryTokenized);
     }
 }

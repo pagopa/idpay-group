@@ -97,6 +97,8 @@ feign:
         retryer: it.gov.pagopa.group.connector.pdv.PdvClientRetryer
 
 file:
+  whitelist.document:
+    max-size: ${GROUP_WHITELIST_MAX_SIZE:25000}
   schedule:
     init-delay:
     fixed-rate:
