@@ -8,15 +8,18 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public interface BeneficiaryGroupService {
 
-    void save(MultipartFile file, String initiativeId, String organizationId, String status);
+  void save(MultipartFile file, String initiativeId, String organizationId, String status);
 
-    Resource load(String organizationId, String filename);
+  Resource load(String organizationId, String filename);
 
-    void delete(String organizationId, String filename);
+  void delete(String organizationId, String filename);
 
-    Group getStatusByInitiativeId(String initiativeId, String organizationId);
+  Group getStatusByInitiativeId(String initiativeId, String organizationId);
 
-    boolean getCitizenStatusByCitizenToken(String initiativeId, String citizenToken);
+  boolean getCitizenStatusByCitizenToken(String initiativeId, String citizenToken);
 
-    void sendInitiativeNotificationForCitizen(String initiativeId, String initiativeName, String serviceId);
+  void sendInitiativeNotificationForCitizen(
+      String initiativeId, String initiativeName, String serviceId);
+
+  void setStatusToValidated(String initiativeId);
 }
