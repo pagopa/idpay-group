@@ -55,4 +55,14 @@ public interface BeneficiaryGroup {
             @ApiResponse(responseCode = "500", description = "Server ERROR", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class)))})
     @GetMapping(value = "/group/initiative/{initiativeId}/citizen/{citizenToken}")
     ResponseEntity<CitizenStatusDTO> getCitizenStatus(@PathVariable("initiativeId") String initiativeId, @PathVariable("citizenToken") String citizenToken);
+
+    @Operation(operationId = "setGroupStatusToValidated", summary = "Set the group status to VALIDATED when the initiative is sent to review", description = "", tags = {"group"})
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "202", description = "Accepted",  content = @Content(mediaType = "application/json", schema = @Schema(implementation = GroupUpdateDTO.class))),
+        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
+        @ApiResponse(responseCode = "404", description = "Not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
+        @ApiResponse(responseCode = "429", description = "Too many Request", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
+        @ApiResponse(responseCode = "500", description = "Server ERROR", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class)))})
+    @PostMapping(value = "/group/initiative/{initiativeId}/validate")
+    ResponseEntity<Void> setGroupStatusToValidated(@PathVariable("initiativeId") String initiativeId);
 }

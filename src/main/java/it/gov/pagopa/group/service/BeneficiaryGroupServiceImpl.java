@@ -3,6 +3,8 @@ package it.gov.pagopa.group.service;
 import it.gov.pagopa.group.connector.notification.NotificationConnector;
 import it.gov.pagopa.group.connector.pdv.PdvEncryptRestConnector;
 import it.gov.pagopa.group.constants.GroupConstants;
+import it.gov.pagopa.group.constants.GroupConstants.Exception.NotFound;
+import it.gov.pagopa.group.constants.GroupConstants.Status;
 import it.gov.pagopa.group.dto.FiscalCodeTokenizedDTO;
 import it.gov.pagopa.group.dto.PiiDTO;
 import it.gov.pagopa.group.exception.BeneficiaryGroupException;
@@ -48,12 +50,10 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
   private final GroupQueryDAO groupQueryDAO;
   private final Clock clock;
   private final NotificationConnector notificationConnector;
-  private final int whitelistMaxSize;
 
   public BeneficiaryGroupServiceImpl(
       @Value("${file.storage.path}") String rootPath,
       @Value("${file.storage.deletion}") boolean isFilesOnStorageToBeDeleted,
-      @Value("${file.whitelist.document.max-size}") int whitelistMaxSize,
       GroupRepository groupRepository,
       GroupUserWhitelistRepository groupUserWhitelistRepository,
       PdvEncryptRestConnector pdvEncryptRestConnector,
@@ -68,9 +68,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
     this.groupQueryDAO = groupQueryDAO;
     this.clock = clock;
     this.notificationConnector = notificationConnector;
-    this.whitelistMaxSize = whitelistMaxSize;
   }
-
 
   private void init(String organizationId) {
     try {
@@ -85,22 +83,25 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
   public void scheduleValidatedGroup() throws IOException {
     boolean anonymizationDone = false;
     Group group = groupQueryDAO.findFirstByStatusAndUpdate(GroupConstants.Status.VALIDATED);
-//TODO check for null?       if(groupOptional.isPresent()) {
+    // TODO check for null?       if(groupOptional.isPresent()) {
     if (null != group) {
+      groupQueryDAO.removeWhitelistByGroupId(group.getGroupId());
       String fileName = group.getFileName();
       log.info(
           "[GROUP_SCHEDULING] [ANONYMIZER] Found beneficiary's group for {} with status {} on Organization {}",
-          fileName, GroupConstants.Status.VALIDATED, group.getOrganizationId());
+          fileName,
+          GroupConstants.Status.VALIDATED,
+          group.getOrganizationId());
       Resource file = load(group.getOrganizationId(), fileName);
-      List<String> anonymousCFlist = null;
+      List<GroupUserWhitelist> anonymousCFlist = null;
       try {
-        anonymousCFlist = cfAnonymizer(file);
-        pushBeneficiaryListToDb(anonymousCFlist, group.getGroupId(), group.getInitiativeId());
+        anonymousCFlist = cfAnonymizer(file, group.getGroupId(), group.getInitiativeId());
+        pushBeneficiaryListToDb(anonymousCFlist);
         groupQueryDAO.setStatusOk(group.getInitiativeId(), anonymousCFlist.size());
         anonymizationDone = true;
       } catch (Exception e) {
-        groupQueryDAO.setGroupForException(group.getInitiativeId(), e.getMessage(),
-            LocalDateTime.now(clock), 1);
+        groupQueryDAO.setGroupForException(
+            group.getInitiativeId(), e.getMessage(), LocalDateTime.now(clock), 1);
         groupQueryDAO.removeWhitelistByGroupId(group.getGroupId());
       }
       if (isFilesOnStorageToBeDeleted && anonymizationDone) {
@@ -112,25 +113,31 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
   @Scheduled(fixedRate = 15000, initialDelay = 140000)
   public void scheduleProcKoGroup() throws IOException {
     boolean anonymizationDone = false;
-    Optional<Group> groupOptional = groupRepository.findFirstByStatusAndRetryLessThan(
-        GroupConstants.Status.PROC_KO, 3);
+    Optional<Group> groupOptional =
+        groupRepository.findFirstByStatusAndRetryLessThan(GroupConstants.Status.PROC_KO, 3);
     if (groupOptional.isPresent()) {
       Group group = groupOptional.get();
       String fileName = group.getFileName();
+      groupQueryDAO.removeWhitelistByGroupId(group.getGroupId());
       log.info(
           "[GROUP_SCHEDULING] [ANONYMIZER] Found beneficiary's group for {} with status {} on Organization {}",
-          fileName, GroupConstants.Status.PROC_KO, group.getOrganizationId());
+          fileName,
+          GroupConstants.Status.PROC_KO,
+          group.getOrganizationId());
       Resource file = load(group.getOrganizationId(), fileName);
-      List<String> anonymousCFlist = null;
+      List<GroupUserWhitelist> anonymousCFlist = null;
       try {
         log.info("Retry to communicate with PDV num: {}", group.getRetry() + 1);
-        anonymousCFlist = cfAnonymizer(file);
-        pushBeneficiaryListToDb(anonymousCFlist, group.getGroupId(), group.getInitiativeId());
+        anonymousCFlist = cfAnonymizer(file, group.getGroupId(), group.getInitiativeId());
+        pushBeneficiaryListToDb(anonymousCFlist);
         groupQueryDAO.setStatusOk(group.getInitiativeId(), anonymousCFlist.size());
         anonymizationDone = true;
       } catch (Exception e) {
-        groupQueryDAO.setGroupForException(group.getInitiativeId(), e.getMessage(),
-            LocalDateTime.now(clock), group.getRetry() + 1);
+        groupQueryDAO.setGroupForException(
+            group.getInitiativeId(),
+            e.getMessage(),
+            LocalDateTime.now(clock),
+            group.getRetry() + 1);
         groupQueryDAO.removeWhitelistByGroupId(group.getGroupId());
       }
       if (isFilesOnStorageToBeDeleted && (anonymizationDone || group.getRetry() >= 3)) {
@@ -139,42 +146,25 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
     }
   }
 
-  private void pushBeneficiaryListToDb(List<String> anonymousCFList, String groupId,
-      String initiativeId) {
+  private void pushBeneficiaryListToDb(List<GroupUserWhitelist> anonymousCFList) {
 
     long start = System.currentTimeMillis();
     int size = anonymousCFList.size();
 
-    int chunkNumber = size / whitelistMaxSize;
-    int lastChunkSize = size % whitelistMaxSize;
-
-    List<GroupUserWhitelist> whitelist = new ArrayList<>();
     log.info(
         "[GROUP_SCHEDULING] [ANONYMIZER] Pushing beneficiary list to database [rows: {}]", size);
 
-    for (int i = 0; i < chunkNumber; i++) {
-      GroupUserWhitelist groupUserWhitelist = new GroupUserWhitelist(null, groupId, initiativeId,
-          anonymousCFList.subList(i * whitelistMaxSize, (i + 1) * whitelistMaxSize));
-      whitelist.add(groupUserWhitelist);
-    }
-
-    if(lastChunkSize != 0){
-      GroupUserWhitelist groupUserWhitelist = new GroupUserWhitelist(null, groupId, initiativeId,
-          anonymousCFList.subList(chunkNumber * whitelistMaxSize, lastChunkSize));
-      whitelist.add(groupUserWhitelist);
-    }
-
-    groupQueryDAO.pushBeneficiaryList(whitelist);
+    groupQueryDAO.pushBeneficiaryList(anonymousCFList);
 
     long end = System.currentTimeMillis();
 
-    log.info("[GROUP_SCHEDULING] [ANONYMIZER] Time spent pushing {} rows to db: {}", size,
-        end - start);
+    log.info(
+        "[GROUP_SCHEDULING] [ANONYMIZER] Time spent pushing {} rows to db: {}", size, end - start);
   }
 
-  private List<String> cfAnonymizer(Resource file)
+  private List<GroupUserWhitelist> cfAnonymizer(Resource file, String groupId, String initiativeId)
       throws Exception {
-    List<String> anonymousCFlist = new ArrayList<>();
+    List<GroupUserWhitelist> anonymousCFlist = new ArrayList<>();
     String line;
     InputStream is = file.getInputStream();
     try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
@@ -182,9 +172,10 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
       int lineCounter = 0;
       while ((line = br.readLine()) != null) {
         lineCounter++;
-        FiscalCodeTokenizedDTO fiscalCodeTokenizedDTO = pdvEncryptRestConnector.putPii(
-            PiiDTO.builder().pii(line.toUpperCase()).build());
-        anonymousCFlist.add(fiscalCodeTokenizedDTO.getToken());
+        FiscalCodeTokenizedDTO fiscalCodeTokenizedDTO =
+            pdvEncryptRestConnector.putPii(PiiDTO.builder().pii(line.toUpperCase()).build());
+        anonymousCFlist.add(
+            new GroupUserWhitelist(null, groupId, initiativeId, fiscalCodeTokenizedDTO.getToken()));
       }
       long after = System.currentTimeMillis();
       log.info("[ANONYMIZER] Time to finish {} PDV calls: {} ms", lineCounter, after - before);
@@ -201,7 +192,9 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
       Path root = Paths.get(rootPath + File.separator + organizationId);
       String groupId = initiativeId + KEY_SEPARATOR + organizationId;
       Files.createDirectories(root);
-      Files.copy(file.getInputStream(), root.resolve(file.getOriginalFilename()),
+      Files.copy(
+          file.getInputStream(),
+          root.resolve(file.getOriginalFilename()),
           StandardCopyOption.REPLACE_EXISTING);
       Group group = new Group();
       group.setGroupId(groupId);
@@ -211,10 +204,9 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
       group.setFileName(file.getOriginalFilename());
       group.setCreationDate(LocalDateTime.now(clock));
       group.setUpdateDate(LocalDateTime.now(clock));
-      group.setCreationUser("admin"); //TODO recuperare info da apim
-      group.setUpdateUser("admin"); //TODO recuperare info da apim
+      group.setCreationUser("admin"); // TODO recuperare info da apim
+      group.setUpdateUser("admin"); // TODO recuperare info da apim
       group.setBeneficiariesReached(null);
-      groupQueryDAO.removeWhitelistByGroupId(groupId);
       groupRepository.save(group);
     } catch (Exception e) {
       throw new RuntimeException("Could not store the file. Error: " + e.getMessage());
@@ -256,19 +248,26 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
 
   @Override
   public Group getStatusByInitiativeId(String initiativeId, String organizationId) {
-    return groupRepository.getStatus(initiativeId, organizationId)
-        .orElseThrow(() -> new BeneficiaryGroupException(GroupConstants.Exception.NotFound.CODE,
-            MessageFormat.format(GroupConstants.Exception.NotFound.NO_GROUP_FOR_INITIATIVE_ID,
-                initiativeId),
-            HttpStatus.NOT_FOUND));
+    return groupRepository
+        .getStatus(initiativeId, organizationId)
+        .orElseThrow(
+            () ->
+                new BeneficiaryGroupException(
+                    GroupConstants.Exception.NotFound.CODE,
+                    MessageFormat.format(
+                        GroupConstants.Exception.NotFound.NO_GROUP_FOR_INITIATIVE_ID, initiativeId),
+                    HttpStatus.NOT_FOUND));
   }
 
   @Override
   public boolean getCitizenStatusByCitizenToken(String initiativeId, String citizenToken) {
-    List<String> beneficiaryList = groupUserWhitelistRepository.findByInitiativeId(initiativeId)
-        .stream().map(GroupUserWhitelist::getUserId).flatMap(List::stream).toList();
+    List<String> beneficiaryList =
+        groupUserWhitelistRepository.findByInitiativeId(initiativeId).stream()
+            .map(GroupUserWhitelist::getUserId)
+            .toList();
     if (CollectionUtils.isEmpty(beneficiaryList)) {
-      throw new BeneficiaryGroupException(GroupConstants.Exception.NotFound.CODE,
+      throw new BeneficiaryGroupException(
+          GroupConstants.Exception.NotFound.CODE,
           MessageFormat.format(
               GroupConstants.Exception.NotFound.NO_BENEFICIARY_LIST_PROVIDED_FOR_INITIATIVE_ID,
               initiativeId),
@@ -278,21 +277,38 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
   }
 
   @Override
-  public void sendInitiativeNotificationForCitizen(String initiativeId, String initiativeName,
-      String serviceId) {
+  public void sendInitiativeNotificationForCitizen(
+      String initiativeId, String initiativeName, String serviceId) {
     log.info("[NOTIFY_ALLOWED_CITIZEN] - [DB] Getting Group with allowed beneficiaries");
-    List<String> beneficiaryTokenizedList = groupUserWhitelistRepository.findByInitiativeId(
-        initiativeId).stream().map(GroupUserWhitelist::getUserId).flatMap(List::stream).toList();
+    List<String> beneficiaryTokenizedList =
+        groupUserWhitelistRepository.findByInitiativeId(initiativeId).stream()
+            .map(GroupUserWhitelist::getUserId)
+            .toList();
     if (CollectionUtils.isEmpty(beneficiaryTokenizedList)) {
-      throw new BeneficiaryGroupException(GroupConstants.Exception.NotFound.CODE,
+      throw new BeneficiaryGroupException(
+          GroupConstants.Exception.NotFound.CODE,
           MessageFormat.format(
               GroupConstants.Exception.NotFound.NO_BENEFICIARY_LIST_PROVIDED_FOR_INITIATIVE_ID,
               initiativeId),
           HttpStatus.NOT_FOUND);
     }
     log.debug("[NOTIFY_ALLOWED_CITIZEN] - Getting of beneficiaries from Group -> DONE");
-    notificationConnector.sendAllowedCitizen(beneficiaryTokenizedList, initiativeId, initiativeName,
-        serviceId);
+    notificationConnector.sendAllowedCitizen(
+        beneficiaryTokenizedList, initiativeId, initiativeName, serviceId);
   }
 
+  @Override
+  public void setStatusToValidated(String initiativeId) {
+    Group group =
+        groupRepository
+            .findByInitiativeIdAndStatus(initiativeId, GroupConstants.Status.DRAFT)
+            .orElseThrow(
+                () ->
+                    new BeneficiaryGroupException(
+                        GroupConstants.Exception.NotFound.CODE,
+                        MessageFormat.format(NotFound.NO_GROUP_FOR_INITIATIVE_ID, initiativeId),
+                        HttpStatus.NOT_FOUND));
+    group.setStatus(Status.VALIDATED);
+    groupRepository.save(group);
+  }
 }

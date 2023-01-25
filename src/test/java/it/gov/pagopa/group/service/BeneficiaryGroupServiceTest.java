@@ -40,96 +40,86 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
-
-@WebMvcTest(value = {
-    BeneficiaryGroupService.class})
+@WebMvcTest(value = {BeneficiaryGroupService.class})
 @Slf4j
-@TestPropertySource(properties = {
-    "file.storage.path=output/tmp/group",
-    "file.storage.deletion=false"
-})
+@TestPropertySource(
+    properties = {"file.storage.path=output/tmp/group", "file.storage.deletion=false"})
 class BeneficiaryGroupServiceTest {
 
-  @Autowired
-  BeneficiaryGroupService beneficiaryGroupService;
-  @Autowired
-  BeneficiaryGroupServiceImpl beneficiaryGroupServiceImpl;
+  @Autowired BeneficiaryGroupService beneficiaryGroupService;
+  @Autowired BeneficiaryGroupServiceImpl beneficiaryGroupServiceImpl;
 
-  @MockBean
-  GroupRepository groupRepository;
-  @MockBean
-  GroupQueryDAO groupQueryDAO;
-  @MockBean
-  PdvEncryptRestConnector encryptRestConnector;
-  @MockBean
-  NotificationConnector notificationConnector;
-  @MockBean
-  GroupUserWhitelistRepository groupUserWhitelistRepository;
+  @MockBean GroupRepository groupRepository;
+  @MockBean GroupQueryDAO groupQueryDAO;
+  @MockBean PdvEncryptRestConnector encryptRestConnector;
+  @MockBean NotificationConnector notificationConnector;
+  @MockBean GroupUserWhitelistRepository groupUserWhitelistRepository;
 
-  //Mock your clock bean
-  @MockBean
-  private Clock clock;
+  // Mock your clock bean
+  @MockBean private Clock clock;
 
   private static final String FISCAL_CODE_TOKENIZED = "FISCAL_CODE_TOKENIZED";
 
   // Some fixed date to make your tests
-  private final static LocalDate LOCAL_DATE = LocalDate.of(2022, 1, 1);
+  private static final LocalDate LOCAL_DATE = LocalDate.of(2022, 1, 1);
 
   @BeforeEach
   void initMocks() {
-    //tell your tests to return the specified LOCAL_DATE when calling LocalDate.now(clock)
-    //field that will contain the fixed clock
-    Clock fixedClock = Clock.fixed(LOCAL_DATE.atStartOfDay(ZoneId.systemDefault()).toInstant(),
-        ZoneId.systemDefault());
+    // tell your tests to return the specified LOCAL_DATE when calling LocalDate.now(clock)
+    // field that will contain the fixed clock
+    Clock fixedClock =
+        Clock.fixed(
+            LOCAL_DATE.atStartOfDay(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault());
     doReturn(fixedClock.instant()).when(clock).instant();
     doReturn(fixedClock.getZone()).when(clock).getZone();
   }
 
   @Test
   void saveValidFile_ok() throws Exception {
-    File file1 = new ClassPathResource(
-        "group" + File.separator + "ps_fiscal_code_groups_file_large_20.csv").getFile();
+    File file1 =
+        new ClassPathResource("group" + File.separator + "ps_fiscal_code_groups_file_large_20.csv")
+            .getFile();
     FileInputStream inputFile = new FileInputStream(file1);
     MockMultipartFile file = new MockMultipartFile("file", file1.getName(), "text/csv", inputFile);
     Group group = createGroupValid_ok();
 
-    beneficiaryGroupService.save(file, group.getInitiativeId(), group.getOrganizationId(),
-        group.getStatus());
+    beneficiaryGroupService.save(
+        file, group.getInitiativeId(), group.getOrganizationId(), group.getStatus());
 
     verify(groupRepository, times(1)).save(any());
   }
 
-//  @Test
-//  void scheduledValidatedGroupTest_ok() throws Exception {
-//    Group group = createGroupValid_ok();
-//    when(groupQueryDAO.findFirstByStatusAndUpdate(GroupConstants.Status.VALIDATED)).thenReturn(
-//        group);
-//    beneficiaryGroupServiceImpl.scheduleValidatedGroup();
-//    verify(groupRepository, times(1)).save(any());
-//  }
+  //  @Test
+  //  void scheduledValidatedGroupTest_ok() throws Exception {
+  //    Group group = createGroupValid_ok();
+  //    when(groupQueryDAO.findFirstByStatusAndUpdate(GroupConstants.Status.VALIDATED)).thenReturn(
+  //        group);
+  //    beneficiaryGroupServiceImpl.scheduleValidatedGroup();
+  //    verify(groupRepository, times(1)).save(any());
+  //  }
 
   @Test
   void scheduledValidatedGroupTest_null() throws Exception {
-    when(groupQueryDAO.findFirstByStatusAndUpdate(GroupConstants.Status.VALIDATED)).thenReturn(
-        null);
+    when(groupQueryDAO.findFirstByStatusAndUpdate(GroupConstants.Status.VALIDATED))
+        .thenReturn(null);
     beneficiaryGroupServiceImpl.scheduleValidatedGroup();
     verify(groupQueryDAO, times(0)).setStatusOk(anyString(), anyInt());
   }
 
-//  @Test
-//  void scheduledProcKoGroup_ok() throws Exception {
-//    Group group = createGroupValidWithProcKo_ok();
-//    when(groupRepository.findFirstByStatusAndRetryLessThan("PROC_KO", 3)).thenReturn(
-//        Optional.of(group));
-//    beneficiaryGroupServiceImpl.scheduleProcKoGroup();
-//    verify(groupRepository, times(1)).findFirstByStatusAndRetryLessThan("PROC_KO", 3);
-//    verify(groupRepository, times(1)).save(any());
-//  }
+  //  @Test
+  //  void scheduledProcKoGroup_ok() throws Exception {
+  //    Group group = createGroupValidWithProcKo_ok();
+  //    when(groupRepository.findFirstByStatusAndRetryLessThan("PROC_KO", 3)).thenReturn(
+  //        Optional.of(group));
+  //    beneficiaryGroupServiceImpl.scheduleProcKoGroup();
+  //    verify(groupRepository, times(1)).findFirstByStatusAndRetryLessThan("PROC_KO", 3);
+  //    verify(groupRepository, times(1)).save(any());
+  //  }
 
   @Test
   void scheduledProcKoGroup_null() throws Exception {
-    when(groupRepository.findFirstByStatusAndRetryLessThan(Status.PROC_KO, 3)).thenReturn(
-        Optional.empty());
+    when(groupRepository.findFirstByStatusAndRetryLessThan(Status.PROC_KO, 3))
+        .thenReturn(Optional.empty());
     beneficiaryGroupServiceImpl.scheduleProcKoGroup();
     verify(groupQueryDAO, times(0)).setStatusOk(anyString(), anyInt());
   }
@@ -137,11 +127,13 @@ class BeneficiaryGroupServiceTest {
   @Test
   void saveInvalidFileException_ko() throws Exception {
     try {
-      File file1 = new ClassPathResource(
-          "group" + File.separator + "ps_fiscal_code_groups_file_large_20.csv").getFile();
+      File file1 =
+          new ClassPathResource(
+                  "group" + File.separator + "ps_fiscal_code_groups_file_large_20.csv")
+              .getFile();
       FileInputStream inputFile = new FileInputStream(file1);
-      MockMultipartFile file = new MockMultipartFile("file", file1.getName(), "text/csv",
-          inputFile);
+      MockMultipartFile file =
+          new MockMultipartFile("file", file1.getName(), "text/csv", inputFile);
       beneficiaryGroupService.save(file, anyString(), anyString(), anyString());
     } catch (RuntimeException e) {
       log.info("InitiativeException: " + e.getMessage());
@@ -153,15 +145,15 @@ class BeneficiaryGroupServiceTest {
   @Test
   void whenBeneficiaryListContainCitizenToken_thenServiceReturnTrue() {
     List<GroupUserWhitelist> beneficiaryList = new ArrayList<>();
-    beneficiaryList.add(new GroupUserWhitelist(null, "idG", "idI", List.of(FISCAL_CODE_TOKENIZED)));
-    //Instruct the Repo Mock to return Dummy Item
+    beneficiaryList.add(new GroupUserWhitelist(null, "idG", "idI", FISCAL_CODE_TOKENIZED));
+    // Instruct the Repo Mock to return Dummy Item
     when(groupUserWhitelistRepository.findByInitiativeId(anyString())).thenReturn(beneficiaryList);
 
-    //Try to call the Real Service (which is using the instructed Repo)
-    boolean citizenStatusByCitizenToken = beneficiaryGroupService.getCitizenStatusByCitizenToken(
-        anyString(), FISCAL_CODE_TOKENIZED);
+    // Try to call the Real Service (which is using the instructed Repo)
+    boolean citizenStatusByCitizenToken =
+        beneficiaryGroupService.getCitizenStatusByCitizenToken(anyString(), FISCAL_CODE_TOKENIZED);
 
-    //Check the equality of the results
+    // Check the equality of the results
     assertTrue(citizenStatusByCitizenToken);
 
     // you are expecting repo to be called once with correct param
@@ -171,15 +163,15 @@ class BeneficiaryGroupServiceTest {
   @Test
   void whenBeneficiaryListNotContainCitizenToken_thenServiceReturnFalse() {
     List<GroupUserWhitelist> beneficiaryList = new ArrayList<>();
-    beneficiaryList.add(new GroupUserWhitelist(null, "idG", "idI", List.of(FISCAL_CODE_TOKENIZED)));
-    //Instruct the Repo Mock to return Dummy Item
+    beneficiaryList.add(new GroupUserWhitelist(null, "idG", "idI", FISCAL_CODE_TOKENIZED));
+    // Instruct the Repo Mock to return Dummy Item
     when(groupUserWhitelistRepository.findByInitiativeId(anyString())).thenReturn(beneficiaryList);
 
-    //Try to call the Real Service (which is using the instructed Repo)
-    boolean citizenStatusByCitizenToken = beneficiaryGroupService.getCitizenStatusByCitizenToken(
-        anyString(), "NotPresent");
+    // Try to call the Real Service (which is using the instructed Repo)
+    boolean citizenStatusByCitizenToken =
+        beneficiaryGroupService.getCitizenStatusByCitizenToken(anyString(), "NotPresent");
 
-    //Check the equality of the results
+    // Check the equality of the results
     assertFalse(citizenStatusByCitizenToken);
 
     // you are expecting repo to be called once with correct param
@@ -188,18 +180,20 @@ class BeneficiaryGroupServiceTest {
 
   @Test
   void whenBeneficiaryListIsNull_thenServiceBeneficiaryListNotFound() {
-    //Instruct the Repo Mock to return Dummy Item
+    // Instruct the Repo Mock to return Dummy Item
     when(groupUserWhitelistRepository.findByInitiativeId(anyString())).thenReturn(List.of());
 
-    //Try to call the Real Service (which is using the instructed Repo)
+    // Try to call the Real Service (which is using the instructed Repo)
     try {
       beneficiaryGroupService.getCitizenStatusByCitizenToken("Id1", FISCAL_CODE_TOKENIZED);
     } catch (BeneficiaryGroupException e) {
       log.info("BeneficiaryGroupException: " + e.getCode());
       assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
       assertEquals(GroupConstants.Exception.NotFound.CODE, e.getCode());
-      assertEquals(MessageFormat.format(
-              GroupConstants.Exception.NotFound.NO_BENEFICIARY_LIST_PROVIDED_FOR_INITIATIVE_ID, "Id1"),
+      assertEquals(
+          MessageFormat.format(
+              GroupConstants.Exception.NotFound.NO_BENEFICIARY_LIST_PROVIDED_FOR_INITIATIVE_ID,
+              "Id1"),
           e.getMessage());
 
       // you are expecting repo to be called once with correct param
@@ -223,7 +217,6 @@ class BeneficiaryGroupServiceTest {
 
   @Test
   void getStatusByInitiativeId_not_found() {
-    Group group = createGroupValid_ok();
 
     when(groupRepository.getStatus("idI", "idG")).thenReturn(Optional.empty());
 
@@ -237,7 +230,7 @@ class BeneficiaryGroupServiceTest {
   @Test
   void sendInitiativeNotificationForCitizen_ok() {
     List<GroupUserWhitelist> beneficiaryList = new ArrayList<>();
-    beneficiaryList.add(new GroupUserWhitelist(null, "idG", "idI", List.of(FISCAL_CODE_TOKENIZED)));
+    beneficiaryList.add(new GroupUserWhitelist(null, "idG", "idI", FISCAL_CODE_TOKENIZED));
     when(groupUserWhitelistRepository.findByInitiativeId(anyString())).thenReturn(beneficiaryList);
 
     try {
@@ -246,8 +239,8 @@ class BeneficiaryGroupServiceTest {
       fail();
     }
 
-    verify(notificationConnector, times(1)).sendAllowedCitizen(any(), anyString(), anyString(),
-        anyString());
+    verify(notificationConnector, times(1))
+        .sendAllowedCitizen(any(), anyString(), anyString(), anyString());
   }
 
   @Test
@@ -260,8 +253,33 @@ class BeneficiaryGroupServiceTest {
       assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
     }
 
-    verify(notificationConnector, times(0)).sendAllowedCitizen(any(), anyString(), anyString(),
-        anyString());
+    verify(notificationConnector, times(0))
+        .sendAllowedCitizen(any(), anyString(), anyString(), anyString());
+  }
+
+  @Test
+  void setStatusToValidated_ok() {
+    Group group = createGroupValid_ok();
+    when(groupRepository.findByInitiativeIdAndStatus(anyString(), eq(GroupConstants.Status.DRAFT)))
+        .thenReturn(Optional.of(group));
+
+    beneficiaryGroupService.setStatusToValidated("idI");
+
+    verify(groupRepository, times(1)).save(group);
+  }
+
+  @Test
+  void setStatusToValidated_not_found() {
+    when(groupRepository.findByInitiativeIdAndStatus(anyString(), eq(GroupConstants.Status.DRAFT)))
+        .thenReturn(Optional.empty());
+
+    try {
+      beneficiaryGroupService.setStatusToValidated("idI");
+    } catch (BeneficiaryGroupException e) {
+      assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
+    }
+
+    verify(groupRepository, times(0)).save(any());
   }
 
   private Group createGroupValid_ok() {

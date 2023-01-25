@@ -54,8 +54,8 @@ public class BeneficiaryGroupController implements BeneficiaryGroup {
             int counterCheckFile = fileValidationService.rowFileCounterCheck(file);
             if (counterCheckFile > 0){
                 if (BigDecimal.valueOf(counterCheckFile).multiply(beneficiaryBudget).compareTo(budget) <= 0){
-                    beneficiaryGroupService.save(file, initiativeId, organizationId, GroupConstants.Status.VALIDATED);
-                    return ResponseEntity.ok(GroupUpdateDTO.builder().status(GroupConstants.Status.VALIDATED).elabTimeStamp(LocalDateTime.now(clock)).build());
+                    beneficiaryGroupService.save(file, initiativeId, organizationId, GroupConstants.Status.DRAFT);
+                    return ResponseEntity.ok(GroupUpdateDTO.builder().status(GroupConstants.Status.DRAFT).elabTimeStamp(LocalDateTime.now(clock)).build());
                 }else {
                     log.info("[UPLOAD_FILE_GROUP] - Initiative: {}. Invalid beneficiary number", initiativeId);
                     return ResponseEntity.ok(GroupUpdateDTO.builder().status(GroupConstants.Status.KO).errorKey(GroupConstants.Status.KOkeyMessage.INVALID_FILE_BENEFICIARY_NUMBER_HIGH_FOR_BUDGET).elabTimeStamp(LocalDateTime.now(clock)).build());
@@ -99,6 +99,14 @@ public class BeneficiaryGroupController implements BeneficiaryGroup {
         }
         log.info("[GET_CITIZEN_STATUS] [WhiteList-AllowedList] - Initiative {}. Citizen status: {}", initiativeId, citizenStatusDTO.isStatus());
         return ResponseEntity.ok(citizenStatusDTO);
+    }
+
+    @Override
+    public ResponseEntity<Void> setGroupStatusToValidated(String initiativeId) {
+        log.info("[SET_GROUP_STATUS_TO_VALIDATED] - Start processing initiative {}", initiativeId);
+        beneficiaryGroupService.setStatusToValidated(initiativeId);
+        log.info("[SET_GROUP_STATUS_TO_VALIDATED] - Status updated");
+        return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
 }
 
