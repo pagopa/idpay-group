@@ -4,6 +4,8 @@ import it.gov.pagopa.group.connector.notification.NotificationConnector;
 import it.gov.pagopa.group.connector.pdv.PdvEncryptRestConnector;
 import it.gov.pagopa.group.constants.GroupConstants;
 import it.gov.pagopa.group.constants.GroupConstants.Status;
+import it.gov.pagopa.group.dto.FiscalCodeTokenizedDTO;
+import it.gov.pagopa.group.dto.PiiDTO;
 import it.gov.pagopa.group.exception.BeneficiaryGroupException;
 import it.gov.pagopa.group.model.Group;
 import it.gov.pagopa.group.model.GroupUserWhitelist;
@@ -23,6 +25,9 @@ import org.springframework.test.context.TestPropertySource;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.time.Clock;
 import java.time.LocalDate;
@@ -89,14 +94,32 @@ class BeneficiaryGroupServiceTest {
     verify(groupRepository, times(1)).save(any());
   }
 
-  //  @Test
-  //  void scheduledValidatedGroupTest_ok() throws Exception {
-  //    Group group = createGroupValid_ok();
-  //    when(groupQueryDAO.findFirstByStatusAndUpdate(GroupConstants.Status.VALIDATED)).thenReturn(
-  //        group);
-  //    beneficiaryGroupServiceImpl.scheduleValidatedGroup();
-  //    verify(groupRepository, times(1)).save(any());
-  //  }
+  @Test
+  void scheduledValidatedGroupTest_ok() throws Exception {
+    Group group = createGroupValid_ok();
+    FiscalCodeTokenizedDTO fiscalCodeTokenizedDTO = new FiscalCodeTokenizedDTO();
+    fiscalCodeTokenizedDTO.setToken("token");
+    when(groupQueryDAO.findFirstByStatusAndUpdate(Status.VALIDATED))
+            .thenReturn(group);
+    when(encryptRestConnector.putPii(PiiDTO.builder().pii(any()).build()))
+            .thenReturn(fiscalCodeTokenizedDTO);
+    beneficiaryGroupServiceImpl.scheduleValidatedGroup();
+    verify(groupQueryDAO, times(1)).setStatusOk(anyString(), anyInt());
+  }
+
+  @Test
+  void scheduledValidatedGroupTest_exceptionCfAnonymizer() throws Exception {
+    Group group = createGroupValid_ok();
+    when(groupQueryDAO.findFirstByStatusAndUpdate(GroupConstants.Status.VALIDATED))
+            .thenReturn(group);
+    when(encryptRestConnector.putPii(PiiDTO.builder().pii(any()).build()))
+            .thenReturn(null);
+    beneficiaryGroupServiceImpl.scheduleValidatedGroup();
+    verify(groupQueryDAO, times(1))
+            .setGroupForException(anyString(), anyString(), any(LocalDateTime.class), anyInt());
+    verify(groupQueryDAO, times(2))
+            .removeWhitelistByGroupId(anyString());
+  }
 
   @Test
   void scheduledValidatedGroupTest_null() throws Exception {
@@ -106,15 +129,47 @@ class BeneficiaryGroupServiceTest {
     verify(groupQueryDAO, times(0)).setStatusOk(anyString(), anyInt());
   }
 
-  //  @Test
-  //  void scheduledProcKoGroup_ok() throws Exception {
-  //    Group group = createGroupValidWithProcKo_ok();
-  //    when(groupRepository.findFirstByStatusAndRetryLessThan("PROC_KO", 3)).thenReturn(
-  //        Optional.of(group));
-  //    beneficiaryGroupServiceImpl.scheduleProcKoGroup();
-  //    verify(groupRepository, times(1)).findFirstByStatusAndRetryLessThan("PROC_KO", 3);
-  //    verify(groupRepository, times(1)).save(any());
-  //  }
+  @Test
+  void scheduledProcKoGroup_ok() throws Exception {
+    Group group = createGroupValidWithProcKo_ok();
+    FiscalCodeTokenizedDTO fiscalCodeTokenizedDTO = new FiscalCodeTokenizedDTO();
+    fiscalCodeTokenizedDTO.setToken("token");
+    when(groupRepository.findFirstByStatusAndRetryLessThan(Status.PROC_KO, 3))
+            .thenReturn(Optional.of(group));
+    when(encryptRestConnector.putPii(PiiDTO.builder().pii(any()).build()))
+            .thenReturn(fiscalCodeTokenizedDTO);
+    beneficiaryGroupServiceImpl.scheduleProcKoGroup();
+    verify(groupQueryDAO, times(1)).setStatusOk(anyString(), anyInt());
+  }
+
+  @Test
+  void scheduledProcKoGroup_exceptionCfAnonymizer() throws Exception {
+    Group group = createGroupValidWithProcKo_ok();
+    when(groupRepository.findFirstByStatusAndRetryLessThan(Status.PROC_KO, 3))
+            .thenReturn(Optional.of(group));
+    when(groupQueryDAO.findFirstByStatusAndUpdate(Status.PROC_KO))
+            .thenReturn(group);
+    when(encryptRestConnector.putPii(PiiDTO.builder().pii(any()).build()))
+            .thenReturn(null);
+    beneficiaryGroupServiceImpl.scheduleProcKoGroup();
+    verify(groupQueryDAO, times(1))
+            .setGroupForException(anyString(), anyString(), any(LocalDateTime.class), anyInt());
+    verify(groupQueryDAO, times(2))
+            .removeWhitelistByGroupId(anyString());
+  }
+
+  @Test
+  void loadFileNotExisting() throws Exception {
+    String organizationId = "test";
+    String fileName = "test.csv";
+    try {
+      beneficiaryGroupServiceImpl.load(organizationId, fileName);
+    } catch (RuntimeException e) {
+      Path root = Paths.get("output/tmp/group" + File.separator + organizationId);
+      Files.delete(root);
+      assertEquals("Could not read the file!", e.getMessage());
+    }
+  }
 
   @Test
   void scheduledProcKoGroup_null() throws Exception {
