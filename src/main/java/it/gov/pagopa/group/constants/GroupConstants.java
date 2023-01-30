@@ -10,6 +10,7 @@ public class GroupConstants {
     public static final class Status {
         public static final String VALIDATED = "VALIDATED";
         public static final String PROCESSING = "PROCESSING";
+        public static final String DRAFT = "DRAFT";
         public static final String PROC_KO = "PROC_KO";
         public static final String OK = "OK";
         public static final String KO = "KO";

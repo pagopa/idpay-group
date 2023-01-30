@@ -11,7 +11,7 @@ public interface GroupRepository extends MongoRepository<Group, String> {
 
     Optional<Group> findFirstByStatusAndRetryLessThan(String status, int retry);
 
-    @Query(value = "{initiativeId : ?0, organizationId : ?1}", fields = "{status : 1, exceptionMessage : 1, initiativeId : 1, organizationId : 1, fileName : 1, creationDate : 1, beneficiaryList : 1}")
+    @Query(value = "{initiativeId : ?0, organizationId : ?1}", fields = "{status : 1, exceptionMessage : 1, initiativeId : 1, organizationId : 1, fileName : 1, creationDate : 1, beneficiariesReached : 1}")
     Optional<Group> getStatus(String initiativeId, String organizationId);
 
     @Query(value = "{initiativeId : ?0}", fields = "{beneficiaryList : 1}")
@@ -19,4 +19,6 @@ public interface GroupRepository extends MongoRepository<Group, String> {
 
     @Query(value = "{initiativeId : ?0}", fields = "{beneficiaryList : 1}")
     Stream<String> findGroupByInitiativeId(String initiativeId);
+
+    Optional<Group> findByInitiativeIdAndStatus(String initiativeId, String draft);
 }

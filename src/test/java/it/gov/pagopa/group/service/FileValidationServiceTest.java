@@ -24,7 +24,7 @@ import static org.mockito.Mockito.doReturn;
 @WebMvcTest(value = {
         FileValidationService.class})
 @Slf4j
-public class FileValidationServiceTest {
+class FileValidationServiceTest {
 
     @Autowired
     FileValidationService fileValidationService;
