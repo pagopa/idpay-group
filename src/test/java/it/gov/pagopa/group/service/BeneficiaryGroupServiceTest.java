@@ -12,19 +12,20 @@ import it.gov.pagopa.group.model.GroupUserWhitelist;
 import it.gov.pagopa.group.repository.GroupQueryDAO;
 import it.gov.pagopa.group.repository.GroupRepository;
 import it.gov.pagopa.group.repository.GroupUserWhitelistRepository;
+import it.gov.pagopa.group.util.CFGenerator;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.TestPropertySource;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -37,10 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -49,6 +47,7 @@ import static org.mockito.Mockito.*;
 @Slf4j
 @TestPropertySource(
     properties = {"file.storage.path=output/tmp/group", "file.storage.deletion=false"})
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class BeneficiaryGroupServiceTest {
 
   @Autowired BeneficiaryGroupService beneficiaryGroupService;
@@ -68,6 +67,56 @@ class BeneficiaryGroupServiceTest {
   // Some fixed date to make your tests
   private static final LocalDate LOCAL_DATE = LocalDate.of(2022, 1, 1);
 
+  private static File cfListFile, cfListWrongFile;
+
+  @BeforeAll
+  static void generateTempFile() {
+    Path cfListPath, cfListWrongPath;
+    try {
+      Path path = Files.createTempDirectory(Paths.get("src/test/resources/group"), "fiscal_code");
+      path.toFile().deleteOnExit();
+      cfListPath = Files.createTempFile(path, "cfList", ".csv");
+      cfListWrongPath = Files.createTempFile(path, "cfListWrong", ".csv");
+    } catch (IOException e) {
+      throw new RuntimeException(e.getMessage());
+    }
+
+    if (cfListPath != null) {
+      cfListFile = cfListPath.toFile();
+      cfListFile.deleteOnExit();
+      List<String> cfList = CFGenerator.CFGeneratorList();
+
+      try {
+        FileWriter writer = new FileWriter(cfListFile);
+        for (String cf : cfList) {
+          writer.write(cf + "\n");
+        }
+        writer.close();
+      } catch (IOException e) {
+        throw new RuntimeException(e.getMessage());
+      }
+    }
+
+    if (cfListWrongPath != null) {
+      cfListWrongFile = cfListWrongPath.toFile();
+      cfListWrongFile.deleteOnExit();
+      List<String> cfListWrong = CFGenerator.CFGeneratorList();
+
+      try {
+        FileWriter writer = new FileWriter(cfListWrongFile);
+        for (int i = 0; i < cfListWrong.size(); i++) {
+          writer.write(cfListWrong.get(i) + "\n");
+          if (i==2) {
+            writer.write("\n");
+          }
+        }
+        writer.close();
+      } catch (IOException e) {
+        throw new RuntimeException(e.getMessage());
+      }
+    }
+  }
+
   @BeforeEach
   void initMocks() {
     // tell your tests to return the specified LOCAL_DATE when calling LocalDate.now(clock)
@@ -80,12 +129,13 @@ class BeneficiaryGroupServiceTest {
   }
 
   @Test
+  @Order(1)
   void saveValidFile_ok() throws Exception {
-    File file1 =
-        new ClassPathResource("group" + File.separator + "ps_fiscal_code_groups_file_large_20.csv")
-            .getFile();
-    FileInputStream inputFile = new FileInputStream(file1);
-    MockMultipartFile file = new MockMultipartFile("file", file1.getName(), "text/csv", inputFile);
+    FileInputStream inputFile = new FileInputStream(cfListFile);
+    MockMultipartFile file = new MockMultipartFile("file",
+            cfListFile.getName().replaceAll("\\d", ""),
+            "text/csv",
+            inputFile);
     Group group = createGroupValid_ok();
 
     beneficiaryGroupService.save(
@@ -182,13 +232,11 @@ class BeneficiaryGroupServiceTest {
   @Test
   void saveInvalidFileException_ko() throws Exception {
     try {
-      File file1 =
-          new ClassPathResource(
-                  "group" + File.separator + "ps_fiscal_code_groups_file_large_20.csv")
-              .getFile();
-      FileInputStream inputFile = new FileInputStream(file1);
-      MockMultipartFile file =
-          new MockMultipartFile("file", file1.getName(), "text/csv", inputFile);
+      FileInputStream inputFile = new FileInputStream(cfListWrongFile);
+      MockMultipartFile file = new MockMultipartFile("file",
+              cfListWrongFile.getName().replaceAll("\\d", ""),
+              "text/csv",
+              inputFile);
       beneficiaryGroupService.save(file, anyString(), anyString(), anyString());
     } catch (RuntimeException e) {
       log.info("InitiativeException: " + e.getMessage());
@@ -342,7 +390,7 @@ class BeneficiaryGroupServiceTest {
     group.setGroupId("A1_O1");
     group.setInitiativeId("A1");
     group.setOrganizationId("O1");
-    group.setFileName("ps_fiscal_code_groups_file_large_20.csv");
+    group.setFileName("cfList.csv");
     group.setStatus("VALIDATED");
     group.setExceptionMessage(null);
     group.setElabDateTime(LocalDateTime.now(clock));
@@ -358,7 +406,7 @@ class BeneficiaryGroupServiceTest {
     group.setGroupId("A1_O1");
     group.setInitiativeId("A1");
     group.setOrganizationId("O1");
-    group.setFileName("ps_fiscal_code_groups_file_large_20.csv");
+    group.setFileName("cfList.csv");
     group.setStatus("PROC_KO");
     group.setExceptionMessage(null);
     group.setElabDateTime(LocalDateTime.now(clock));
