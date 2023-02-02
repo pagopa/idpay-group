@@ -24,8 +24,6 @@ import org.springframework.test.context.TestPropertySource;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -36,6 +34,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -68,53 +67,14 @@ class BeneficiaryGroupServiceTest {
   private static final LocalDate LOCAL_DATE = LocalDate.of(2022, 1, 1);
 
   private static File cfListFile, cfListWrongFile;
+  private final static String CF_LIST = "cfList";
+  private final static String CF_LIST_WRONG = "cfListWrong";
 
   @BeforeAll
-  static void generateTempFile() {
-    Path cfListPath, cfListWrongPath;
-    try {
-      Path path = Files.createTempDirectory(Paths.get("src/test/resources/group"), "fiscal_code");
-      path.toFile().deleteOnExit();
-      cfListPath = Files.createTempFile(path, "cfList", ".csv");
-      cfListWrongPath = Files.createTempFile(path, "cfListWrong", ".csv");
-    } catch (IOException e) {
-      throw new RuntimeException(e.getMessage());
-    }
-
-    if (cfListPath != null) {
-      cfListFile = cfListPath.toFile();
-      cfListFile.deleteOnExit();
-      List<String> cfList = CFGenerator.CFGeneratorList();
-
-      try {
-        FileWriter writer = new FileWriter(cfListFile);
-        for (String cf : cfList) {
-          writer.write(cf + "\n");
-        }
-        writer.close();
-      } catch (IOException e) {
-        throw new RuntimeException(e.getMessage());
-      }
-    }
-
-    if (cfListWrongPath != null) {
-      cfListWrongFile = cfListWrongPath.toFile();
-      cfListWrongFile.deleteOnExit();
-      List<String> cfListWrong = CFGenerator.CFGeneratorList();
-
-      try {
-        FileWriter writer = new FileWriter(cfListWrongFile);
-        for (int i = 0; i < cfListWrong.size(); i++) {
-          writer.write(cfListWrong.get(i) + "\n");
-          if (i==2) {
-            writer.write("\n");
-          }
-        }
-        writer.close();
-      } catch (IOException e) {
-        throw new RuntimeException(e.getMessage());
-      }
-    }
+  static void initTempFile() {
+    Map<String, File> fileMap = CFGenerator.generateTempFile();
+    cfListFile = fileMap.get(CF_LIST);
+    cfListWrongFile = fileMap.get(CF_LIST_WRONG);
   }
 
   @BeforeEach
