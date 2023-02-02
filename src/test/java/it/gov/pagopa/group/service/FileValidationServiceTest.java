@@ -1,13 +1,14 @@
 package it.gov.pagopa.group.service;
 
 import it.gov.pagopa.group.repository.GroupRepository;
+import it.gov.pagopa.group.util.CFGenerator;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockMultipartFile;
 
 import java.io.File;
@@ -15,6 +16,7 @@ import java.io.FileInputStream;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -35,13 +37,24 @@ class FileValidationServiceTest {
     @MockBean
     private Clock clock;
 
-    private final static int EXPECTED_CSV_FILE_MAX_ROW_COUNTER = 20;
-    private final static int EXPECTED_CSV_FILE_INVALID_ROW_COUNTER = -34;
+    private final static int EXPECTED_CSV_FILE_MAX_ROW_COUNTER = 5;
+    private final static int EXPECTED_CSV_FILE_INVALID_ROW_COUNTER = -4;
 
     private static final String FISCAL_CODE_TOKENIZED = "FISCAL_CODE_TOKENIZED";
 
     // Some fixed date to make your tests
     private final static LocalDate LOCAL_DATE = LocalDate.of(2022, 1, 1);
+
+    private static File cfListFile, cfListWrongFile;
+    private final static String CF_LIST = "cfList";
+    private final static String CF_LIST_WRONG = "cfListWrong";
+
+    @BeforeAll
+    static void initTempFile() {
+        Map<String, File> fileMap = CFGenerator.generateTempFile();
+        cfListFile = fileMap.get(CF_LIST);
+        cfListWrongFile = fileMap.get(CF_LIST_WRONG);
+    }
 
     @BeforeEach
     void initMocks() {
@@ -55,17 +68,21 @@ class FileValidationServiceTest {
 
     @Test
     void rowFileCounterCheck_whenFileIsValid() throws Exception{
-        File file1 = new ClassPathResource("group" + File.separator + "ps_fiscal_code_groups_file_large_20.csv").getFile();
-        FileInputStream inputFile = new FileInputStream( file1);
-        MockMultipartFile file = new MockMultipartFile("file", file1.getName(), "text/csv", inputFile);
+        FileInputStream inputFile = new FileInputStream(cfListFile);
+        MockMultipartFile file = new MockMultipartFile("file",
+                cfListFile.getName().replaceAll("\\d", ""),
+                "text/csv",
+                inputFile);
         assertTrue(fileValidationService.rowFileCounterCheck(file)>0);
         assertEquals(EXPECTED_CSV_FILE_MAX_ROW_COUNTER, fileValidationService.rowFileCounterCheck(file));
     }
     @Test
     void rowFileCounterCheck_whenFileIsNotValid() throws Exception{
-        File file1 = new ClassPathResource("group" + File.separator + "ps_fiscal_code_groups_file_large_WrongCF.csv").getFile();
-        FileInputStream inputFile = new FileInputStream( file1);
-        MockMultipartFile file = new MockMultipartFile("file", file1.getName(), "text/csv", inputFile);
+        FileInputStream inputFile = new FileInputStream(cfListWrongFile);
+        MockMultipartFile file = new MockMultipartFile("file",
+                cfListWrongFile.getName().replaceAll("\\d", ""),
+                "text/csv",
+                inputFile);
         assertTrue(fileValidationService.rowFileCounterCheck(file)<0);
         assertEquals(EXPECTED_CSV_FILE_INVALID_ROW_COUNTER, fileValidationService.rowFileCounterCheck(file));
     }

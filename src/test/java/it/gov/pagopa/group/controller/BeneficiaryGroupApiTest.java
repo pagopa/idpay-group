@@ -4,16 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.group.connector.initiative.InitiativeRestConnector;
 import it.gov.pagopa.group.constants.GroupConstants;
 import it.gov.pagopa.group.constants.InitiativeConstants;
-import it.gov.pagopa.group.dto.CitizenStatusDTO;
-import it.gov.pagopa.group.dto.GroupUpdateDTO;
-import it.gov.pagopa.group.dto.InitiativeDTO;
-import it.gov.pagopa.group.dto.InitiativeGeneralDTO;
-import it.gov.pagopa.group.dto.InitiativeNotificationDTO;
+import it.gov.pagopa.group.dto.*;
 import it.gov.pagopa.group.exception.BeneficiaryGroupException;
 import it.gov.pagopa.group.model.Group;
 import it.gov.pagopa.group.service.BeneficiaryGroupService;
 import it.gov.pagopa.group.service.FileValidationService;
+import it.gov.pagopa.group.util.CFGenerator;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +40,7 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.List;
+import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -107,6 +105,18 @@ class BeneficiaryGroupApiTest {
 
   private static final String ORGANIZATION_ID_TEST = "O1";
 
+  private static File cfListFile, cfListWrongFile;
+
+  private final static String CF_LIST = "cfList";
+  private final static String CF_LIST_WRONG = "cfListWrong";
+
+  @BeforeAll
+  static void initTempFile() {
+    Map<String, File> fileMap = CFGenerator.generateTempFile();
+    cfListFile = fileMap.get(CF_LIST);
+    cfListWrongFile = fileMap.get(CF_LIST_WRONG);
+  }
+
   @BeforeEach
   void initMocks() {
     // tell your tests to return the specified LOCAL_DATE when calling LocalDate.now(clock)
@@ -142,11 +152,11 @@ class BeneficiaryGroupApiTest {
   @Test
   void upload_PUT_when_FileIsValid_then200WithOkMessage() throws Exception {
     Group group = createGroupValid_ok();
-    File file1 =
-        new ClassPathResource("group" + File.separator + "ps_fiscal_code_groups_file_large_20.csv")
-            .getFile();
-    FileInputStream inputFile = new FileInputStream(file1);
-    MockMultipartFile file = new MockMultipartFile("file", file1.getName(), "text/csv", inputFile);
+    FileInputStream inputFile = new FileInputStream(cfListFile);
+    MockMultipartFile file = new MockMultipartFile("file",
+            cfListFile.getName().replaceAll("\\d", ""),
+            "text/csv",
+            inputFile);
 
     when(initiativeRestConnector.getInitiative(group.getInitiativeId()))
         .thenReturn(createInitiativeDTO(group.getOrganizationId(), group.getInitiativeId()));
@@ -242,12 +252,11 @@ class BeneficiaryGroupApiTest {
 
     InitiativeDTO initiativeDTO = createInitiativeDTOLowBudget(organizationId, initiativeId);
 
-    File file1 =
-        new ClassPathResource("group" + File.separator + "ps_fiscal_code_groups_file_large_20.csv")
-            .getFile();
-
-    FileInputStream inputFile = new FileInputStream(file1);
-    MockMultipartFile file = new MockMultipartFile("file", "file.csv", "text/csv", inputFile);
+    FileInputStream inputFile = new FileInputStream(cfListFile);
+    MockMultipartFile file = new MockMultipartFile("file",
+            cfListFile.getName().replaceAll("\\d", ""),
+            "text/csv",
+            inputFile);
 
     when(initiativeRestConnector.getInitiative(initiativeId))
         .thenThrow(
@@ -280,12 +289,11 @@ class BeneficiaryGroupApiTest {
   @Test
   void upload_PUT_when_InitiativeServiceIsNotReachable_then_500RaisedResourceAccessException()
       throws Exception {
-    File file1 =
-        new ClassPathResource("group" + File.separator + "ps_fiscal_code_groups_file_large_20.csv")
-            .getFile();
-
-    FileInputStream inputFile = new FileInputStream(file1);
-    MockMultipartFile file = new MockMultipartFile("file", "file.csv", "text/csv", inputFile);
+    FileInputStream inputFile = new FileInputStream(cfListFile);
+    MockMultipartFile file = new MockMultipartFile("file",
+            cfListFile.getName().replaceAll("\\d", ""),
+            "text/csv",
+            inputFile);
 
     // doThrow InitiativeException for Void method
     doThrow(new ResourceAccessException("Exception Message"))
@@ -313,11 +321,11 @@ class BeneficiaryGroupApiTest {
   @Test
   void upload_PUT_when_FileCfTooLarge_then200withKOmessage() throws Exception {
     Group group = createGroupValid_ok();
-    File file1 =
-        new ClassPathResource("group" + File.separator + "ps_fiscal_code_groups_file_large_20.csv")
-            .getFile();
-    FileInputStream inputFile = new FileInputStream(file1);
-    MockMultipartFile file = new MockMultipartFile("file", file1.getName(), "text/csv", inputFile);
+    FileInputStream inputFile = new FileInputStream(cfListFile);
+    MockMultipartFile file = new MockMultipartFile("file",
+            cfListFile.getName().replaceAll("\\d", ""),
+            "text/csv",
+            inputFile);
 
     when(initiativeRestConnector.getInitiative(group.getInitiativeId()))
         .thenReturn(createInitiativeDTO(group.getOrganizationId(), group.getInitiativeId()));
@@ -348,12 +356,11 @@ class BeneficiaryGroupApiTest {
     InitiativeDTO initiativeDTO =
         createInitiativeDTOLowBudget(group.getOrganizationId(), group.getInitiativeId());
 
-    File file1 =
-        new ClassPathResource("group" + File.separator + "ps_fiscal_code_groups_file_large_20.csv")
-            .getFile();
-
-    FileInputStream inputFile = new FileInputStream(file1);
-    MockMultipartFile file = new MockMultipartFile("file", file1.getName(), "text/csv", inputFile);
+    FileInputStream inputFile = new FileInputStream(cfListFile);
+    MockMultipartFile file = new MockMultipartFile("file",
+            cfListFile.getName().replaceAll("\\d", ""),
+            "text/csv",
+            inputFile);
 
     when(initiativeRestConnector.getInitiative(initiativeDTO.getInitiativeId()))
         .thenReturn(initiativeDTO);
@@ -385,13 +392,11 @@ class BeneficiaryGroupApiTest {
     InitiativeDTO initiativeDTO =
         createInitiativeDTO(group.getOrganizationId(), group.getInitiativeId());
 
-    File file1 =
-        new ClassPathResource(
-                "group" + File.separator + "ps_fiscal_code_groups_file_large_WrongCF.csv")
-            .getFile();
-
-    FileInputStream inputFile = new FileInputStream(file1);
-    MockMultipartFile file = new MockMultipartFile("file", file1.getName(), "text/csv", inputFile);
+    FileInputStream inputFile = new FileInputStream(cfListWrongFile);
+    MockMultipartFile file = new MockMultipartFile("file",
+            cfListWrongFile.getName().replaceAll("\\d", ""),
+            "text/csv",
+            inputFile);
 
     when(initiativeRestConnector.getInitiative(initiativeDTO.getInitiativeId()))
         .thenReturn(initiativeDTO);
@@ -420,11 +425,11 @@ class BeneficiaryGroupApiTest {
   void upload_PUT_when_FileIOException_then500withGenericError() throws Exception {
 
     Group group = createGroupValid_ok();
-    File file1 =
-        new ClassPathResource("group" + File.separator + "ps_fiscal_code_groups_file_large_20.csv")
-            .getFile();
-    FileInputStream inputFile = new FileInputStream(file1);
-    MockMultipartFile file = new MockMultipartFile("file", anyString(), "text/csv", inputFile);
+    FileInputStream inputFile = new FileInputStream(cfListFile);
+    MockMultipartFile file = new MockMultipartFile("file",
+            cfListFile.getName().replaceAll("\\d", ""),
+            "text/csv",
+            inputFile);
 
     when(initiativeRestConnector.getInitiative(group.getInitiativeId()))
         .thenReturn(createInitiativeDTO(group.getOrganizationId(), group.getInitiativeId()));

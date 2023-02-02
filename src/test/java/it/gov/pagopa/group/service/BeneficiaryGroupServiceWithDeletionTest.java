@@ -20,15 +20,14 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.TestPropertySource;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -50,33 +49,12 @@ class BeneficiaryGroupServiceWithDeletionTest {
     @MockBean private Clock clock;
     private static final LocalDate LOCAL_DATE = LocalDate.of(2022, 1, 1);
     private static File cfListFile;
+    private final static String CF_LIST = "cfList";
 
     @BeforeAll
-    static void generateTempFile() {
-        Path cfListPath;
-        try {
-            Path path = Files.createTempDirectory(Paths.get("src/test/resources/group"), "fiscal_code");
-            path.toFile().deleteOnExit();
-            cfListPath = Files.createTempFile(path, "cfList", ".csv");
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage());
-        }
-
-        if (cfListPath != null) {
-            cfListFile = cfListPath.toFile();
-            cfListFile.deleteOnExit();
-            List<String> cfList = CFGenerator.CFGeneratorList();
-
-            try {
-                FileWriter writer = new FileWriter(cfListFile);
-                for (String cf : cfList) {
-                    writer.write(cf + "\n");
-                }
-                writer.close();
-            } catch (IOException e) {
-                throw new RuntimeException(e.getMessage());
-            }
-        }
+    static void initTempFile() {
+        Map<String, File> fileMap = CFGenerator.generateTempFile();
+        cfListFile = fileMap.get(CF_LIST);
     }
 
     @BeforeEach
