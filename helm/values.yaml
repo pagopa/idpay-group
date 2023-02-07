@@ -96,7 +96,6 @@ microservice-chart:
     KAFKA_NOTIFICATION_PRODUCER_SASL_JAAS_CONFIG: evh-idpay-notification-request-idpay-notification-request-producer-jaas-config-idpay-00
     KAFKA_ONBOARDING_NOTIFICATION_PRODUCER_SASL_JAAS_CONFIG: evh-idpay-onboarding-notification-idpay-onboarding-notification-producer-jaas-config-idpay-00
 
-
   # nodeSelector: {}
 
   # tolerations: []
