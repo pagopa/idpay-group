@@ -74,6 +74,7 @@ microservice-chart:
     APPLICATIONINSIGHTS_ROLE_NAME: "idpaygroup"
     APPLICATIONINSIGHTS_INSTRUMENTATION_LOGGING_LEVEL: "OFF"
     APPLICATIONINSIGHTS_INSTRUMENTATION_MICROMETER_ENABLED: "false"
+    APPLICATIONINSIGHTS_PREVIEW_PROFILER_ENABLED: "false"
     PDV_ENCRYPT_SERVICE_CODE: pdv-ms-tokenizer
     GROUP_FILE_ROOT_PATH: /tmp/group
 
@@ -95,7 +96,6 @@ microservice-chart:
     PDV_ENCRYPT_API_KEY: pdv-api-key
     KAFKA_NOTIFICATION_PRODUCER_SASL_JAAS_CONFIG: evh-idpay-notification-request-idpay-notification-request-producer-jaas-config-idpay-00
     KAFKA_ONBOARDING_NOTIFICATION_PRODUCER_SASL_JAAS_CONFIG: evh-idpay-onboarding-notification-idpay-onboarding-notification-producer-jaas-config-idpay-00
-
 
   # nodeSelector: {}
 
