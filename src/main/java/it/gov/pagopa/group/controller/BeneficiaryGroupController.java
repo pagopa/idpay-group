@@ -6,6 +6,7 @@ import it.gov.pagopa.group.dto.*;
 import it.gov.pagopa.group.model.Group;
 import it.gov.pagopa.group.service.BeneficiaryGroupService;
 import it.gov.pagopa.group.service.FileValidationService;
+import it.gov.pagopa.group.utils.AuditUtilities;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Slf4j
 @RestController
@@ -36,15 +36,19 @@ public class BeneficiaryGroupController implements BeneficiaryGroup {
     @Autowired
     private Clock clock;
 
+    @Autowired
+    AuditUtilities auditUtilities;
 
     @Override
     public ResponseEntity<GroupUpdateDTO> uploadBeneficiaryGroupFile(@RequestParam("file") MultipartFile file, @PathVariable("organizationId") String organizationId, @PathVariable("initiativeId") String initiativeId){
         if (file.isEmpty()){
             log.info("[UPLOAD_FILE_GROUP] - Initiative: {}. File is empty", initiativeId);
+            auditUtilities.logUploadCFKO(initiativeId, organizationId, file.getName(), "File is empty");
             return ResponseEntity.ok(GroupUpdateDTO.builder().status(GroupConstants.Status.KO).errorKey(GroupConstants.Status.KOkeyMessage.INVALID_FILE_EMPTY).elabTimeStamp(LocalDateTime.now(clock)).build());
         }
         if (!(GroupConstants.CONTENT_TYPE.equals(file.getContentType()))){
             log.info("[UPLOAD_FILE_GROUP] - Initiative: {}. ContentType not accepted: {}", initiativeId, file.getContentType());
+            auditUtilities.logUploadCFKO(initiativeId, organizationId, file.getName(), "ContentType not accepted");
             return ResponseEntity.ok(GroupUpdateDTO.builder().status(GroupConstants.Status.KO).errorKey(GroupConstants.Status.KOkeyMessage.INVALID_FILE_FORMAT).elabTimeStamp(LocalDateTime.now(clock)).build());
         }
         InitiativeDTO initiativeDTO = initiativeRestConnector.getInitiative(initiativeId);
@@ -55,17 +59,21 @@ public class BeneficiaryGroupController implements BeneficiaryGroup {
             if (counterCheckFile > 0){
                 if (BigDecimal.valueOf(counterCheckFile).multiply(beneficiaryBudget).compareTo(budget) <= 0){
                     beneficiaryGroupService.save(file, initiativeId, organizationId, GroupConstants.Status.DRAFT);
+                    auditUtilities.logUploadCFOK(initiativeId, organizationId, file.getName());
                     return ResponseEntity.ok(GroupUpdateDTO.builder().status(GroupConstants.Status.DRAFT).elabTimeStamp(LocalDateTime.now(clock)).build());
                 }else {
                     log.info("[UPLOAD_FILE_GROUP] - Initiative: {}. Invalid beneficiary number", initiativeId);
+                    auditUtilities.logUploadCFKO(initiativeId, organizationId, file.getName(), "Invalid beneficiary number");
                     return ResponseEntity.ok(GroupUpdateDTO.builder().status(GroupConstants.Status.KO).errorKey(GroupConstants.Status.KOkeyMessage.INVALID_FILE_BENEFICIARY_NUMBER_HIGH_FOR_BUDGET).elabTimeStamp(LocalDateTime.now(clock)).build());
                 }
             }else {
                 log.info("[UPLOAD_FILE_GROUP] - Initiative: {}. Wrong CF at row {}", initiativeId, Math.abs(counterCheckFile));
+                auditUtilities.logUploadCFKO(initiativeId, organizationId, file.getName(), String.format("Wrong CF at row %s", Math.abs(counterCheckFile)));
                 return ResponseEntity.ok(GroupUpdateDTO.builder().status(GroupConstants.Status.KO).errorRow(Math.abs(counterCheckFile)).errorKey(GroupConstants.Status.KOkeyMessage.INVALID_FILE_CF_WRONG).elabTimeStamp(LocalDateTime.now(clock)).build());
             }
         } catch (Exception e) {
             log.error("[UPLOAD_FILE_GROUP] - Generic Error: {}", e.getMessage());
+            auditUtilities.logUploadCFKO(initiativeId, organizationId, file.getName(), e.getMessage());
             return ResponseEntity.internalServerError().build();
         }
     }
