@@ -5,6 +5,7 @@ import feign.Request;
 import feign.RequestTemplate;
 import feign.Response;
 import feign.codec.ErrorDecoder;
+import it.gov.pagopa.group.constants.GroupConstants;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.Charset;
@@ -28,6 +29,19 @@ class PdvClientErrorDecoderTest {
         });
 
         assertEquals(reasonExceptionMessage, exception.getMessage());
+    }
+
+    @Test
+    void throwsException() {
+        String reasonExceptionMessage = "[300] during [PUT] to [url] [Service#test()]: []";
+
+        // given
+        ErrorDecoder decoder = new PdvClientErrorDecoder();
+        Response response = responseStub(300, null);
+
+        Exception e = decoder.decode("Service#test()", response);
+
+        assertEquals(reasonExceptionMessage, e.getMessage());
     }
 
     private Response responseStub(int status, String reasonExceptionMessage) {
