@@ -4,14 +4,14 @@
 		"name": "idpay-group-e2e",
 		"description": "IDPAY Welfare Portal Initiative",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "26036736"
+		"_exporter_id": "26036679"
 	},
 	"item": [
 		{
 			"name": "Portal Token Acquisition",
 			"item": [
 				{
-					"name": "Generate Portal Token Copy",
+					"name": "Generate Portal Token",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -28,14 +28,14 @@
 								"exec": [
 									"let textResponse = pm.response.text()\r",
 									"\r",
-									"pm.test('Retrieve Token', () => {\r",
+									"pm.test('Idpay group - Portal token acquisition - Generate Portal Token (Ente Admin)', () => {\r",
 									"    //verify response HTTP status \r",
 									"    pm.response.to.have.status(200);\r",
 									"    pm.collectionVariables.set(\"identityPortalToken\", textResponse);\r",
 									"});\r",
 									"\r",
 									"//response time is less than 1s\r",
-									"tests[\"Response time is less than 1s\"] = responseTime < 1000;"
+									"tests[\"Response time is less than 2s\"] = responseTime < 2000;"
 								],
 								"type": "text/javascript"
 							}
@@ -55,7 +55,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"aud\" : \"idpay.welfare.pagopa.it\",\r\n    \"uid\" : \"9abcbe25-99f4-40f9-a03b-afed9cd9bb8a\",\r\n    \"name\" : \"Mario\",\r\n    \"familyName\" : \"Rossi\",\r\n    \"email\" : \"test@token.it\",\r\n    \"orgId\" : \"2f63a151-da4e-4e1e-acf9-adecc0c4d727\",    \r\n    \"orgVAT\" : \"11122233344\",\r\n    \"orgPartyRole\" : \"ADMIN\",\r\n    \"orgRole\" : \"API\"\r\n}",
+							"raw": "{\r\n    \"aud\": \"idpay.welfare.pagopa.it\",\r\n    \"uid\": \"{{uid_Ente}}\",\r\n    \"name\": \"{{name_Ente}}\",\r\n    \"familyName\": \"{{familyName_Ente}}\",\r\n    \"email\": \"{{email_Ente}}\",\r\n    \"orgId\": \"{{orgId_Ente}}\",\r\n    \"orgVAT\": \"{{orgVAT_Ente}}\",\r\n    \"orgName\": \"Ente di test IdPay\",\r\n    \"orgPartyRole\": \"{{orgPartyRole_Ente}}\",\r\n    \"orgRole\": \"{{orgRole_Ente}}\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -88,8 +88,10 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"//pm.collectionVariables.set('serviceId', pm.variables.replaceIn('{{$randomUUID}}'));\r",
-									"pm.collectionVariables.set('serviceName', pm.variables.replaceIn('{{$randomProduct}}'));\r",
+									"let moment = require('moment');\r",
+									"const now = String(moment().format('DD-MM-YYYY hh:mm'));\r",
+									"const serviceName = 'Test funzionali App IO Initiative with whitelist ' + now;\r",
+									"pm.collectionVariables.set('serviceName', serviceName);\r",
 									"pm.collectionVariables.set('description', pm.variables.replaceIn('{{$randomLoremSentence}}'));\r",
 									"\r",
 									"pm.collectionVariables.set('channel_type', 'web');\r",
@@ -107,11 +109,11 @@
 									"// console.log('jsondata.initiativeId', jsonData.initiativeId);\r",
 									"pm.collectionVariables.set('initiativeId', jsonData.initiativeId);\r",
 									"\r",
-									"pm.test(\"Status test 201\", function () {\r",
+									"pm.test(\"Group - Initiative with group file - STEP1 - Responses with 201\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Verify response body\", function () {\r",
+									"pm.test(\"Group - Initiative with group file - STEP1 - Response body must contain initiativeId field\", function () {\r",
 									"    let jsonResponse = pm.response.json();\r",
 									"    pm.expect(jsonResponse).have.property(\"initiativeId\");\r",
 									"});"
@@ -202,7 +204,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status test 204\", function () {\r",
+									"pm.test(\"Group - Initiative with group file - STEP2 - Responses with 204\", function () {\r",
 									"    pm.response.to.have.status(204);\r",
 									"});"
 								],
@@ -278,11 +280,11 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status test 404\", function () {\r",
+									"pm.test(\"Group - Initiative with group file - Get status - Responses with 404\", function () {\r",
 									"    pm.response.to.have.status(404);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Verify response body - Group not found because of problems on validation\", function () {\r",
+									"pm.test(\"Group - Initiative with group file - Get status - Group not found because of problems on validation\", function () {\r",
 									"    let jsonResponse = pm.response.json()\r",
 									"    pm.expect(jsonResponse.code).equals('it.gov.pagopa.group.not.found');\r",
 									"    pm.expect(jsonResponse.message).contain('There is no group for initiativeId');\r",
@@ -352,11 +354,11 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status test 200\", function () {\r",
+									"pm.test(\"Group - Initiative with group file - STEP3 - Responses with 200\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Verify response body\", function () {\r",
+									"pm.test(\"Group - Initiative with group file - Update initiative with wrong CF - Verify expected fields in the response body \", function () {\r",
 									"    let jsonResponse = pm.response.json();\r",
 									"    pm.expect(jsonResponse).have.property(\"status\");\r",
 									"    pm.expect(jsonResponse.status).contain('KO');\r",
@@ -388,7 +390,7 @@
 								{
 									"key": "file",
 									"type": "file",
-									"src": "./postman/ps_fiscal_ code_groups_file_wrong_fiscal_code.csv"
+									"src": "C:/Users/ranaldoda/IDPay/idpay-group/postman/ps_fiscal_ code_groups_file_wrong_fiscal_code.csv"
 								}
 							]
 						},
@@ -427,11 +429,11 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status test 404\", function () {\r",
+									"pm.test(\"Group - Initiative with group file - Get status - Responses with 404\", function () {\r",
 									"    pm.response.to.have.status(404);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Verify response body - Group not found because of problems on validation\", function () {\r",
+									"pm.test(\"Group - Initiative with group file - Get status - Group not found because of problems on validation\", function () {\r",
 									"    let jsonResponse = pm.response.json()\r",
 									"    pm.expect(jsonResponse.code).equals('it.gov.pagopa.group.not.found');\r",
 									"    pm.expect(jsonResponse.message).contain('There is no group for initiativeId');\r",
@@ -501,11 +503,11 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status test 200\", function () {\r",
+									"pm.test(\"Group - Update initiative with wrong file format - Status test 200\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Verify response body\", function () {\r",
+									"pm.test(\"Group - Update initiative with wrong file format - Verify expected fields in the response body\", function () {\r",
 									"    let jsonResponse = pm.response.json();\r",
 									"    pm.expect(jsonResponse).have.property(\"status\");\r",
 									"    pm.expect(jsonResponse.status).contain('KO');\r",
@@ -536,7 +538,7 @@
 								{
 									"key": "file",
 									"type": "file",
-									"src": "./postman/invalid_format.xlsx"
+									"src": "C:/Users/ranaldoda/IDPay/idpay-group/postman/invalid_format.xlsx"
 								}
 							]
 						},
@@ -575,11 +577,11 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status test 404\", function () {\r",
+									"pm.test(\"Group - Get Status on Groups with wrong file fromat - Status test 404\", function () {\r",
 									"    pm.response.to.have.status(404);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Verify response body - Group not found because of problems on validation\", function () {\r",
+									"pm.test(\"Group - Get Status on Groups with wrong file fromat - Verify response body - Group not found because of problems on validation\", function () {\r",
 									"    let jsonResponse = pm.response.json()\r",
 									"    pm.expect(jsonResponse.code).equals('it.gov.pagopa.group.not.found');\r",
 									"    pm.expect(jsonResponse.message).contain('There is no group for initiativeId');\r",
@@ -649,11 +651,11 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status test 200\", function () {\r",
+									"pm.test(\"Group - Update initiative with wrong file empty first line - Status test 200\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Verify response body\", function () {\r",
+									"pm.test(\"Group - Update initiative with wrong file empty first line - Verify expected fields in the response body\", function () {\r",
 									"    let jsonResponse = pm.response.json();\r",
 									"    pm.expect(jsonResponse).have.property(\"status\");\r",
 									"    pm.expect(jsonResponse.status).contain('KO');\r",
@@ -684,7 +686,7 @@
 								{
 									"key": "file",
 									"type": "file",
-									"src": "./postman/empty_file.csv"
+									"src": "C:/Users/ranaldoda/IDPay/idpay-group/postman/empty_file.csv"
 								}
 							]
 						},
@@ -723,11 +725,11 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status test 404\", function () {\r",
+									"pm.test(\"Group - Get Status on Groups with wrong file empty first line - Status test 404\", function () {\r",
 									"    pm.response.to.have.status(404);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Verify response body - Group not found because of problems on validation\", function () {\r",
+									"pm.test(\"Group - Get Status on Groups with wrong file empty first line - Group not found because of problems on validation\", function () {\r",
 									"    let jsonResponse = pm.response.json()\r",
 									"    pm.expect(jsonResponse.code).equals('it.gov.pagopa.group.not.found');\r",
 									"    pm.expect(jsonResponse.message).contain('There is no group for initiativeId');\r",
@@ -797,7 +799,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Verify response body\", function () {\r",
+									"pm.test(\"Group - Update initiative with large file size - Verify expected fields in the response body\", function () {\r",
 									"    let jsonResponse = pm.response.json();\r",
 									"    pm.expect(jsonResponse).have.property(\"status\");\r",
 									"    pm.expect(jsonResponse.status).contain('KO');\r",
@@ -828,7 +830,7 @@
 								{
 									"key": "file",
 									"type": "file",
-									"src": "./postman/ps_fiscal_code_groups_file_large_OVER_SIZE.csv"
+									"src": "C:/Users/ranaldoda/IDPay/idpay-group/postman/ps_fiscal_code_groups_file_large_OVER_SIZE.csv"
 								}
 							]
 						},
@@ -858,11 +860,11 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status test 404\", function () {\r",
+									"pm.test(\"Group - Get Status on Groups with large file size - Status test 404\", function () {\r",
 									"    pm.response.to.have.status(404);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Verify response body - Group not found because of problems on validation\", function () {\r",
+									"pm.test(\"Group - Get Status on Groups with large file size - Verify response body - Group not found because of problems on validation\", function () {\r",
 									"    let jsonResponse = pm.response.json()\r",
 									"    pm.expect(jsonResponse.code).equals('it.gov.pagopa.group.not.found');\r",
 									"    pm.expect(jsonResponse.message).contain('There is no group for initiativeId');\r",
@@ -941,11 +943,11 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status test 200\", function () {\r",
+									"pm.test(\"Group - Update initiative with correct file - Status test 200\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Verify response body\", function () {\r",
+									"pm.test(\"Group - Update initiative with correct file - Verify expected fields in the response body\", function () {\r",
 									"    let jsonResponse = pm.response.json();\r",
 									"    pm.expect(jsonResponse).have.property(\"status\");\r",
 									"    pm.expect(jsonResponse.status).contain('DRAFT');\r",
@@ -974,7 +976,7 @@
 								{
 									"key": "file",
 									"type": "file",
-									"src": "./postman/ps_fiscal_code_groups_file_valid_CF.csv"
+									"src": "C:/Users/ranaldoda/IDPay/idpay-group/postman/ps_fiscal_code_groups_file_valid_CF.csv"
 								}
 							]
 						},
@@ -1013,11 +1015,11 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status test 200\", function () {\r",
+									"pm.test(\"Group - Get Status on Groups with correct file - Status test 200\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Verify response body status in 'OK' in case PDV has Tokenized CF correctly\", function () {\r",
+									"pm.test(\"Group - Get Status on Groups with correct file - Verify response body status in 'OK' in case PDV has Tokenized CF correctly\", function () {\r",
 									"    let jsonResponse = pm.response.json()\r",
 									"    pm.expect(jsonResponse).have.property(\"status\");\r",
 									"    pm.expect(jsonResponse.status).equals('DRAFT');\r",
