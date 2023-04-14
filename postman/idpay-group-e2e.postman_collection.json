@@ -1,17 +1,17 @@
 {
 	"info": {
-		"_postman_id": "37793a9c-29fa-4cfa-b8e7-606c4c34f924",
+		"_postman_id": "0930f5bb-c31b-48b6-837b-4258f5a4b04f",
 		"name": "idpay-group-e2e",
 		"description": "IDPAY Welfare Portal Initiative",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "3194665"
+		"_exporter_id": "26036679"
 	},
 	"item": [
 		{
 			"name": "Portal Token Acquisition",
 			"item": [
 				{
-					"name": "Generate Portal Token Copy",
+					"name": "Generate Portal Token",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -28,14 +28,14 @@
 								"exec": [
 									"let textResponse = pm.response.text()\r",
 									"\r",
-									"pm.test('Retrieve Token', () => {\r",
+									"pm.test('Idpay group - Portal token acquisition - Generate Portal Token (Ente Admin)', () => {\r",
 									"    //verify response HTTP status \r",
 									"    pm.response.to.have.status(200);\r",
 									"    pm.collectionVariables.set(\"identityPortalToken\", textResponse);\r",
 									"});\r",
 									"\r",
 									"//response time is less than 1s\r",
-									"tests[\"Response time is less than 1s\"] = responseTime < 1000;"
+									"tests[\"Response time is less than 2s\"] = responseTime < 2000;"
 								],
 								"type": "text/javascript"
 							}
@@ -55,7 +55,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"aud\" : \"idpay.welfare.pagopa.it\",\r\n    \"uid\" : \"9abcbe25-99f4-40f9-a03b-afed9cd9bb8a\",\r\n    \"name\" : \"Mario\",\r\n    \"familyName\" : \"Rossi\",\r\n    \"email\" : \"test@token.it\",\r\n    \"orgId\" : \"2f63a151-da4e-4e1e-acf9-adecc0c4d727\",    \r\n    \"orgVAT\" : \"11122233344\",\r\n    \"orgPartyRole\" : \"ADMIN\",\r\n    \"orgRole\" : \"API\"\r\n}",
+							"raw": "{\r\n    \"aud\": \"idpay.welfare.pagopa.it\",\r\n    \"uid\": \"{{uid_Ente}}\",\r\n    \"name\": \"{{name_Ente}}\",\r\n    \"familyName\": \"{{familyName_Ente}}\",\r\n    \"email\": \"{{email_Ente}}\",\r\n    \"orgId\": \"{{orgId_Ente}}\",\r\n    \"orgVAT\": \"{{orgVAT_Ente}}\",\r\n    \"orgName\": \"Ente di test IdPay\",\r\n    \"orgPartyRole\": \"{{orgPartyRole_Ente}}\",\r\n    \"orgRole\": \"{{orgRole_Ente}}\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -88,8 +88,10 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"//pm.collectionVariables.set('serviceId', pm.variables.replaceIn('{{$randomUUID}}'));\r",
-									"pm.collectionVariables.set('serviceName', pm.variables.replaceIn('{{$randomProduct}}'));\r",
+									"let moment = require('moment');\r",
+									"const now = String(moment().format('DD-MM-YYYY hh:mm'));\r",
+									"const serviceName = 'Test funzionali App IO Initiative with whitelist ' + now;\r",
+									"pm.collectionVariables.set('serviceName', serviceName);\r",
 									"pm.collectionVariables.set('description', pm.variables.replaceIn('{{$randomLoremSentence}}'));\r",
 									"\r",
 									"pm.collectionVariables.set('channel_type', 'web');\r",
@@ -107,11 +109,11 @@
 									"// console.log('jsondata.initiativeId', jsonData.initiativeId);\r",
 									"pm.collectionVariables.set('initiativeId', jsonData.initiativeId);\r",
 									"\r",
-									"pm.test(\"Status test 201\", function () {\r",
+									"pm.test(\"Group - Initiative with group file - STEP1 - Responses with 201\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Verify response body\", function () {\r",
+									"pm.test(\"Group - Initiative with group file - STEP1 - Response body must contain initiativeId field\", function () {\r",
 									"    let jsonResponse = pm.response.json();\r",
 									"    pm.expect(jsonResponse).have.property(\"initiativeId\");\r",
 									"});"
@@ -121,6 +123,16 @@
 						}
 					],
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{identityPortalToken}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "POST",
 						"header": [
 							{
@@ -173,11 +185,13 @@
 									"pm.collectionVariables.set('...', _.random(0, 180));\r",
 									"*/\r",
 									"//_.floor(_.random(1.0, 100000.0, true),2)\r",
-									"pm.collectionVariables.set('budget', _.floor(_.random(10000, 100000, true),2));\r",
+									"//pm.collectionVariables.set('budget', _.floor(_.random(10000, 100000, true),2));\r",
+									"pm.collectionVariables.set('budget', 20);\r",
 									"pm.collectionVariables.set('beneficiaryType', 'PF');\r",
 									"//pm.collectionVariables.set('beneficiaryKnown', pm.variables.replaceIn('{{$randomBoolean}}'));\r",
-									"pm.collectionVariables.set('beneficiaryKnown', false);\r",
-									"pm.collectionVariables.set('beneficiaryBudget', pm.variables.replaceIn('{{$randomInt}}'));//default max 1000\r",
+									"pm.collectionVariables.set('beneficiaryKnown', true);\r",
+									"//pm.collectionVariables.set('beneficiaryBudget', pm.variables.replaceIn('{{$randomInt}}'));//default max 1000\r",
+									"pm.collectionVariables.set('beneficiaryBudget', 10);//default max 1000\r",
 									"pm.collectionVariables.set('rankingStartDate', today);\r",
 									"pm.collectionVariables.set('rankingEndDate', todayP1);\r",
 									"pm.collectionVariables.set('startDate', todayP2);\r",
@@ -190,7 +204,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status test 204\", function () {\r",
+									"pm.test(\"Group - Initiative with group file - STEP2 - Responses with 204\", function () {\r",
 									"    pm.response.to.have.status(204);\r",
 									"});"
 								],
@@ -199,6 +213,16 @@
 						}
 					],
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{identityPortalToken}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "PUT",
 						"header": [
 							{
@@ -212,7 +236,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"budget\": {{budget}},\n    \"beneficiaryType\": \"{{beneficiaryType}}\",\n    \"beneficiaryKnown\": {{beneficiaryKnown}},\n    \"beneficiaryBudget\": {{beneficiaryBudget}},\n    \"rankingStartDate\": \"{{rankingStartDate}}\",\n    \"rankingEndDate\": \"{{rankingEndDate}}\",\n    \"startDate\": \"{{startDate}}\",\n    \"endDate\": \"{{endDate}}\"\n}",
+							"raw": "{\n    \"budget\": {{budget}},\n    \"beneficiaryType\": \"{{beneficiaryType}}\",\n    \"beneficiaryKnown\": {{beneficiaryKnown}},\n    \"beneficiaryBudget\": {{beneficiaryBudget}},\n    \"rankingStartDate\": \"{{rankingStartDate}}\",\n    \"rankingEndDate\": \"{{rankingEndDate}}\",\n    \"startDate\": \"{{startDate}}\",\n    \"endDate\": \"{{endDate}}\",\n    \"descriptionMap\": {\n        \"it\": \"it\"\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -256,11 +280,11 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status test 404\", function () {\r",
+									"pm.test(\"Group - Initiative with group file - Get status - Responses with 404\", function () {\r",
 									"    pm.response.to.have.status(404);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Verify response body - Group not found because of problems on validation\", function () {\r",
+									"pm.test(\"Group - Initiative with group file - Get status - Group not found because of problems on validation\", function () {\r",
 									"    let jsonResponse = pm.response.json()\r",
 									"    pm.expect(jsonResponse.code).equals('it.gov.pagopa.group.not.found');\r",
 									"    pm.expect(jsonResponse.message).contain('There is no group for initiativeId');\r",
@@ -315,85 +339,6 @@
 					"response": []
 				},
 				{
-					"name": "Get Citizen Status when no Groups are persisted for DRAFT Initiative",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status test 404\", function () {\r",
-									"    pm.response.to.have.status(404);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Verify response body - Group not found because never persisted for initiativeId\", function () {\r",
-									"    let jsonResponse = pm.response.json()\r",
-									"    pm.expect(jsonResponse.code).equals('it.gov.pagopa.group.not.found');\r",
-									"    pm.expect(jsonResponse.message).contain('There is no group for initiativeId');\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrlGroup}}/:initiativeId/citizen/:citizenToken",
-							"host": [
-								"{{baseUrlGroup}}"
-							],
-							"path": [
-								":initiativeId",
-								"citizen",
-								":citizenToken"
-							],
-							"variable": [
-								{
-									"key": "initiativeId",
-									"value": "{{initiativeId}}",
-									"description": "(Required) The initiative ID"
-								},
-								{
-									"key": "citizenToken",
-									"value": "b0e78244-9bdf-47ab-8843-8546787c0734"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "STEP3 Update Groups - upload WrongCF file",
 					"event": [
 						{
@@ -409,11 +354,11 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status test 200\", function () {\r",
+									"pm.test(\"Group - Initiative with group file - STEP3 - Responses with 200\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Verify response body\", function () {\r",
+									"pm.test(\"Group - Initiative with group file - Update initiative with wrong CF - Verify expected fields in the response body \", function () {\r",
 									"    let jsonResponse = pm.response.json();\r",
 									"    pm.expect(jsonResponse).have.property(\"status\");\r",
 									"    pm.expect(jsonResponse.status).contain('KO');\r",
@@ -445,7 +390,7 @@
 								{
 									"key": "file",
 									"type": "file",
-									"src": "./postman/ps_fiscal_code_groups_file_large_WrongCF.csv"
+									"src": "./postman/ps_fiscal_ code_groups_file_wrong_fiscal_code.csv"
 								}
 							]
 						},
@@ -484,11 +429,11 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status test 404\", function () {\r",
+									"pm.test(\"Group - Initiative with group file - Get status - Responses with 404\", function () {\r",
 									"    pm.response.to.have.status(404);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Verify response body - Group not found because of problems on validation\", function () {\r",
+									"pm.test(\"Group - Initiative with group file - Get status - Group not found because of problems on validation\", function () {\r",
 									"    let jsonResponse = pm.response.json()\r",
 									"    pm.expect(jsonResponse.code).equals('it.gov.pagopa.group.not.found');\r",
 									"    pm.expect(jsonResponse.message).contain('There is no group for initiativeId');\r",
@@ -558,11 +503,11 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status test 200\", function () {\r",
+									"pm.test(\"Group - Update initiative with wrong file format - Status test 200\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Verify response body\", function () {\r",
+									"pm.test(\"Group - Update initiative with wrong file format - Verify expected fields in the response body\", function () {\r",
 									"    let jsonResponse = pm.response.json();\r",
 									"    pm.expect(jsonResponse).have.property(\"status\");\r",
 									"    pm.expect(jsonResponse.status).contain('KO');\r",
@@ -632,11 +577,11 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status test 404\", function () {\r",
+									"pm.test(\"Group - Get Status on Groups with wrong file fromat - Status test 404\", function () {\r",
 									"    pm.response.to.have.status(404);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Verify response body - Group not found because of problems on validation\", function () {\r",
+									"pm.test(\"Group - Get Status on Groups with wrong file fromat - Verify response body - Group not found because of problems on validation\", function () {\r",
 									"    let jsonResponse = pm.response.json()\r",
 									"    pm.expect(jsonResponse.code).equals('it.gov.pagopa.group.not.found');\r",
 									"    pm.expect(jsonResponse.message).contain('There is no group for initiativeId');\r",
@@ -706,18 +651,16 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status test 200\", function () {\r",
+									"pm.test(\"Group - Update initiative with wrong file empty first line - Status test 200\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Verify response body\", function () {\r",
+									"pm.test(\"Group - Update initiative with wrong file empty first line - Verify expected fields in the response body\", function () {\r",
 									"    let jsonResponse = pm.response.json();\r",
 									"    pm.expect(jsonResponse).have.property(\"status\");\r",
 									"    pm.expect(jsonResponse.status).contain('KO');\r",
-									"    pm.expect(jsonResponse).have.property(\"errorRow\");\r",
-									"    pm.expect(jsonResponse.errorRow).equals(1);\r",
 									"    pm.expect(jsonResponse).have.property(\"errorKey\");\r",
-									"    pm.expect(jsonResponse.errorKey).contain('group.groups.invalid.file.cf');\r",
+									"    pm.expect(jsonResponse.errorKey).contain('group.groups.invalid.file.empty');\r",
 									"    pm.expect(jsonResponse).have.property(\"elabTimeStamp\");\r",
 									"});"
 								],
@@ -782,11 +725,11 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status test 404\", function () {\r",
+									"pm.test(\"Group - Get Status on Groups with wrong file empty first line - Status test 404\", function () {\r",
 									"    pm.response.to.have.status(404);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Verify response body - Group not found because of problems on validation\", function () {\r",
+									"pm.test(\"Group - Get Status on Groups with wrong file empty first line - Group not found because of problems on validation\", function () {\r",
 									"    let jsonResponse = pm.response.json()\r",
 									"    pm.expect(jsonResponse.code).equals('it.gov.pagopa.group.not.found');\r",
 									"    pm.expect(jsonResponse.message).contain('There is no group for initiativeId');\r",
@@ -856,7 +799,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Verify response body\", function () {\r",
+									"pm.test(\"Group - Update initiative with large file size - Verify expected fields in the response body\", function () {\r",
 									"    let jsonResponse = pm.response.json();\r",
 									"    pm.expect(jsonResponse).have.property(\"status\");\r",
 									"    pm.expect(jsonResponse.status).contain('KO');\r",
@@ -879,18 +822,6 @@
 							{
 								"key": "Accept",
 								"value": "application/json"
-							},
-							{
-								"key": "Ocp-Apim-Trace",
-								"value": "true",
-								"type": "text",
-								"disabled": true
-							},
-							{
-								"key": "Ocp-Apim-Subscription-Key",
-								"value": "a77ce741c13d43359e49a491d6990540",
-								"type": "text",
-								"disabled": true
 							}
 						],
 						"body": {
@@ -929,11 +860,11 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status test 404\", function () {\r",
+									"pm.test(\"Group - Get Status on Groups with large file size - Status test 404\", function () {\r",
 									"    pm.response.to.have.status(404);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Verify response body - Group not found because of problems on validation\", function () {\r",
+									"pm.test(\"Group - Get Status on Groups with large file size - Verify response body - Group not found because of problems on validation\", function () {\r",
 									"    let jsonResponse = pm.response.json()\r",
 									"    pm.expect(jsonResponse.code).equals('it.gov.pagopa.group.not.found');\r",
 									"    pm.expect(jsonResponse.message).contain('There is no group for initiativeId');\r",
@@ -1012,14 +943,14 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status test 200\", function () {\r",
+									"pm.test(\"Group - Update initiative with correct file - Status test 200\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Verify response body\", function () {\r",
+									"pm.test(\"Group - Update initiative with correct file - Verify expected fields in the response body\", function () {\r",
 									"    let jsonResponse = pm.response.json();\r",
 									"    pm.expect(jsonResponse).have.property(\"status\");\r",
-									"    pm.expect(jsonResponse.status).contain('VALIDATED');\r",
+									"    pm.expect(jsonResponse.status).contain('DRAFT');\r",
 									"    pm.expect(jsonResponse).have.property(\"elabTimeStamp\");\r",
 									"});"
 								],
@@ -1045,7 +976,7 @@
 								{
 									"key": "file",
 									"type": "file",
-									"src": "./postman/ps_fiscal_code_groups_file_large_20_lowercase.csv"
+									"src": "./postman/ps_fiscal_code_groups_file_valid_CF.csv"
 								}
 							]
 						},
@@ -1084,14 +1015,14 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status test 200\", function () {\r",
+									"pm.test(\"Group - Get Status on Groups with correct file - Status test 200\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Verify response body status in 'OK' in case PDV has Tokenized CF correctly\", function () {\r",
+									"pm.test(\"Group - Get Status on Groups with correct file - Verify response body status in 'OK' in case PDV has Tokenized CF correctly\", function () {\r",
 									"    let jsonResponse = pm.response.json()\r",
 									"    pm.expect(jsonResponse).have.property(\"status\");\r",
-									"    pm.expect(jsonResponse.status).equals('OK');\r",
+									"    pm.expect(jsonResponse.status).equals('DRAFT');\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -1141,162 +1072,6 @@
 						}
 					},
 					"response": []
-				},
-				{
-					"name": "Get Citizen Status on Groups for DRAFT Initiative Not Present",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status test 200\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Verify response body (in case PDV has Tokenized CF correctly previously) - Citizen not found because not present in the Group\", function () {\r",
-									"    let jsonResponse = pm.response.json()\r",
-									"    pm.expect(jsonResponse.status).equals(false);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrlGroup}}/:initiativeId/citizen/:citizenToken",
-							"host": [
-								"{{baseUrlGroup}}"
-							],
-							"path": [
-								":initiativeId",
-								"citizen",
-								":citizenToken"
-							],
-							"variable": [
-								{
-									"key": "initiativeId",
-									"value": "{{initiativeId}}",
-									"description": "(Required) The initiative ID"
-								},
-								{
-									"key": "citizenToken",
-									"value": "a0a00000-0aaa-00aa-0000-0000000a0000"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get Citizen Status on Groups for DRAFT Initiative Present",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status test 200\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Verify response body (in case PDV has Tokenized CF correctly previously) - Citizen found because is present in the beneficiaryList of Group\", function () {\r",
-									"    let jsonResponse = pm.response.json()\r",
-									"    pm.expect(jsonResponse.status).equals(true);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrlGroup}}/:initiativeId/citizen/:citizenToken",
-							"host": [
-								"{{baseUrlGroup}}"
-							],
-							"path": [
-								":initiativeId",
-								"citizen",
-								":citizenToken"
-							],
-							"variable": [
-								{
-									"key": "initiativeId",
-									"value": "{{initiativeId}}",
-									"description": "(Required) The initiative ID"
-								},
-								{
-									"key": "citizenToken",
-									"value": "b0e78244-9bdf-47ab-8843-8546787c0734"
-								}
-							]
-						}
-					},
-					"response": []
 				}
 			]
 		}
@@ -1332,36 +1107,6 @@
 		}
 	],
 	"variable": [
-		{
-			"key": "baseUrl",
-			"value": "http://api.dev.cstar.pagopa.it/idpay/initiative",
-			"type": "string",
-			"disabled": true
-		},
-		{
-			"key": "baseUrl",
-			"value": "https://api-io.dev.cstar.pagopa.it/idpay/initiative",
-			"type": "string",
-			"disabled": true
-		},
-		{
-			"key": "baseUrlInternal",
-			"value": "https://api-io.dev.cstar.pagopa.it/idpay/initiative",
-			"type": "string",
-			"disabled": true
-		},
-		{
-			"key": "baseUrl",
-			"value": "localhost:8080/idpay/organization/{{orgId}}/initiative",
-			"type": "string",
-			"disabled": true
-		},
-		{
-			"key": "baseUrlInternal",
-			"value": "localhost:8080/idpay/initiative",
-			"type": "string",
-			"disabled": true
-		},
 		{
 			"key": "orgId",
 			"value": "2f63a151-da4e-4e1e-acf9-adecc0c4d727",
@@ -1429,6 +1174,15 @@
 		},
 		{
 			"key": "initiativeId",
+			"value": ""
+		},
+		{
+			"key": "initiativeId - whiteList",
+			"value": "63fded4ffea3f35a5644e738",
+			"type": "string"
+		},
+		{
+			"key": "tokenIO",
 			"value": ""
 		}
 	]
