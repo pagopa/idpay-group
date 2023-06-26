@@ -6,7 +6,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "it.gov.pagopa")
 @EnableScheduling
 @EnableAsync
 public class GroupApplication {
