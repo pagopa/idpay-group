@@ -111,3 +111,6 @@ Desktop.ini
 
 # Test jUnit
 /output/
+
+/helm/charts/*
+/src/test/resources/secrets/*
