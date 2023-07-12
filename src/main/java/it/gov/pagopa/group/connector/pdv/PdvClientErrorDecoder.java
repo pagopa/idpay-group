@@ -4,6 +4,7 @@ import feign.Response;
 import feign.RetryableException;
 import feign.codec.ErrorDecoder;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 
 @Slf4j
 public class PdvClientErrorDecoder implements ErrorDecoder {
@@ -13,7 +14,7 @@ public class PdvClientErrorDecoder implements ErrorDecoder {
     public Exception decode(String s, Response response) {
         log.info("Error Response!!!");
 
-        if (response.status() >= 400) {
+        if (response.status() >= HttpStatus.TOO_MANY_REQUESTS.value()) {
             throw new RetryableException(
                     response.status(),
 //                    String.format("Service unavailable (status code %s)", response.status()),
