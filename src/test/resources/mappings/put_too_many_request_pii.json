@@ -4,14 +4,11 @@
     "urlPathPattern": "/tokens",
     "bodyPatterns" : [{"equalToJson" :
     {
-      "pii" : "AOISFN73R54B745Z"
+      "pii" : "PUT_TOO_MANY_REQUEST_PII"
     }}]
   },
   "response": {
-    "status": "200",
-    "jsonBody": {
-      "token": "ec9f2fbe-ab67-4e93-a1d6-25ae6e685b74"
-    },
+    "status": "429",
     "headers": {
       "Content-Type": "application/json"
     }

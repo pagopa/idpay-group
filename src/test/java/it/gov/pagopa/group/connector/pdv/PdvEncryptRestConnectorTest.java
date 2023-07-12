@@ -109,7 +109,7 @@ class PdvEncryptRestConnectorTest {
     }
 
     @Test
-    void whenPDVRetryerHasMaximum3Attempts_thenOnly3TriesAllowed() throws Exception {
+    void whenPDVRetryerHasMaximum3Attempts_thenOnly3TriesAllowed(){
         Request request = Request.create(Request.HttpMethod.PUT, wireMockServer.baseUrl(), Collections.emptyMap(), new byte[0], Charset.defaultCharset(), new RequestTemplate());
         RetryableException e = new RetryableException(503, EXCEPTION_MESSAGE, null, null, request);
         PdvClientRetryer pdvClientRetryer = new PdvClientRetryer(100, 1, 3);
@@ -125,6 +125,20 @@ class PdvEncryptRestConnectorTest {
         assertEquals(EXCEPTION_MESSAGE, exception.getMessage());
     }
 
+    @Test
+    void pdvTooManyRequestException() throws JsonProcessingException {
+        PiiDTO pii = PiiDTO.builder().pii("PUT_TOO_MANY_REQUEST_PII").build();
+
+        Executable executable = () -> pdvEncryptRestConnector.putPii(pii);
+
+        Assertions.assertThrows(RetryableException.class, executable);
+
+        String json = new ObjectMapper().writeValueAsString(pii);
+
+        wireMockServer.verify(3,
+                WireMock.putRequestedFor(WireMock.urlEqualTo("/tokens")).withRequestBody(equalToJson(json)));
+
+    }
     @AfterEach
     void resetAll() {
         wireMockServer.resetAll();
