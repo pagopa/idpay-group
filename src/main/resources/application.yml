@@ -80,6 +80,15 @@ spring:
                 linger.ms: ${KAFKA_GROUP_PRODUCER_CONFIG_LINGER_MS:${KAFKA_LINGER_MS:2}}
                 batch.size: ${KAFKA_GROUP_PRODUCER_CONFIG_BATCH_SIZE:${KAFKA_BATCH_SIZE:16384}}
                 metadata.max.idle.ms: ${KAFKA_GROUP_PRODUCER_DEFAULT_METADATA_MAX_IDLE_MS:180000}
+    openfeign:
+      okhttp:
+        enabled: true
+      client:
+        config:
+          pdv-ms-tokenizer:
+            errorDecoder: it.gov.pagopa.group.connector.pdv.PdvClientErrorDecoder
+            loggerLevel: basic
+            retryer: it.gov.pagopa.group.connector.pdv.PdvClientRetryer
 
 management:
   endpoints:
@@ -99,15 +108,6 @@ rest-client:
     cf: ${PDV_ENCRYPT_SERVICE_CODE:pdv-ms-tokenizer}
     base-url: ${PDV_ENCRYPT_BASE_URL:}
     api.key: ${PDV_ENCRYPT_API_KEY:}
-feign:
-  okhttp:
-    enabled: true
-  client:
-    config:
-      pdv-ms-tokenizer:
-        errorDecoder: it.gov.pagopa.group.connector.pdv.PdvClientErrorDecoder
-        loggerLevel: basic
-        retryer: it.gov.pagopa.group.connector.pdv.PdvClientRetryer
 
 file:
   schedule:
