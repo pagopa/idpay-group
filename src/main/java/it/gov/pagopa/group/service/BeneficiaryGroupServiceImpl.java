@@ -7,13 +7,16 @@ import it.gov.pagopa.group.constants.GroupConstants.Exception.NotFound;
 import it.gov.pagopa.group.constants.GroupConstants.Status;
 import it.gov.pagopa.group.dto.FiscalCodeTokenizedDTO;
 import it.gov.pagopa.group.dto.PiiDTO;
+import it.gov.pagopa.group.dto.event.QueueCommandOperationDTO;
 import it.gov.pagopa.group.exception.BeneficiaryGroupException;
 import it.gov.pagopa.group.model.Group;
 import it.gov.pagopa.group.model.GroupUserWhitelist;
 import it.gov.pagopa.group.repository.GroupQueryDAO;
 import it.gov.pagopa.group.repository.GroupRepository;
 import it.gov.pagopa.group.repository.GroupUserWhitelistRepository;
+import it.gov.pagopa.group.utils.AuditUtilities;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -39,9 +42,9 @@ import java.util.Optional;
 @Service
 @Slf4j
 public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
-
+  @Autowired
+  AuditUtilities auditUtilities;
   public static final String KEY_SEPARATOR = "_";
-
   private final String rootPath;
   private final boolean isFilesOnStorageToBeDeleted;
   private final GroupRepository groupRepository;
@@ -310,5 +313,44 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
                         HttpStatus.NOT_FOUND));
     group.setStatus(Status.VALIDATED);
     groupRepository.save(group);
+  }
+
+  @Override
+  public void processCommand(QueueCommandOperationDTO queueCommandOperationDTO) {
+    if (GroupConstants.OPERATION_TYPE_DELETE_INITIATIVE.equals(queueCommandOperationDTO.getOperationType())) {
+      deleteGroupRepo(queueCommandOperationDTO);
+      deleteGroupWhitelistRepo(queueCommandOperationDTO);
+    }
+  }
+
+  private void deleteGroupRepo(QueueCommandOperationDTO queueCommandOperationDTO){
+    long startTime = System.currentTimeMillis();
+    List<Group> deletedOperation = groupRepository.deleteByInitiativeId(queueCommandOperationDTO.getEntityId());
+
+    log.info("[DELETE OPERATION] Deleted whitelist group file on initiative: {}",
+            queueCommandOperationDTO.getEntityId());
+
+    deletedOperation.forEach(group -> auditUtilities.logDeleteGroupOperation(queueCommandOperationDTO.getEntityId(),
+            group.getFileName()));
+    performanceLog(startTime, "DELETE_OPERATION");
+  }
+
+  private void deleteGroupWhitelistRepo(QueueCommandOperationDTO queueCommandOperationDTO){
+    long startTime = System.currentTimeMillis();
+    List<GroupUserWhitelist> deletedOperation = groupUserWhitelistRepository.deleteByInitiativeId(queueCommandOperationDTO.getEntityId());
+
+    log.info("[DELETE OPERATION] Deleted {} users in whitelist for initiative: {}", deletedOperation.size(),
+            queueCommandOperationDTO.getEntityId());
+
+    deletedOperation.forEach(groupUser -> auditUtilities.logDeleteGroupWhitelistOperation(queueCommandOperationDTO.getEntityId(),
+            groupUser.getUserId()));
+    performanceLog(startTime, "DELETE_OPERATION");
+  }
+
+  private void performanceLog(long startTime, String service) {
+    log.info(
+            "[PERFORMANCE_LOG] [{}] Time occurred to perform business logic: {} ms",
+            service,
+            System.currentTimeMillis() - startTime);
   }
 }

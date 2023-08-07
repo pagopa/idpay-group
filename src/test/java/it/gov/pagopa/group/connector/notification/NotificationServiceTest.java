@@ -1,8 +1,8 @@
 package it.gov.pagopa.group.connector.notification;
 
 import it.gov.pagopa.group.dto.event.GenericNotificationQueueDTO;
-import it.gov.pagopa.group.event.NotificationManagerProducer;
-import it.gov.pagopa.group.event.OnboardingNotificationProducer;
+import it.gov.pagopa.group.event.producer.NotificationManagerProducer;
+import it.gov.pagopa.group.event.producer.OnboardingNotificationProducer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;

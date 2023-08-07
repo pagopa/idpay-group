@@ -1,8 +1,8 @@
 package it.gov.pagopa.group.connector.notification;
 
 import it.gov.pagopa.group.dto.event.CitizenNotificationOnQueueDTO;
-import it.gov.pagopa.group.event.NotificationManagerProducer;
-import it.gov.pagopa.group.event.OnboardingNotificationProducer;
+import it.gov.pagopa.group.event.producer.NotificationManagerProducer;
+import it.gov.pagopa.group.event.producer.OnboardingNotificationProducer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

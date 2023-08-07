@@ -1,4 +1,4 @@
-package it.gov.pagopa.group.event;
+package it.gov.pagopa.group.event.producer;
 
 import it.gov.pagopa.group.dto.event.GenericNotificationQueueDTO;
 import lombok.extern.slf4j.Slf4j;
@@ -8,15 +8,15 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class NotificationManagerProducerImpl implements NotificationManagerProducer {
+public class OnboardingNotificationProducerImpl implements OnboardingNotificationProducer {
 
-    private static final String ALLOWED_CITIZEN_OUT_0 = "allowedCitizen-out-0";
+    private static final String ALLOWED_CITIZEN_OUT_1 = "allowedCitizen-out-1";
     @Autowired
     StreamBridge streamBridge;
 
     @Override
     public <T extends GenericNotificationQueueDTO> boolean sendAllowedCitizen(T notificationQueueDTO) {
-        log.debug("Sending anonymous allowed Citizen to {}", ALLOWED_CITIZEN_OUT_0);
-        return streamBridge.send(ALLOWED_CITIZEN_OUT_0, notificationQueueDTO);
+        log.debug("Sending anonymous allowed Citizen to {}", ALLOWED_CITIZEN_OUT_1);
+        return streamBridge.send(ALLOWED_CITIZEN_OUT_1, notificationQueueDTO);
     }
 }
