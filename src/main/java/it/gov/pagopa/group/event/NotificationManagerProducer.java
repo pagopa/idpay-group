@@ -1,8 +1,8 @@
-package it.gov.pagopa.group.event.producer;
+package it.gov.pagopa.group.event;
 
 import it.gov.pagopa.group.dto.event.GenericNotificationQueueDTO;
 
-public interface OnboardingNotificationProducer {
+public interface NotificationManagerProducer {
 
     public <T extends GenericNotificationQueueDTO> boolean sendAllowedCitizen(T notificationQueueDTO);
 
