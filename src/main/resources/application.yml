@@ -48,12 +48,12 @@ spring:
           type: kafka
           environment:
             spring.cloud.stream:
-                  kafka:
-                    binder:
-                      brokers: ${KAFKA_BINDER_BROKER_ENDPOINT_LIST_01:${KAFKA_BROKER:}}
-                      configuration:
-                        sasl:
-                          jaas.config: ${KAFKA_COMMANDS_IN_SASL_JAAS_CONFIG:}
+              kafka:
+                binder:
+                  brokers: ${KAFKA_BINDER_BROKER_ENDPOINT_LIST_01:}
+                  configuration:
+                    sasl:
+                      jaas.config: ${KAFKA_COMMANDS_IN_SASL_JAAS_CONFIG:}
       bindings:
         allowedCitizen-out-0:
           binder: kafka-notification
