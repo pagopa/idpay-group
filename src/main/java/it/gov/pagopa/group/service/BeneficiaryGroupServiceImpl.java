@@ -342,8 +342,8 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
     log.info("[DELETE OPERATION] Deleted {} users in whitelist for initiative: {}", deletedOperation.size(),
             queueCommandOperationDTO.getEntityId());
 
-    deletedOperation.forEach(groupUser -> auditUtilities.logDeleteGroupWhitelistOperation(queueCommandOperationDTO.getEntityId(),
-            groupUser.getUserId()));
+    deletedOperation.forEach(groupUser -> auditUtilities.logDeleteGroupWhitelistOperation(groupUser.getUserId(),
+            queueCommandOperationDTO.getEntityId()));
     performanceLog(startTime, "DELETE_OPERATION");
   }
 

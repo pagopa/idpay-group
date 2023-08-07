@@ -57,7 +57,7 @@ public class AuditUtilities {
     public void logDeleteGroupOperation(String initiativeId, String fileName) {
         logAuditString(
                 CEF_PATTERN_GROUP,
-                "Group file deleted", initiativeId,fileName
+                "Group file deleted", initiativeId, fileName
         );
     }
 }
