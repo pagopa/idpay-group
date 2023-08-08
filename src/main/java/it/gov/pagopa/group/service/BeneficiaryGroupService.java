@@ -1,5 +1,6 @@
 package it.gov.pagopa.group.service;
 
+import it.gov.pagopa.group.dto.event.QueueCommandOperationDTO;
 import it.gov.pagopa.group.model.Group;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -22,4 +23,6 @@ public interface BeneficiaryGroupService {
       String initiativeId, String initiativeName, String serviceId);
 
   void setStatusToValidated(String initiativeId);
+
+  void processCommand(QueueCommandOperationDTO queueCommandOperationDTO);
 }

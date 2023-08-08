@@ -4,6 +4,7 @@ import it.gov.pagopa.group.model.Group;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -21,4 +22,6 @@ public interface GroupRepository extends MongoRepository<Group, String> {
     Stream<String> findGroupByInitiativeId(String initiativeId);
 
     Optional<Group> findByInitiativeIdAndStatus(String initiativeId, String draft);
+    List<Group> deleteByInitiativeId (String initiativeId);
+
 }

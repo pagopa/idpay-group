@@ -5,6 +5,8 @@ public class GroupConstants {
 
     private GroupConstants(){}
 
+    public static final String OPERATION_TYPE_DELETE_INITIATIVE = "DELETE_INITIATIVE";
+
     public static final String CONTENT_TYPE = "text/csv";
 
     public static final class Status {

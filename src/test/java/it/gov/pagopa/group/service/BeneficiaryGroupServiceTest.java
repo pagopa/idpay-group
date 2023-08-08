@@ -6,6 +6,7 @@ import it.gov.pagopa.group.constants.GroupConstants;
 import it.gov.pagopa.group.constants.GroupConstants.Status;
 import it.gov.pagopa.group.dto.FiscalCodeTokenizedDTO;
 import it.gov.pagopa.group.dto.PiiDTO;
+import it.gov.pagopa.group.dto.event.QueueCommandOperationDTO;
 import it.gov.pagopa.group.exception.BeneficiaryGroupException;
 import it.gov.pagopa.group.model.Group;
 import it.gov.pagopa.group.model.GroupUserWhitelist;
@@ -13,8 +14,13 @@ import it.gov.pagopa.group.repository.GroupQueryDAO;
 import it.gov.pagopa.group.repository.GroupRepository;
 import it.gov.pagopa.group.repository.GroupUserWhitelistRepository;
 import it.gov.pagopa.group.util.CFGenerator;
+import it.gov.pagopa.group.utils.AuditUtilities;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -36,7 +42,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
+import static it.gov.pagopa.group.constants.GroupConstants.OPERATION_TYPE_DELETE_INITIATIVE;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -57,11 +65,14 @@ class BeneficiaryGroupServiceTest {
   @MockBean PdvEncryptRestConnector encryptRestConnector;
   @MockBean NotificationConnector notificationConnector;
   @MockBean GroupUserWhitelistRepository groupUserWhitelistRepository;
+  @MockBean AuditUtilities auditUtilities;
 
   // Mock your clock bean
   @MockBean private Clock clock;
 
   private static final String FISCAL_CODE_TOKENIZED = "FISCAL_CODE_TOKENIZED";
+  private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
+  private static final String USER_ID = "TEST_USER_ID";
 
   // Some fixed date to make your tests
   private static final LocalDate LOCAL_DATE = LocalDate.of(2022, 1, 1);
@@ -375,5 +386,41 @@ class BeneficiaryGroupServiceTest {
     group.setCreationUser("admin");
     group.setUpdateUser("admin");
     return group;
+  }
+
+  @ParameterizedTest
+  @MethodSource("operationTypeAndInvocationTimes")
+  void processOperation_deleteOperation(String operationType, int times) {
+    QueueCommandOperationDTO queueCommandOperationDTO = QueueCommandOperationDTO.builder()
+            .entityId(INITIATIVE_ID)
+            .operationType(operationType)
+            .operationTime(LocalDateTime.now())
+            .build();
+
+    Group group = new Group();
+    group.setInitiativeId(INITIATIVE_ID);
+    group.setFileName("fileName");
+
+    GroupUserWhitelist groupUser = new GroupUserWhitelist();
+    groupUser.setInitiativeId(INITIATIVE_ID);
+    groupUser.setUserId(USER_ID);
+
+    when(groupRepository.deleteByInitiativeId(queueCommandOperationDTO.getEntityId()))
+            .thenReturn(List.of(group));
+
+    when(groupUserWhitelistRepository.deleteByInitiativeId(queueCommandOperationDTO.getEntityId()))
+            .thenReturn(List.of(groupUser));
+
+    beneficiaryGroupService.processCommand(queueCommandOperationDTO);
+
+    verify(groupRepository, Mockito.times(times)).deleteByInitiativeId(queueCommandOperationDTO.getEntityId());
+    verify(groupUserWhitelistRepository, Mockito.times(times)).deleteByInitiativeId(queueCommandOperationDTO.getEntityId());
+  }
+
+  private static Stream<Arguments> operationTypeAndInvocationTimes() {
+    return Stream.of(
+            Arguments.of(OPERATION_TYPE_DELETE_INITIATIVE, 1),
+            Arguments.of("OPERATION_TYPE_TEST", 0)
+    );
   }
 }
