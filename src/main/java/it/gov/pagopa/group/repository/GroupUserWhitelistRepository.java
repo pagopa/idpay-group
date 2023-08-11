@@ -9,4 +9,6 @@ public interface GroupUserWhitelistRepository extends MongoRepository<GroupUserW
 
     @Query(value = "{initiativeId : ?0}", fields = "{userId : 1}")
     List<GroupUserWhitelist> findByInitiativeId(String initiativeId);
+
+    List<GroupUserWhitelist> deleteByInitiativeId (String initiativeId);
 }
