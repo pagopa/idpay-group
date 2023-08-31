@@ -317,34 +317,32 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
 
   @Override
   public void processCommand(QueueCommandOperationDTO queueCommandOperationDTO) {
+    long startTime = System.currentTimeMillis();
     if (GroupConstants.OPERATION_TYPE_DELETE_INITIATIVE.equals(queueCommandOperationDTO.getOperationType())) {
       deleteGroupRepo(queueCommandOperationDTO);
       deleteGroupWhitelistRepo(queueCommandOperationDTO);
+      performanceLog(startTime, "DELETE_INITIATIVE");
     }
   }
 
   private void deleteGroupRepo(QueueCommandOperationDTO queueCommandOperationDTO){
-    long startTime = System.currentTimeMillis();
     List<Group> deletedOperation = groupRepository.deleteByInitiativeId(queueCommandOperationDTO.getEntityId());
 
-    log.info("[DELETE OPERATION] Deleted whitelist group file on initiative: {}",
+    log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: group",
             queueCommandOperationDTO.getEntityId());
 
     deletedOperation.forEach(group -> auditUtilities.logDeleteGroupOperation(queueCommandOperationDTO.getEntityId(),
             group.getFileName()));
-    performanceLog(startTime, "DELETE_OPERATION");
   }
 
   private void deleteGroupWhitelistRepo(QueueCommandOperationDTO queueCommandOperationDTO){
-    long startTime = System.currentTimeMillis();
     List<GroupUserWhitelist> deletedOperation = groupUserWhitelistRepository.deleteByInitiativeId(queueCommandOperationDTO.getEntityId());
 
-    log.info("[DELETE OPERATION] Deleted {} users in whitelist for initiative: {}", deletedOperation.size(),
+    log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: group_user_whitelist",
             queueCommandOperationDTO.getEntityId());
 
     deletedOperation.forEach(groupUser -> auditUtilities.logDeleteGroupWhitelistOperation(groupUser.getUserId(),
             queueCommandOperationDTO.getEntityId()));
-    performanceLog(startTime, "DELETE_OPERATION");
   }
 
   private void performanceLog(long startTime, String service) {

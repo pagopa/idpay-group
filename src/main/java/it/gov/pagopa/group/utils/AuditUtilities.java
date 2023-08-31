@@ -50,14 +50,14 @@ public class AuditUtilities {
     public void logDeleteGroupWhitelistOperation(String userId, String initiativeId) {
         logAuditString(
                 CEF_PATTERN_GROUP_WHITELIST,
-                "User in Whitelist deleted", userId, initiativeId
+                "User in whitelist deleted", userId, initiativeId
         );
     }
 
     public void logDeleteGroupOperation(String initiativeId, String fileName) {
         logAuditString(
                 CEF_PATTERN_GROUP,
-                "Group file deleted", initiativeId, fileName
+                "Whitelist file deleted", initiativeId, fileName
         );
     }
 }

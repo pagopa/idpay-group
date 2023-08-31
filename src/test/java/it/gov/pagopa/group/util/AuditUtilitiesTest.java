@@ -69,7 +69,7 @@ class AuditUtilitiesTest {
         auditUtilities.logDeleteGroupWhitelistOperation(USER_ID, INITIATIVE_ID);
 
         Assertions.assertEquals(
-                ("CEF:0|PagoPa|IDPAY|1.0|7|User interaction|2| event=Group dstip=%s msg=User in Whitelist deleted" +
+                ("CEF:0|PagoPa|IDPAY|1.0|7|User interaction|2| event=Group dstip=%s msg=User in whitelist deleted" +
                         " suser=%s cs1Label=initiativeId cs1=%s")
                         .formatted(
                                 AuditUtilities.SRCIP,
@@ -85,7 +85,7 @@ class AuditUtilitiesTest {
         auditUtilities.logDeleteGroupOperation(INITIATIVE_ID, FILE_NAME);
 
         Assertions.assertEquals(
-                ("CEF:0|PagoPa|IDPAY|1.0|7|User interaction|2| event=Group dstip=%s msg=Group file deleted" +
+                ("CEF:0|PagoPa|IDPAY|1.0|7|User interaction|2| event=Group dstip=%s msg=Whitelist file deleted" +
                         " cs1Label=initiativeId cs1=%s cs2Label=fileName cs2=%s")
                         .formatted(
                                 AuditUtilities.SRCIP,
