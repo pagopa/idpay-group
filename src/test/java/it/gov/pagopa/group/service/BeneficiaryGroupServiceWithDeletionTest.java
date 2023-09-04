@@ -10,6 +10,7 @@ import it.gov.pagopa.group.repository.GroupQueryDAO;
 import it.gov.pagopa.group.repository.GroupRepository;
 import it.gov.pagopa.group.repository.GroupUserWhitelistRepository;
 import it.gov.pagopa.group.util.CFGenerator;
+import it.gov.pagopa.group.utils.AuditUtilities;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,6 +48,7 @@ class BeneficiaryGroupServiceWithDeletionTest {
     @MockBean NotificationConnector notificationConnector;
     @MockBean GroupUserWhitelistRepository groupUserWhitelistRepository;
     @MockBean private Clock clock;
+    @MockBean AuditUtilities auditUtilities;
     private static final LocalDate LOCAL_DATE = LocalDate.of(2022, 1, 1);
     private static File cfListFile;
     private final static String CF_LIST = "cfList";
