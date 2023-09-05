@@ -1,4 +1,4 @@
-package it.gov.pagopa.group.util;
+package it.gov.pagopa.group.utils;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
