@@ -1,15 +1,13 @@
 package it.gov.pagopa.group.exception;
 
-import lombok.AllArgsConstructor;
+import it.gov.pagopa.common.web.exception.ClientExceptionWithBody;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
-@AllArgsConstructor
 @Getter
-public class BeneficiaryGroupException extends RuntimeException{
-    private final String code;
-
-    private final String message;
-
-    private final HttpStatus httpStatus;
+@SuppressWarnings("squid:S110")
+public class BeneficiaryGroupException extends ClientExceptionWithBody {
+    public BeneficiaryGroupException(String code, String message, HttpStatus httpStatus) {
+        super(httpStatus, code, message);
+    }
 }
