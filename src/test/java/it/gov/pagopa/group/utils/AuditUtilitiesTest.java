@@ -1,8 +1,8 @@
-package it.gov.pagopa.group.util;
+package it.gov.pagopa.group.utils;
 
 
 import ch.qos.logback.classic.LoggerContext;
-import it.gov.pagopa.group.utils.AuditUtilities;
+import it.gov.pagopa.common.utils.MemoryAppender;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

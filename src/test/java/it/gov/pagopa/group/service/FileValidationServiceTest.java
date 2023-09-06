@@ -1,7 +1,7 @@
 package it.gov.pagopa.group.service;
 
 import it.gov.pagopa.group.repository.GroupRepository;
-import it.gov.pagopa.group.util.CFGenerator;
+import it.gov.pagopa.group.utils.CFGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
