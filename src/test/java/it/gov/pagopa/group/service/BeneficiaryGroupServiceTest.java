@@ -13,7 +13,7 @@ import it.gov.pagopa.group.model.GroupUserWhitelist;
 import it.gov.pagopa.group.repository.GroupQueryDAO;
 import it.gov.pagopa.group.repository.GroupRepository;
 import it.gov.pagopa.group.repository.GroupUserWhitelistRepository;
-import it.gov.pagopa.group.util.CFGenerator;
+import it.gov.pagopa.group.utils.CFGenerator;
 import it.gov.pagopa.group.utils.AuditUtilities;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;

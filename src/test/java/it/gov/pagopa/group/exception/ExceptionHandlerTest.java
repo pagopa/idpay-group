@@ -1,7 +1,7 @@
 package it.gov.pagopa.group.exception;
 
+import it.gov.pagopa.common.web.dto.ErrorDTO;
 import it.gov.pagopa.group.constants.GroupConstants;
-import it.gov.pagopa.group.dto.ErrorDTO;
 import it.gov.pagopa.group.dto.GroupUpdateDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.http.fileupload.impl.FileSizeLimitExceededException;

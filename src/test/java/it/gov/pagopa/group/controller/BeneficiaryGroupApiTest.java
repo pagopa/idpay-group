@@ -9,7 +9,7 @@ import it.gov.pagopa.group.exception.BeneficiaryGroupException;
 import it.gov.pagopa.group.model.Group;
 import it.gov.pagopa.group.service.BeneficiaryGroupService;
 import it.gov.pagopa.group.service.FileValidationService;
-import it.gov.pagopa.group.util.CFGenerator;
+import it.gov.pagopa.group.utils.CFGenerator;
 import it.gov.pagopa.group.utils.AuditUtilities;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
