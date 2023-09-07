@@ -33,9 +33,7 @@ microservice-chart:
   ingress:
     create: true
     path: /idpaygroup/(.*)
-    annotations: {
-      nginx.ingress.kubernetes.io/proxy-body-size=2m
-    }
+    proxyBodySize: 2m
     servicePort: 8080
 
   serviceAccount:
