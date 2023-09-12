@@ -1,10 +1,5 @@
-package it.gov.pagopa.common.exception;
+package it.gov.pagopa.common.web.exception;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import it.gov.pagopa.common.web.exception.ClientException;
-import it.gov.pagopa.common.web.exception.ClientExceptionNoBody;
-import it.gov.pagopa.common.web.exception.ClientExceptionWithBody;
-import it.gov.pagopa.common.web.exception.ErrorManager;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,9 +25,6 @@ class ErrorManagerTest {
 
   @Autowired
   private MockMvc mockMvc;
-
-  @Autowired
-  private ObjectMapper objectMapper;
 
   @SpyBean
   private TestController testControllerSpy;
