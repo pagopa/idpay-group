@@ -38,6 +38,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
@@ -45,6 +48,8 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
   @Autowired
   AuditUtilities auditUtilities;
   public static final String KEY_SEPARATOR = "_";
+  private static final String PAGINATION_KEY = "pagination";
+  private static final String DELAY_KEY = "delay";
   private final String rootPath;
   private final boolean isFilesOnStorageToBeDeleted;
   private final GroupRepository groupRepository;
@@ -326,8 +331,30 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
   }
 
   private void deleteGroupRepo(QueueCommandOperationDTO queueCommandOperationDTO){
-    List<Group> deletedOperation = groupRepository.deleteByInitiativeId(queueCommandOperationDTO.getEntityId());
 
+    List<Group> deletedOperation = new ArrayList<>();
+    List<Group> fetchedGroups;
+
+    ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+    do{
+      fetchedGroups = groupRepository.deletePaged(queueCommandOperationDTO.getEntityId(),
+              Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get(PAGINATION_KEY)));
+
+      deletedOperation.addAll(fetchedGroups);
+
+      executorService.schedule(() -> {}, Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get(DELAY_KEY)), TimeUnit.SECONDS);
+
+      /*try{
+        Thread.sleep(Long.parseLong(queueCommandOperationDTO.getAdditionalParams().get("delay")));
+      } catch (InterruptedException e){
+        log.error("An error has occurred while waiting, {}", e.getMessage());
+      }
+       */
+
+
+    }while (fetchedGroups.size() == (Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get(PAGINATION_KEY))));
+    //List<Group> deletedOperation = groupRepository.deleteByInitiativeId(queueCommandOperationDTO.getEntityId());
+    executorService.shutdown();
     log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: group",
             queueCommandOperationDTO.getEntityId());
 
@@ -336,8 +363,33 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
   }
 
   private void deleteGroupWhitelistRepo(QueueCommandOperationDTO queueCommandOperationDTO){
-    List<GroupUserWhitelist> deletedOperation = groupUserWhitelistRepository.deleteByInitiativeId(queueCommandOperationDTO.getEntityId());
 
+    List<GroupUserWhitelist> deletedOperation = new ArrayList<>();
+    List<GroupUserWhitelist> fetchedGroups;
+
+    ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+
+    do{
+      fetchedGroups = groupUserWhitelistRepository.deletePaged(queueCommandOperationDTO.getEntityId(),
+              Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get(PAGINATION_KEY)));
+
+      deletedOperation.addAll(fetchedGroups);
+
+      executorService.schedule(() -> {}, Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get(DELAY_KEY)), TimeUnit.SECONDS);
+
+      /*try{
+        Thread.sleep(Long.parseLong(queueCommandOperationDTO.getAdditionalParams().get(DELAY_KEY)));
+      } catch (InterruptedException e){
+        Thread.currentThread().interrupt();
+        log.error("An error has occurred while waiting, {}", e.getMessage());
+      }
+       */
+
+
+    }while (fetchedGroups.size() == (Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get(PAGINATION_KEY))));
+
+    //List<GroupUserWhitelist> deletedOperation = groupUserWhitelistRepository.deleteByInitiativeId(queueCommandOperationDTO.getEntityId());
+    executorService.shutdown();
     log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: group_user_whitelist",
             queueCommandOperationDTO.getEntityId());
 

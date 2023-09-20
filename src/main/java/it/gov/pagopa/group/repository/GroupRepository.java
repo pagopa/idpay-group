@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public interface GroupRepository extends MongoRepository<Group, String> {
+public interface GroupRepository extends MongoRepository<Group, String>, GroupRepositoryExtended {
 
     Optional<Group> findFirstByStatusAndRetryLessThan(String status, int retry);
 
