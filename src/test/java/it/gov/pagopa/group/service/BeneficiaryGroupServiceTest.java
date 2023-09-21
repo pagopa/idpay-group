@@ -422,6 +422,25 @@ class BeneficiaryGroupServiceTest {
     verify(groupUserWhitelistRepository, Mockito.times(times)).deletePaged(queueCommandOperationDTO.getEntityId(),
             Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination")));
   }
+  @Test
+  void processOperation_deleteOperation_Exception() {
+    Map<String, String> additionalParams = new HashMap<>();
+    additionalParams.put("pagination", "2");
+    additionalParams.put("delay", "1");
+
+    QueueCommandOperationDTO queueCommandOperationDTO = QueueCommandOperationDTO.builder()
+            .entityId(INITIATIVE_ID)
+            .operationType(OPERATION_TYPE_DELETE_INITIATIVE)
+            .operationTime(LocalDateTime.now())
+            .additionalParams(additionalParams)
+            .build();
+
+    Thread.currentThread().interrupt();
+
+    beneficiaryGroupService.processCommand(queueCommandOperationDTO);
+
+    Assertions.assertTrue(Thread.interrupted());
+  }
 
   private static Stream<Arguments> operationTypeAndInvocationTimes() {
     return Stream.of(
