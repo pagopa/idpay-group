@@ -38,10 +38,7 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static it.gov.pagopa.group.constants.GroupConstants.OPERATION_TYPE_DELETE_INITIATIVE;
@@ -391,36 +388,91 @@ class BeneficiaryGroupServiceTest {
   @ParameterizedTest
   @MethodSource("operationTypeAndInvocationTimes")
   void processOperation_deleteOperation(String operationType, int times) {
+    Map<String, String> additionalParams = new HashMap<>();
+    additionalParams.put("pagination", "2");
+    additionalParams.put("delay", "1");
+
     QueueCommandOperationDTO queueCommandOperationDTO = QueueCommandOperationDTO.builder()
             .entityId(INITIATIVE_ID)
             .operationType(operationType)
             .operationTime(LocalDateTime.now())
+            .additionalParams(additionalParams)
             .build();
 
-    Group group = new Group();
-    group.setInitiativeId(INITIATIVE_ID);
-    group.setFileName("fileName");
+    Group group = Group.builder()
+            .groupId("GROUP_ID")
+            .initiativeId(INITIATIVE_ID)
+            .fileName("fileName")
+            .build();
 
-    GroupUserWhitelist groupUser = new GroupUserWhitelist();
-    groupUser.setInitiativeId(INITIATIVE_ID);
-    groupUser.setUserId(USER_ID);
+    List<Group> deletedGroup = List.of(group);
 
-    when(groupRepository.deleteByInitiativeId(queueCommandOperationDTO.getEntityId()))
-            .thenReturn(List.of(group));
+    GroupUserWhitelist groupUser = GroupUserWhitelist.builder()
+            .initiativeId(INITIATIVE_ID)
+            .userId(USER_ID)
+            .build();
 
-    when(groupUserWhitelistRepository.deleteByInitiativeId(queueCommandOperationDTO.getEntityId()))
-            .thenReturn(List.of(groupUser));
+    List<GroupUserWhitelist> deletedUser = List.of(groupUser);
+
+    if(times == 2){
+      List<Group> groupPage = createGroupPage(Integer.parseInt("2"));
+      when(groupRepository.deletePaged(queueCommandOperationDTO.getEntityId(), Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination"))))
+              .thenReturn(groupPage)
+              .thenReturn(deletedGroup);
+
+      List<GroupUserWhitelist> userGroupPage = createUserGroupPage(Integer.parseInt("2"));
+      when(groupUserWhitelistRepository.deletePaged(queueCommandOperationDTO.getEntityId(), Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination"))))
+              .thenReturn(userGroupPage)
+              .thenReturn(deletedUser);
+
+      Thread.currentThread().interrupt();
+
+    } else {
+      when(groupRepository.deletePaged(queueCommandOperationDTO.getEntityId(), Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination"))))
+              .thenReturn(deletedGroup);
+
+      when(groupUserWhitelistRepository.deletePaged(queueCommandOperationDTO.getEntityId(), Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination"))))
+              .thenReturn(deletedUser);
+    }
 
     beneficiaryGroupService.processCommand(queueCommandOperationDTO);
 
-    verify(groupRepository, Mockito.times(times)).deleteByInitiativeId(queueCommandOperationDTO.getEntityId());
-    verify(groupUserWhitelistRepository, Mockito.times(times)).deleteByInitiativeId(queueCommandOperationDTO.getEntityId());
+    verify(groupRepository, Mockito.times(times)).deletePaged(queueCommandOperationDTO.getEntityId(),
+            Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination")));
+    verify(groupUserWhitelistRepository, Mockito.times(times)).deletePaged(queueCommandOperationDTO.getEntityId(),
+            Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination")));
   }
+
 
   private static Stream<Arguments> operationTypeAndInvocationTimes() {
     return Stream.of(
             Arguments.of(OPERATION_TYPE_DELETE_INITIATIVE, 1),
+            Arguments.of(OPERATION_TYPE_DELETE_INITIATIVE, 2),
             Arguments.of("OPERATION_TYPE_TEST", 0)
     );
+  }
+  private List<Group> createGroupPage(int pageSize){
+    List<Group> groupPage = new ArrayList<>();
+
+    for(int i=0;i<pageSize; i++){
+      groupPage.add(Group.builder()
+              .groupId("GROUP_ID"+i)
+              .initiativeId(INITIATIVE_ID)
+              .build());
+    }
+
+    return groupPage;
+  }
+  private List<GroupUserWhitelist> createUserGroupPage(int pageSize){
+    List<GroupUserWhitelist> userGroupPage = new ArrayList<>();
+
+    for(int i=0;i<pageSize; i++){
+      userGroupPage.add(GroupUserWhitelist.builder()
+              .id("USER_GROUP_ID"+i)
+              .initiativeId(INITIATIVE_ID)
+              .build());
+    }
+
+    return userGroupPage;
   }
 }

@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
-public interface GroupUserWhitelistRepository extends MongoRepository<GroupUserWhitelist, String> {
+public interface GroupUserWhitelistRepository extends MongoRepository<GroupUserWhitelist, String>, GroupUserWhitelistRepositoryExtended {
 
     @Query(value = "{initiativeId : ?0}", fields = "{userId : 1}")
     List<GroupUserWhitelist> findByInitiativeId(String initiativeId);
