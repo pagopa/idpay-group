@@ -22,6 +22,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
@@ -50,7 +51,8 @@ import static org.mockito.Mockito.*;
 @WebMvcTest(value = {BeneficiaryGroupService.class})
 @Slf4j
 @TestPropertySource(
-    properties = {"file.storage.path=output/tmp/group", "file.storage.deletion=false"})
+        properties = {"file.storage.path=output/tmp/group", "file.storage.deletion=false", "app.delete.paginationSize=100",
+                "app.delete.delayTime=1000"})
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class BeneficiaryGroupServiceTest {
 
@@ -66,6 +68,11 @@ class BeneficiaryGroupServiceTest {
 
   // Mock your clock bean
   @MockBean private Clock clock;
+
+  @Value("${app.delete.paginationSize}")
+  private String pagination;
+  @Value("${app.delete.delayTime}")
+  private String delayTime;
 
   private static final String FISCAL_CODE_TOKENIZED = "FISCAL_CODE_TOKENIZED";
   private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
@@ -388,15 +395,12 @@ class BeneficiaryGroupServiceTest {
   @ParameterizedTest
   @MethodSource("operationTypeAndInvocationTimes")
   void processOperation_deleteOperation(String operationType, int times) {
-    Map<String, String> additionalParams = new HashMap<>();
-    additionalParams.put("pagination", "2");
-    additionalParams.put("delay", "1");
 
+    int pageSize = Integer.parseInt(pagination);
     QueueCommandOperationDTO queueCommandOperationDTO = QueueCommandOperationDTO.builder()
             .entityId(INITIATIVE_ID)
             .operationType(operationType)
             .operationTime(LocalDateTime.now())
-            .additionalParams(additionalParams)
             .build();
 
     Group group = Group.builder()
@@ -415,32 +419,30 @@ class BeneficiaryGroupServiceTest {
     List<GroupUserWhitelist> deletedUser = List.of(groupUser);
 
     if(times == 2){
-      List<Group> groupPage = createGroupPage(Integer.parseInt("2"));
-      when(groupRepository.deletePaged(queueCommandOperationDTO.getEntityId(), Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination"))))
+      List<Group> groupPage = createGroupPage(pageSize);
+      when(groupRepository.deletePaged(queueCommandOperationDTO.getEntityId(), pageSize))
               .thenReturn(groupPage)
               .thenReturn(deletedGroup);
 
-      List<GroupUserWhitelist> userGroupPage = createUserGroupPage(Integer.parseInt("2"));
-      when(groupUserWhitelistRepository.deletePaged(queueCommandOperationDTO.getEntityId(), Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination"))))
+      List<GroupUserWhitelist> userGroupPage = createUserGroupPage(pageSize);
+      when(groupUserWhitelistRepository.deletePaged(queueCommandOperationDTO.getEntityId(), pageSize))
               .thenReturn(userGroupPage)
               .thenReturn(deletedUser);
 
       Thread.currentThread().interrupt();
 
     } else {
-      when(groupRepository.deletePaged(queueCommandOperationDTO.getEntityId(), Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination"))))
+      when(groupRepository.deletePaged(queueCommandOperationDTO.getEntityId(), pageSize))
               .thenReturn(deletedGroup);
 
-      when(groupUserWhitelistRepository.deletePaged(queueCommandOperationDTO.getEntityId(), Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination"))))
+      when(groupUserWhitelistRepository.deletePaged(queueCommandOperationDTO.getEntityId(), pageSize))
               .thenReturn(deletedUser);
     }
 
     beneficiaryGroupService.processCommand(queueCommandOperationDTO);
 
-    verify(groupRepository, Mockito.times(times)).deletePaged(queueCommandOperationDTO.getEntityId(),
-            Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination")));
-    verify(groupUserWhitelistRepository, Mockito.times(times)).deletePaged(queueCommandOperationDTO.getEntityId(),
-            Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination")));
+    verify(groupRepository, Mockito.times(times)).deletePaged(queueCommandOperationDTO.getEntityId(), pageSize);
+    verify(groupUserWhitelistRepository, Mockito.times(times)).deletePaged(queueCommandOperationDTO.getEntityId(), pageSize);
   }
 
 

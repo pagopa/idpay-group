@@ -181,6 +181,10 @@ logging:
     javax.persistence: ${LOG_LEVEL_JAVAX_PERSISTENCE:INFO}
     org.hibernate: ${LOG_LEVEL_ORG_HIBERNATE:INFO}
     org.mongodb.driver: ${LOG_LEVEL_MONGODB_DRIVER:WARN}
+app:
+  delete:
+    paginationSize: ${DELETE_PAGINATION_SIZE}
+    delayTime: ${DELETE_DELAY_TIME}
 
 #utils:
 #  task:
