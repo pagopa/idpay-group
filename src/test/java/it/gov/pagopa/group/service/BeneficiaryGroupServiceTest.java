@@ -22,6 +22,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
@@ -38,10 +39,7 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static it.gov.pagopa.group.constants.GroupConstants.OPERATION_TYPE_DELETE_INITIATIVE;
@@ -53,7 +51,7 @@ import static org.mockito.Mockito.*;
 @WebMvcTest(value = {BeneficiaryGroupService.class})
 @Slf4j
 @TestPropertySource(
-    properties = {"file.storage.path=output/tmp/group", "file.storage.deletion=false"})
+        properties = {"file.storage.path=output/tmp/group", "file.storage.deletion=false"})
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class BeneficiaryGroupServiceTest {
 
@@ -69,6 +67,11 @@ class BeneficiaryGroupServiceTest {
 
   // Mock your clock bean
   @MockBean private Clock clock;
+
+  @Value("${app.delete.paginationSize}")
+  private int pageSize;
+  @Value("${app.delete.delayTime}")
+  private long delay;
 
   private static final String FISCAL_CODE_TOKENIZED = "FISCAL_CODE_TOKENIZED";
   private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
@@ -391,36 +394,85 @@ class BeneficiaryGroupServiceTest {
   @ParameterizedTest
   @MethodSource("operationTypeAndInvocationTimes")
   void processOperation_deleteOperation(String operationType, int times) {
+
     QueueCommandOperationDTO queueCommandOperationDTO = QueueCommandOperationDTO.builder()
             .entityId(INITIATIVE_ID)
             .operationType(operationType)
             .operationTime(LocalDateTime.now())
             .build();
 
-    Group group = new Group();
-    group.setInitiativeId(INITIATIVE_ID);
-    group.setFileName("fileName");
+    Group group = Group.builder()
+            .groupId("GROUP_ID")
+            .initiativeId(INITIATIVE_ID)
+            .fileName("fileName")
+            .build();
 
-    GroupUserWhitelist groupUser = new GroupUserWhitelist();
-    groupUser.setInitiativeId(INITIATIVE_ID);
-    groupUser.setUserId(USER_ID);
+    List<Group> deletedGroup = List.of(group);
 
-    when(groupRepository.deleteByInitiativeId(queueCommandOperationDTO.getEntityId()))
-            .thenReturn(List.of(group));
+    GroupUserWhitelist groupUser = GroupUserWhitelist.builder()
+            .initiativeId(INITIATIVE_ID)
+            .userId(USER_ID)
+            .build();
 
-    when(groupUserWhitelistRepository.deleteByInitiativeId(queueCommandOperationDTO.getEntityId()))
-            .thenReturn(List.of(groupUser));
+    List<GroupUserWhitelist> deletedUser = List.of(groupUser);
+
+    if(times == 2){
+      List<Group> groupPage = createGroupPage(pageSize);
+      when(groupRepository.deletePaged(queueCommandOperationDTO.getEntityId(), pageSize))
+              .thenReturn(groupPage)
+              .thenReturn(deletedGroup);
+
+      List<GroupUserWhitelist> userGroupPage = createUserGroupPage(pageSize);
+      when(groupUserWhitelistRepository.deletePaged(queueCommandOperationDTO.getEntityId(), pageSize))
+              .thenReturn(userGroupPage)
+              .thenReturn(deletedUser);
+
+      Thread.currentThread().interrupt();
+
+    } else {
+      when(groupRepository.deletePaged(queueCommandOperationDTO.getEntityId(), pageSize))
+              .thenReturn(deletedGroup);
+
+      when(groupUserWhitelistRepository.deletePaged(queueCommandOperationDTO.getEntityId(), pageSize))
+              .thenReturn(deletedUser);
+    }
 
     beneficiaryGroupService.processCommand(queueCommandOperationDTO);
 
-    verify(groupRepository, Mockito.times(times)).deleteByInitiativeId(queueCommandOperationDTO.getEntityId());
-    verify(groupUserWhitelistRepository, Mockito.times(times)).deleteByInitiativeId(queueCommandOperationDTO.getEntityId());
+    verify(groupRepository, Mockito.times(times)).deletePaged(queueCommandOperationDTO.getEntityId(), pageSize);
+    verify(groupUserWhitelistRepository, Mockito.times(times)).deletePaged(queueCommandOperationDTO.getEntityId(), pageSize);
   }
+
 
   private static Stream<Arguments> operationTypeAndInvocationTimes() {
     return Stream.of(
             Arguments.of(OPERATION_TYPE_DELETE_INITIATIVE, 1),
+            Arguments.of(OPERATION_TYPE_DELETE_INITIATIVE, 2),
             Arguments.of("OPERATION_TYPE_TEST", 0)
     );
+  }
+  private List<Group> createGroupPage(int pageSize){
+    List<Group> groupPage = new ArrayList<>();
+
+    for(int i=0;i<pageSize; i++){
+      groupPage.add(Group.builder()
+              .groupId("GROUP_ID"+i)
+              .initiativeId(INITIATIVE_ID)
+              .build());
+    }
+
+    return groupPage;
+  }
+  private List<GroupUserWhitelist> createUserGroupPage(int pageSize){
+    List<GroupUserWhitelist> userGroupPage = new ArrayList<>();
+
+    for(int i=0;i<pageSize; i++){
+      userGroupPage.add(GroupUserWhitelist.builder()
+              .id("USER_GROUP_ID"+i)
+              .initiativeId(INITIATIVE_ID)
+              .build());
+    }
+
+    return userGroupPage;
   }
 }
