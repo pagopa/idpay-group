@@ -51,8 +51,7 @@ import static org.mockito.Mockito.*;
 @WebMvcTest(value = {BeneficiaryGroupService.class})
 @Slf4j
 @TestPropertySource(
-        properties = {"file.storage.path=output/tmp/group", "file.storage.deletion=false", "app.delete.paginationSize=100",
-                "app.delete.delayTime=1000"})
+        properties = {"file.storage.path=output/tmp/group", "file.storage.deletion=false"})
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class BeneficiaryGroupServiceTest {
 
@@ -70,9 +69,9 @@ class BeneficiaryGroupServiceTest {
   @MockBean private Clock clock;
 
   @Value("${app.delete.paginationSize}")
-  private String pagination;
+  private int pageSize;
   @Value("${app.delete.delayTime}")
-  private String delayTime;
+  private long delay;
 
   private static final String FISCAL_CODE_TOKENIZED = "FISCAL_CODE_TOKENIZED";
   private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
@@ -396,7 +395,6 @@ class BeneficiaryGroupServiceTest {
   @MethodSource("operationTypeAndInvocationTimes")
   void processOperation_deleteOperation(String operationType, int times) {
 
-    int pageSize = Integer.parseInt(pagination);
     QueueCommandOperationDTO queueCommandOperationDTO = QueueCommandOperationDTO.builder()
             .entityId(INITIATIVE_ID)
             .operationType(operationType)

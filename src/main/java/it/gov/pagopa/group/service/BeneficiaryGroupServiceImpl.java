@@ -45,9 +45,9 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
   @Autowired
   AuditUtilities auditUtilities;
   @Value("${app.delete.paginationSize}")
-  private String pagination;
+  private int pageSize;
   @Value("${app.delete.delayTime}")
-  private String delayTime;
+  private long delay;
   public static final String KEY_SEPARATOR = "_";
   private final String rootPath;
   private final boolean isFilesOnStorageToBeDeleted;
@@ -332,9 +332,6 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
   @SuppressWarnings("BusyWait")
   private void deleteGroupRepo(QueueCommandOperationDTO queueCommandOperationDTO) {
 
-    int pageSize = Integer.parseInt(pagination);
-    long delay = Long.parseLong(delayTime);
-
     List<Group> deletedOperation = new ArrayList<>();
     List<Group> fetchedGroups;
 
@@ -362,9 +359,6 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
 
   @SuppressWarnings("BusyWait")
   private void deleteGroupWhitelistRepo(QueueCommandOperationDTO queueCommandOperationDTO) {
-
-    int pageSize = Integer.parseInt(pagination);
-    long delay = Long.parseLong(delayTime);
 
     List<GroupUserWhitelist> deletedOperation = new ArrayList<>();
     List<GroupUserWhitelist> fetchedGroups;
