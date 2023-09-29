@@ -44,6 +44,10 @@ import java.util.Optional;
 public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
   @Autowired
   AuditUtilities auditUtilities;
+  @Value("${app.delete.paginationSize}")
+  private int pageSize;
+  @Value("${app.delete.delayTime}")
+  private long delay;
   public static final String KEY_SEPARATOR = "_";
   private final String rootPath;
   private final boolean isFilesOnStorageToBeDeleted;
@@ -325,8 +329,26 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
     }
   }
 
-  private void deleteGroupRepo(QueueCommandOperationDTO queueCommandOperationDTO){
-    List<Group> deletedOperation = groupRepository.deleteByInitiativeId(queueCommandOperationDTO.getEntityId());
+  @SuppressWarnings("BusyWait")
+  private void deleteGroupRepo(QueueCommandOperationDTO queueCommandOperationDTO) {
+
+    List<Group> deletedOperation = new ArrayList<>();
+    List<Group> fetchedGroups;
+
+    do {
+      fetchedGroups = groupRepository.deletePaged(queueCommandOperationDTO.getEntityId(),
+              pageSize);
+
+      deletedOperation.addAll(fetchedGroups);
+
+      try {
+        Thread.sleep(delay);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        log.error("An error has occurred while waiting {}", e.getMessage());
+      }
+
+    } while (fetchedGroups.size() == pageSize);
 
     log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: group",
             queueCommandOperationDTO.getEntityId());
@@ -335,8 +357,27 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
             group.getFileName()));
   }
 
-  private void deleteGroupWhitelistRepo(QueueCommandOperationDTO queueCommandOperationDTO){
-    List<GroupUserWhitelist> deletedOperation = groupUserWhitelistRepository.deleteByInitiativeId(queueCommandOperationDTO.getEntityId());
+  @SuppressWarnings("BusyWait")
+  private void deleteGroupWhitelistRepo(QueueCommandOperationDTO queueCommandOperationDTO) {
+
+    List<GroupUserWhitelist> deletedOperation = new ArrayList<>();
+    List<GroupUserWhitelist> fetchedGroups;
+
+
+    do {
+      fetchedGroups = groupUserWhitelistRepository.deletePaged(queueCommandOperationDTO.getEntityId(),
+              pageSize);
+
+      deletedOperation.addAll(fetchedGroups);
+
+      try {
+        Thread.sleep(delay);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        log.error("An error has occurred while waiting {}", e.getMessage());
+      }
+
+    } while (fetchedGroups.size() == pageSize);
 
     log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: group_user_whitelist",
             queueCommandOperationDTO.getEntityId());
