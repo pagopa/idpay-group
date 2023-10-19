@@ -12,7 +12,7 @@
 
     <groupId>it.gov.pagopa</groupId>
     <artifactId>idpay-group</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
     <name>idpay-group</name>
     <description>Project which handle beneficiary groups</description>
     <properties>
