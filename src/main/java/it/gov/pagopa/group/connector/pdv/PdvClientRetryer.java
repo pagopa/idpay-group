@@ -30,8 +30,4 @@ public class PdvClientRetryer extends Retryer.Default {
         log.warn("Retrying HTTP request...");
     }
 
-    @Override
-    public Retryer clone() {
-        return new PdvClientRetryer(this);
-    }
 }

@@ -6,8 +6,6 @@ import it.gov.pagopa.group.event.OnboardingNotificationProducer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.concurrent.atomic.AtomicLong;
-
 import static it.gov.pagopa.group.constants.GroupConstants.Producer.NotifyCitizen.OPERATION_TYPE;
 
 @Service
@@ -16,7 +14,6 @@ public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationManagerProducer notificationManagerProducer;
     private final OnboardingNotificationProducer onboardingNotificationProducer;
-    public AtomicLong count = new AtomicLong(0);
 
     public NotificationServiceImpl(
             NotificationManagerProducer notificationManagerProducer,

@@ -5,6 +5,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 
 public class ParallelStreamUtils {
+
+    private ParallelStreamUtils() {
+    }
+
     public static <T> T goForParallelExecution(Callable<T> runnable, int parallelPool) {
         ForkJoinPool forkJoinPool = null;
         try {
