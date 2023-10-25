@@ -6,15 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class PdvClientRetryer extends Retryer.Default {
-    private final int maxAttempts;
-    private final long period;
-    private final long maxPeriod;
 
     public PdvClientRetryer(long period, long maxPeriod, int maxAttempts) {
         super(period, maxPeriod, maxAttempts);
-        this.period = period;
-        this.maxPeriod = maxPeriod;
-        this.maxAttempts = maxAttempts;
     }
 
     @Override
