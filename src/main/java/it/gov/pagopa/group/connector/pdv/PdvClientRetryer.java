@@ -17,13 +17,6 @@ public class PdvClientRetryer extends Retryer.Default {
         this.maxAttempts = maxAttempts;
     }
 
-    private PdvClientRetryer(PdvClientRetryer retryer) {
-        super(retryer.period, retryer.maxPeriod, retryer.maxAttempts);
-        this.period = retryer.period;
-        this.maxPeriod = retryer.maxPeriod;
-        this.maxAttempts = retryer.maxAttempts;
-    }
-
     @Override
     public void continueOrPropagate(RetryableException ex) {
         super.continueOrPropagate(ex);
