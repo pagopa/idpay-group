@@ -11,7 +11,7 @@ import java.io.InputStreamReader;
 @Service
 public class FileValidationServiceImpl implements FileValidationService {
 
-    public static final String FISCAL_CODE_REGEX = "^([A-Za-z]{6}[0-9lmnpqrstuvLMNPQRSTUV]{2}[abcdehlmprstABCDEHLMPRST]{1}[0-9lmnpqrstuvLMNPQRSTUV]{2}[A-Za-z]{1}[0-9lmnpqrstuvLMNPQRSTUV]{3}[A-Za-z]{1})$";
+    public static final String FISCAL_CODE_REGEX = "^([A-Za-z]{6}[0-9lmnpqrstuvLMNPQRSTUV]{2}[abcdehlmprstABCDEHLMPRST][0-9lmnpqrstuvLMNPQRSTUV]{2}[A-Za-z][0-9lmnpqrstuvLMNPQRSTUV]{3}[A-Za-z])$";
 
     @Override
     public int rowFileCounterCheck(MultipartFile file) throws IOException {
@@ -22,7 +22,7 @@ public class FileValidationServiceImpl implements FileValidationService {
         br = new BufferedReader(new InputStreamReader(is));
         while ((line = br.readLine()) != null) {
             counter++;
-            if (checkCf(line) == false) {
+            if (!checkCf(line)) {
                 return -counter;
             }
         }
@@ -30,9 +30,7 @@ public class FileValidationServiceImpl implements FileValidationService {
     }
 
     private boolean checkCf(String cf){
-        if (cf.matches(FISCAL_CODE_REGEX)){
-            return true;
-        }
-        return false;
+        return cf.matches(FISCAL_CODE_REGEX);
+
     }
 }
