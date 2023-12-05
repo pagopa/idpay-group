@@ -16,7 +16,6 @@ import it.gov.pagopa.group.repository.GroupRepository;
 import it.gov.pagopa.group.repository.GroupUserWhitelistRepository;
 import it.gov.pagopa.group.utils.AuditUtilities;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -42,8 +41,7 @@ import java.util.Optional;
 @Service
 @Slf4j
 public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
-  @Autowired
-  AuditUtilities auditUtilities;
+  private final AuditUtilities auditUtilities;
   @Value("${app.delete.paginationSize}")
   private int pageSize;
   @Value("${app.delete.delayTime}")
@@ -59,14 +57,15 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
   private final NotificationConnector notificationConnector;
 
   public BeneficiaryGroupServiceImpl(
-      @Value("${file.storage.path}") String rootPath,
-      @Value("${file.storage.deletion}") boolean isFilesOnStorageToBeDeleted,
-      GroupRepository groupRepository,
-      GroupUserWhitelistRepository groupUserWhitelistRepository,
-      PdvEncryptRestConnector pdvEncryptRestConnector,
-      GroupQueryDAO groupQueryDAO,
-      Clock clock,
-      NotificationConnector notificationConnector) {
+          AuditUtilities auditUtilities, @Value("${file.storage.path}") String rootPath,
+          @Value("${file.storage.deletion}") boolean isFilesOnStorageToBeDeleted,
+          GroupRepository groupRepository,
+          GroupUserWhitelistRepository groupUserWhitelistRepository,
+          PdvEncryptRestConnector pdvEncryptRestConnector,
+          GroupQueryDAO groupQueryDAO,
+          Clock clock,
+          NotificationConnector notificationConnector) {
+    this.auditUtilities = auditUtilities;
     this.rootPath = rootPath;
     this.isFilesOnStorageToBeDeleted = isFilesOnStorageToBeDeleted;
     this.groupRepository = groupRepository;

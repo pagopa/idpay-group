@@ -8,7 +8,6 @@ import it.gov.pagopa.group.service.BeneficiaryGroupService;
 import it.gov.pagopa.group.service.FileValidationService;
 import it.gov.pagopa.group.utils.AuditUtilities;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,20 +23,23 @@ import java.time.LocalDateTime;
 @RestController
 public class BeneficiaryGroupController implements BeneficiaryGroup {
 
-    @Autowired
-    private BeneficiaryGroupService beneficiaryGroupService;
+    private final BeneficiaryGroupService beneficiaryGroupService;
 
-    @Autowired
-    private InitiativeRestConnector initiativeRestConnector;
+    private final InitiativeRestConnector initiativeRestConnector;
 
-    @Autowired
-    private FileValidationService fileValidationService;
+    private final FileValidationService fileValidationService;
 
-    @Autowired
-    private Clock clock;
+    private final Clock clock;
 
-    @Autowired
-    AuditUtilities auditUtilities;
+    private final AuditUtilities auditUtilities;
+
+    public BeneficiaryGroupController(BeneficiaryGroupService beneficiaryGroupService, InitiativeRestConnector initiativeRestConnector, FileValidationService fileValidationService, Clock clock, AuditUtilities auditUtilities) {
+        this.beneficiaryGroupService = beneficiaryGroupService;
+        this.initiativeRestConnector = initiativeRestConnector;
+        this.fileValidationService = fileValidationService;
+        this.clock = clock;
+        this.auditUtilities = auditUtilities;
+    }
 
     @Override
     public ResponseEntity<GroupUpdateDTO> uploadBeneficiaryGroupFile(@RequestParam("file") MultipartFile file, @PathVariable("organizationId") String organizationId, @PathVariable("initiativeId") String initiativeId){
