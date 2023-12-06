@@ -3,7 +3,6 @@ package it.gov.pagopa.group.connector.initiative;
 import it.gov.pagopa.group.constants.InitiativeConstants;
 import it.gov.pagopa.group.dto.InitiativeDTO;
 import it.gov.pagopa.group.exception.BeneficiaryGroupException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -12,8 +11,11 @@ import java.util.Arrays;
 @Service
 public class InitiativeRestConnectorImpl implements InitiativeRestConnector {
 
-    @Autowired
-    private InitiativeService initiativeService;
+    private final InitiativeService initiativeService;
+
+    public InitiativeRestConnectorImpl(InitiativeService initiativeService) {
+        this.initiativeService = initiativeService;
+    }
 
     @Override
     public InitiativeDTO getInitiative(String initiativeId) {
