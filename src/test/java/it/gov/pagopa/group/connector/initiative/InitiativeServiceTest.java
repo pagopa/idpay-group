@@ -32,10 +32,11 @@ class InitiativeServiceTest {
     private static final String ORGANIZATION_ID = "O1";
     private static final String ADDITIONAL_PATH_IDPAY_INITIATIVE_INITIATIVE_ID_BENEFICIARY_VIEW = "/idpay/initiative/{initiativeId}/beneficiary/view";
     private static final String INITIATIVE_NAME = "initiativeName";
+    @Mock
+    private RestTemplate restTemplate;
 
-//    @Autowired
     @InjectMocks
-    private InitiativeServiceImpl initiativeServiceImpl = new InitiativeServiceImpl();
+    private InitiativeServiceImpl initiativeServiceImpl;
 
     @BeforeEach
     public void setUp() {
@@ -43,8 +44,6 @@ class InitiativeServiceTest {
         ReflectionTestUtils.setField(initiativeServiceImpl, "initiativeBaseUrl", "http://localhost:8080");
     }
 
-    @Mock
-    private RestTemplate restTemplate;
 
     @Test
     void givenMockingIsDoneByMockito_whenGetIsCalled_shouldReturnMockedObject() {
