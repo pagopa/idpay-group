@@ -307,7 +307,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
   public void setStatusToValidated(String initiativeId) {
     Group group =
         groupRepository
-            .findByInitiativeIdAndStatus(initiativeId, GroupConstants.Status.DRAFT)
+            .findByInitiativeIdAndStatusIn(initiativeId, List.of(Status.DRAFT, Status.OK))
             .orElseThrow(
                 () ->
                     new BeneficiaryGroupException(
