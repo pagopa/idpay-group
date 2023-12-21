@@ -21,7 +21,6 @@ public interface GroupRepository extends MongoRepository<Group, String>, GroupRe
     @Query(value = "{initiativeId : ?0}", fields = "{beneficiaryList : 1}")
     Stream<String> findGroupByInitiativeId(String initiativeId);
 
-    Optional<Group> findByInitiativeIdAndStatus(String initiativeId, String draft);
-    List<Group> deleteByInitiativeId (String initiativeId);
+    Optional<Group> findByInitiativeIdAndStatusIn(String initiativeId, List<String> status);
 
 }

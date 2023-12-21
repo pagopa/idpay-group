@@ -337,21 +337,22 @@ class BeneficiaryGroupServiceTest {
   @Test
   void setStatusToValidated_ok() {
     Group group = createGroupValid_ok();
-    when(groupRepository.findByInitiativeIdAndStatus(anyString(), eq(GroupConstants.Status.DRAFT)))
+    group.setStatus(Status.DRAFT);
+    when(groupRepository.findByInitiativeIdAndStatusIn("A1", List.of(Status.DRAFT, Status.OK)))
         .thenReturn(Optional.of(group));
 
-    beneficiaryGroupService.setStatusToValidated("idI");
+    beneficiaryGroupService.setStatusToValidated("A1");
 
     verify(groupRepository, times(1)).save(group);
   }
 
   @Test
   void setStatusToValidated_not_found() {
-    when(groupRepository.findByInitiativeIdAndStatus(anyString(), eq(GroupConstants.Status.DRAFT)))
+    when(groupRepository.findByInitiativeIdAndStatusIn("A1", List.of(Status.DRAFT, Status.OK)))
         .thenReturn(Optional.empty());
 
     try {
-      beneficiaryGroupService.setStatusToValidated("idI");
+      beneficiaryGroupService.setStatusToValidated("A1");
     } catch (BeneficiaryGroupException e) {
       assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
     }
