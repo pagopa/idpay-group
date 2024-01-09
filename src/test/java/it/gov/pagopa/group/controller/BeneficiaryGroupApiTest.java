@@ -1,11 +1,11 @@
 package it.gov.pagopa.group.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.gov.pagopa.group.config.ServiceExceptionConfig;
 import it.gov.pagopa.group.connector.initiative.InitiativeRestConnector;
 import it.gov.pagopa.group.constants.GroupConstants;
-import it.gov.pagopa.group.constants.InitiativeConstants;
 import it.gov.pagopa.group.dto.*;
-import it.gov.pagopa.group.exception.BeneficiaryGroupException;
+import it.gov.pagopa.group.exception.InitiativeStatusNotValidException;
 import it.gov.pagopa.group.model.Group;
 import it.gov.pagopa.group.service.BeneficiaryGroupService;
 import it.gov.pagopa.group.service.FileValidationService;
@@ -20,8 +20,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockMultipartFile;
@@ -43,6 +43,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Map;
 
+import static it.gov.pagopa.group.constants.GroupConstants.ExceptionCode.GROUP_INITIATIVE_STATUS_NOT_VALID;
+import static it.gov.pagopa.group.constants.GroupConstants.ExceptionMessage.INITIATIVE_UNPROCESSABLE_FOR_STATUS_NOT_VALID;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -52,10 +54,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     value = {BeneficiaryGroup.class},
     excludeAutoConfiguration = SecurityAutoConfiguration.class)
 @Slf4j
+@Import(value = {ServiceExceptionConfig.class})
 // @Import(ClockConfig.class)
 class BeneficiaryGroupApiTest {
 
-  private static final String FIRST_BENEFICIARY_IN_LIST = "FIRST_BENEFICIARY_IN_LIST";
   @MockBean private BeneficiaryGroupService beneficiaryGroupService;
 
   @MockBean private InitiativeRestConnector initiativeRestConnector;
@@ -262,14 +264,8 @@ class BeneficiaryGroupApiTest {
             inputFile);
 
     when(initiativeRestConnector.getInitiative(initiativeId))
-        .thenThrow(
-            new BeneficiaryGroupException(
-                InitiativeConstants.Exception.UnprocessableEntity.CODE,
-                String.format(
-                    InitiativeConstants.Exception.UnprocessableEntity
-                        .INITIATIVE_STATUS_NOT_PROCESSABLE_FOR_GROUP,
-                    initiativeId),
-                HttpStatus.UNPROCESSABLE_ENTITY));
+        .thenThrow(new InitiativeStatusNotValidException(GROUP_INITIATIVE_STATUS_NOT_VALID,
+                String.format(INITIATIVE_UNPROCESSABLE_FOR_STATUS_NOT_VALID, initiativeId)));
 
     MockMultipartHttpServletRequestBuilder builder =
         MockMvcRequestBuilders.multipart(
