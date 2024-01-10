@@ -11,7 +11,7 @@
 			"name": "Happy Case",
 			"item": [
 				{
-					"name": "Initiative in draft with Group file",
+					"name": "Initiative in DRAFT with Group file",
 					"item": [
 						{
 							"name": "Generate Portal Token",
@@ -1293,7 +1293,7 @@
 					]
 				},
 				{
-					"name": "Initiative in To_Check with Group file",
+					"name": "Initiative in TO_CHECK with Group file",
 					"item": [
 						{
 							"name": "Generate Portal Token",
@@ -2140,7 +2140,7 @@
 			"name": "Unhappy Case",
 			"item": [
 				{
-					"name": "Initiative Publish",
+					"name": "Initiative in PUBLISHED",
 					"item": [
 						{
 							"name": "Generate Portal Token",
@@ -2209,13 +2209,8 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"pm.test(\"Initiative with whitelist - Unhappy case - Initiative creation - PagoPA Admin trying to approve an initiative with an id that not exists - Responses with 404\", function () {\r",
-											"    pm.response.to.have.status(404);\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Initiative with whitelist - Unhappy case - Initiative deletion - PagoPA Admin trying to approve an initiative - Response contains info about a not existing initiativeId\", function () {\r",
-											"    const responseJson = pm.response.json();\r",
-											"    pm.expect(responseJson.message).to.eql(\"Initiative with initiativeId fake_initiativeId not found.\");\r",
+											"pm.test(\"Initiative with whitelist - Unhappy case - Initiative creation - PagoPA Admin trying to approve an initiative with an id that not exists - Responses with 204\", function () {\r",
+											"    pm.response.to.have.status(204);\r",
 											"});"
 										],
 										"type": "text/javascript"
