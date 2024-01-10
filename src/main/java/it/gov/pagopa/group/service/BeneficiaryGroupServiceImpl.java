@@ -217,7 +217,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
       group.setBeneficiariesReached(null);
       groupRepository.save(group);
     } catch (Exception e) {
-      throw new RuntimeException("Could not store the file. Error: " + e.getMessage()); //TODO censito - gestita nel controller
+      throw new RuntimeException("Could not store the file. Error: " + e.getMessage());
     }
   }
 
