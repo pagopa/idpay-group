@@ -3,16 +3,17 @@ package it.gov.pagopa.group.connector.initiative;
 import it.gov.pagopa.group.constants.InitiativeConstants;
 import it.gov.pagopa.group.dto.InitiativeDTO;
 import it.gov.pagopa.group.dto.InitiativeGeneralDTO;
-import it.gov.pagopa.group.exception.BeneficiaryGroupException;
+import it.gov.pagopa.group.exception.InitiativeStatusNotValidException;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
 
 import java.math.BigDecimal;
 
+import static it.gov.pagopa.group.constants.GroupConstants.ExceptionCode.GROUP_INITIATIVE_STATUS_NOT_VALID;
+import static it.gov.pagopa.group.constants.GroupConstants.ExceptionMessage.INITIATIVE_UNPROCESSABLE_FOR_STATUS_NOT_VALID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -45,11 +46,10 @@ class InitiativeRestConnectorTest {
         InitiativeDTO initiativeDTOexpected = createInitiativeDTO(InitiativeConstants.Status.PUBLISHED);
         Mockito.when(initiativeService.getInitiative(anyString())).thenReturn(initiativeDTOexpected);
 
-        BeneficiaryGroupException exception = assertThrows(BeneficiaryGroupException.class, () -> initiativeRestConnector.getInitiative(INITIATIVE_ID));
+        InitiativeStatusNotValidException exception = assertThrows(InitiativeStatusNotValidException.class, () -> initiativeRestConnector.getInitiative(INITIATIVE_ID));
 
-        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, exception.getHttpStatus());
-        assertEquals(InitiativeConstants.Exception.UnprocessableEntity.CODE, exception.getCode());
-        assertEquals(String.format(InitiativeConstants.Exception.UnprocessableEntity.INITIATIVE_STATUS_NOT_PROCESSABLE_FOR_GROUP, INITIATIVE_ID), exception.getMessage());
+        assertEquals(GROUP_INITIATIVE_STATUS_NOT_VALID, exception.getCode());
+        assertEquals(String.format(INITIATIVE_UNPROCESSABLE_FOR_STATUS_NOT_VALID, INITIATIVE_ID), exception.getMessage());
 
     }
 

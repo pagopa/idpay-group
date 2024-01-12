@@ -17,12 +17,4 @@ public class InitiativeConstants {
     public static final class Validation {
         public static final String [] ALLOWED_INITIATIVE_STATUS_ARRAY = {Status.DRAFT, Status.TO_CHECK};
     }
-
-    public static final class Exception extends AbstractCostant {
-
-        public static final class UnprocessableEntity {
-            public static final String CODE = BASE_CODE + "initiative.status.unprocessable.entity";
-            public static final String INITIATIVE_STATUS_NOT_PROCESSABLE_FOR_GROUP = "initiativeId %s is not processable due to its Status";
-        }
-    }
 }
