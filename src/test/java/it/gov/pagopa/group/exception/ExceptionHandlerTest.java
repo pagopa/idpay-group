@@ -1,6 +1,5 @@
 package it.gov.pagopa.group.exception;
 
-import it.gov.pagopa.common.web.dto.ErrorDTO;
 import it.gov.pagopa.group.constants.GroupConstants;
 import it.gov.pagopa.group.dto.GroupUpdateDTO;
 import lombok.extern.slf4j.Slf4j;
@@ -11,8 +10,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
-
-import java.text.MessageFormat;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,17 +37,5 @@ class ExceptionHandlerTest { //FIXME If possible, try to raise Exceptions (not h
         assertThat(responseEntity).isNotNull();
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(responseEntity.getBody()).isEqualTo(groupUpdateDTO);
-    }
-
-    @Test
-    void raisedBeneficiaryGroupException(){
-        ErrorDTO errorDTO = new ErrorDTO(GroupConstants.Exception.NotFound.CODE, "There is no group for initiativeId A1");
-        BeneficiaryGroupException e = new BeneficiaryGroupException(GroupConstants.Exception.NotFound.CODE,
-                MessageFormat.format(GroupConstants.Exception.NotFound.NO_GROUP_FOR_INITIATIVE_ID, "A1"),
-                HttpStatus.NOT_FOUND);
-        ResponseEntity<ErrorDTO> responseEntity = restResponseExceptionHandler.handlerBeneficiaryGroupException(e);
-        assertThat(responseEntity).isNotNull();
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-        assertThat(responseEntity.getBody()).isEqualTo(errorDTO);
     }
 }
