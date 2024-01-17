@@ -25,23 +25,32 @@ public class GroupConstants {
         }
     }
 
-    public static final class Exception extends AbstractCostant {
-
-        public static final class NotFound {
-            public static final String CODE = BASE_CODE + "not.found";
-            public static final String NO_GROUP_FOR_INITIATIVE_ID = "There is no group for initiativeId {0}";
-            public static final String NO_BENEFICIARY_LIST_PROVIDED_FOR_INITIATIVE_ID = "No beneficiary list provided for initiativeId {0}";
-        }
-        public static final class BadRequest {
-            public static final String CODE = "it.gov.pagopa.group.bad.request";
-            public static final String INTEGRATION_FAILED_NOTIFY_CITIZEN = "Something gone wrong while notify publishing of Initiative to Citizen";
-        }
-    }
-
     public static final class Producer {
 
         public static final class NotifyCitizen {
             public static final String OPERATION_TYPE = "ALLOWED_CITIZEN_PUBLISH";
         }
     }
+
+    public static final class ExceptionCode {
+        public static final String NOT_FOUND = "GROUP_NOT_FOUND";
+        public static final String GENERIC_ERROR = "GROUP_GENERIC_ERROR";
+        public static final String TOO_MANY_REQUESTS = "GROUP_TOO_MANY_REQUESTS";
+        public static final String INVALID_REQUEST = "GROUP_INVALID_REQUEST";
+        public static final String GROUP_BENEFICIARY_LIST_NOT_PROVIDED = "GROUP_BENEFICIARY_LIST_NOT_PROVIDED";
+        public static final String GROUP_NOT_FOUND_OR_STATUS_NOT_VALID = "GROUP_NOT_FOUND_OR_STATUS_NOT_VALID";
+        public static final String GROUP_INITIATIVE_STATUS_NOT_VALID = "GROUP_INITIATIVE_STATUS_NOT_VALID";
+
+        private ExceptionCode() {}
+    }
+
+    public static final class ExceptionMessage {
+        public static final String NOT_BENEFICIARY_LIST_PROVIDED_FOR_INITIATIVE = "No beneficiary list provided for initiativeId [%s]";
+        public static final String GROUP_NOT_FOUND_FOR_INITIATIVE = "There is no group for initiativeId [%s]";
+        public static final String GROUP_NOT_FOUND_FOR_INITIATIVE_OR_STATUS_NOT_VALID = "There is no group for initiativeId [%s] or the status is invalid";
+        public static final String INITIATIVE_UNPROCESSABLE_FOR_STATUS_NOT_VALID = "Initiative [%s] is unprocessable for status not valid";
+
+        private ExceptionMessage() {}
+    }
+
 }

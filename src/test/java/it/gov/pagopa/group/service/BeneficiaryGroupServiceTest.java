@@ -7,7 +7,9 @@ import it.gov.pagopa.group.constants.GroupConstants.Status;
 import it.gov.pagopa.group.dto.FiscalCodeTokenizedDTO;
 import it.gov.pagopa.group.dto.PiiDTO;
 import it.gov.pagopa.group.dto.event.QueueCommandOperationDTO;
-import it.gov.pagopa.group.exception.BeneficiaryGroupException;
+import it.gov.pagopa.group.exception.GroupNotFoundOrNotValidStatusException;
+import it.gov.pagopa.group.exception.GroupNotFoundException;
+import it.gov.pagopa.group.exception.BeneficiaryListNotProvidedException;
 import it.gov.pagopa.group.model.Group;
 import it.gov.pagopa.group.model.GroupUserWhitelist;
 import it.gov.pagopa.group.repository.GroupQueryDAO;
@@ -25,7 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.TestPropertySource;
 
@@ -34,7 +35,6 @@ import java.io.FileInputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.MessageFormat;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -42,6 +42,8 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Stream;
 
+import static it.gov.pagopa.group.constants.GroupConstants.ExceptionCode.*;
+import static it.gov.pagopa.group.constants.GroupConstants.ExceptionMessage.*;
 import static it.gov.pagopa.group.constants.GroupConstants.OPERATION_TYPE_DELETE_INITIATIVE;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -261,21 +263,16 @@ class BeneficiaryGroupServiceTest {
     when(groupUserWhitelistRepository.findByInitiativeId(anyString())).thenReturn(List.of());
 
     // Try to call the Real Service (which is using the instructed Repo)
-    try {
-      beneficiaryGroupService.getCitizenStatusByCitizenToken("Id1", FISCAL_CODE_TOKENIZED);
-    } catch (BeneficiaryGroupException e) {
-      log.info("BeneficiaryGroupException: " + e.getCode());
-      assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
-      assertEquals(GroupConstants.Exception.NotFound.CODE, e.getCode());
-      assertEquals(
-          MessageFormat.format(
-              GroupConstants.Exception.NotFound.NO_BENEFICIARY_LIST_PROVIDED_FOR_INITIATIVE_ID,
-              "Id1"),
-          e.getMessage());
+    BeneficiaryListNotProvidedException exceptionResult = assertThrows(BeneficiaryListNotProvidedException.class,
+            () -> beneficiaryGroupService.getCitizenStatusByCitizenToken("Id1", FISCAL_CODE_TOKENIZED));
 
-      // you are expecting repo to be called once with correct param
-      verify(groupUserWhitelistRepository).findByInitiativeId(anyString());
-    }
+    assertEquals(GROUP_BENEFICIARY_LIST_NOT_PROVIDED, exceptionResult.getCode());
+    assertEquals(String.format(NOT_BENEFICIARY_LIST_PROVIDED_FOR_INITIATIVE, "Id1"),
+            exceptionResult.getMessage());
+
+    // you are expecting repo to be called once with correct param
+    verify(groupUserWhitelistRepository).findByInitiativeId(anyString());
+
   }
 
   @Test
@@ -284,12 +281,9 @@ class BeneficiaryGroupServiceTest {
 
     when(groupRepository.getStatus("idI", "idG")).thenReturn(Optional.of(group));
 
-    try {
-      Group actual = beneficiaryGroupService.getStatusByInitiativeId("idI", "idG");
-      assertEquals(group, actual);
-    } catch (BeneficiaryGroupException e) {
-      fail();
-    }
+
+    Group actual = beneficiaryGroupService.getStatusByInitiativeId("idI", "idG");
+    assertEquals(group, actual);
   }
 
   @Test
@@ -297,11 +291,12 @@ class BeneficiaryGroupServiceTest {
 
     when(groupRepository.getStatus("idI", "idG")).thenReturn(Optional.empty());
 
-    try {
-      Group actual = beneficiaryGroupService.getStatusByInitiativeId("idI", "idG");
-    } catch (BeneficiaryGroupException e) {
-      assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
-    }
+    GroupNotFoundException exceptionResult = assertThrows(GroupNotFoundException.class,
+            () -> beneficiaryGroupService.getStatusByInitiativeId("idI", "idG"));
+
+    assertEquals(NOT_FOUND, exceptionResult.getCode());
+    assertEquals(String.format(GROUP_NOT_FOUND_FOR_INITIATIVE, "idI"),
+            exceptionResult.getMessage());
   }
 
   @Test
@@ -310,11 +305,7 @@ class BeneficiaryGroupServiceTest {
     beneficiaryList.add(new GroupUserWhitelist(null, "idG", "idI", FISCAL_CODE_TOKENIZED));
     when(groupUserWhitelistRepository.findByInitiativeId(anyString())).thenReturn(beneficiaryList);
 
-    try {
-      beneficiaryGroupService.sendInitiativeNotificationForCitizen("id1", "name", "service");
-    } catch (BeneficiaryGroupException e) {
-      fail();
-    }
+    beneficiaryGroupService.sendInitiativeNotificationForCitizen("id1", "name", "service");
 
     verify(notificationConnector, times(1))
         .sendAllowedCitizen(any(), anyString(), anyString(), anyString());
@@ -324,11 +315,12 @@ class BeneficiaryGroupServiceTest {
   void sendInitiativeNotificationForCitizen_not_found() {
     when(groupUserWhitelistRepository.findByInitiativeId(anyString())).thenReturn(List.of());
 
-    try {
-      beneficiaryGroupService.sendInitiativeNotificationForCitizen("id1", "name", "service");
-    } catch (BeneficiaryGroupException e) {
-      assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
-    }
+    BeneficiaryListNotProvidedException exceptionResult = assertThrows(BeneficiaryListNotProvidedException.class,
+            () -> beneficiaryGroupService.sendInitiativeNotificationForCitizen("id1", "name", "service"));
+
+    assertEquals(GROUP_BENEFICIARY_LIST_NOT_PROVIDED, exceptionResult.getCode());
+    assertEquals(String.format(NOT_BENEFICIARY_LIST_PROVIDED_FOR_INITIATIVE, "id1"),
+            exceptionResult.getMessage());
 
     verify(notificationConnector, times(0))
         .sendAllowedCitizen(any(), anyString(), anyString(), anyString());
@@ -337,24 +329,26 @@ class BeneficiaryGroupServiceTest {
   @Test
   void setStatusToValidated_ok() {
     Group group = createGroupValid_ok();
-    when(groupRepository.findByInitiativeIdAndStatus(anyString(), eq(GroupConstants.Status.DRAFT)))
+    group.setStatus(Status.DRAFT);
+    when(groupRepository.findByInitiativeIdAndStatusIn("A1", List.of(Status.DRAFT, Status.OK)))
         .thenReturn(Optional.of(group));
 
-    beneficiaryGroupService.setStatusToValidated("idI");
+    beneficiaryGroupService.setStatusToValidated("A1");
 
     verify(groupRepository, times(1)).save(group);
   }
 
   @Test
   void setStatusToValidated_not_found() {
-    when(groupRepository.findByInitiativeIdAndStatus(anyString(), eq(GroupConstants.Status.DRAFT)))
+    when(groupRepository.findByInitiativeIdAndStatusIn("A1", List.of(Status.DRAFT, Status.OK)))
         .thenReturn(Optional.empty());
 
-    try {
-      beneficiaryGroupService.setStatusToValidated("idI");
-    } catch (BeneficiaryGroupException e) {
-      assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
-    }
+    GroupNotFoundOrNotValidStatusException exceptionResult = assertThrows(GroupNotFoundOrNotValidStatusException.class,
+            () -> beneficiaryGroupService.setStatusToValidated("A1"));
+
+    assertEquals(GROUP_NOT_FOUND_OR_STATUS_NOT_VALID, exceptionResult.getCode());
+    assertEquals(String.format(GROUP_NOT_FOUND_FOR_INITIATIVE_OR_STATUS_NOT_VALID, "A1"),
+            exceptionResult.getMessage());
 
     verify(groupRepository, times(0)).save(any());
   }

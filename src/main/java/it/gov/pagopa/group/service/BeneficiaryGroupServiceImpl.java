@@ -3,12 +3,13 @@ package it.gov.pagopa.group.service;
 import it.gov.pagopa.group.connector.notification.NotificationConnector;
 import it.gov.pagopa.group.connector.pdv.PdvEncryptRestConnector;
 import it.gov.pagopa.group.constants.GroupConstants;
-import it.gov.pagopa.group.constants.GroupConstants.Exception.NotFound;
 import it.gov.pagopa.group.constants.GroupConstants.Status;
 import it.gov.pagopa.group.dto.FiscalCodeTokenizedDTO;
 import it.gov.pagopa.group.dto.PiiDTO;
 import it.gov.pagopa.group.dto.event.QueueCommandOperationDTO;
-import it.gov.pagopa.group.exception.BeneficiaryGroupException;
+import it.gov.pagopa.group.exception.GroupNotFoundOrNotValidStatusException;
+import it.gov.pagopa.group.exception.GroupNotFoundException;
+import it.gov.pagopa.group.exception.BeneficiaryListNotProvidedException;
 import it.gov.pagopa.group.model.Group;
 import it.gov.pagopa.group.model.GroupUserWhitelist;
 import it.gov.pagopa.group.repository.GroupQueryDAO;
@@ -19,7 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -31,12 +31,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.text.MessageFormat;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static it.gov.pagopa.group.constants.GroupConstants.ExceptionCode.*;
+import static it.gov.pagopa.group.constants.GroupConstants.ExceptionMessage.*;
 
 @Service
 @Slf4j
@@ -256,13 +258,8 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
   public Group getStatusByInitiativeId(String initiativeId, String organizationId) {
     return groupRepository
         .getStatus(initiativeId, organizationId)
-        .orElseThrow(
-            () ->
-                new BeneficiaryGroupException(
-                    GroupConstants.Exception.NotFound.CODE,
-                    MessageFormat.format(
-                        GroupConstants.Exception.NotFound.NO_GROUP_FOR_INITIATIVE_ID, initiativeId),
-                    HttpStatus.NOT_FOUND));
+        .orElseThrow(() -> new GroupNotFoundException(NOT_FOUND,
+                String.format(GROUP_NOT_FOUND_FOR_INITIATIVE, initiativeId)));
   }
 
   @Override
@@ -272,12 +269,8 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
             .map(GroupUserWhitelist::getUserId)
             .toList();
     if (CollectionUtils.isEmpty(beneficiaryList)) {
-      throw new BeneficiaryGroupException(
-          GroupConstants.Exception.NotFound.CODE,
-          MessageFormat.format(
-              GroupConstants.Exception.NotFound.NO_BENEFICIARY_LIST_PROVIDED_FOR_INITIATIVE_ID,
-              initiativeId),
-          HttpStatus.NOT_FOUND);
+      throw new BeneficiaryListNotProvidedException(GROUP_BENEFICIARY_LIST_NOT_PROVIDED,
+              String.format(NOT_BENEFICIARY_LIST_PROVIDED_FOR_INITIATIVE, initiativeId));
     }
     return beneficiaryList.stream().anyMatch(beneficiary -> beneficiary.equals(citizenToken));
   }
@@ -291,12 +284,8 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
             .map(GroupUserWhitelist::getUserId)
             .toList();
     if (CollectionUtils.isEmpty(beneficiaryTokenizedList)) {
-      throw new BeneficiaryGroupException(
-          GroupConstants.Exception.NotFound.CODE,
-          MessageFormat.format(
-              GroupConstants.Exception.NotFound.NO_BENEFICIARY_LIST_PROVIDED_FOR_INITIATIVE_ID,
-              initiativeId),
-          HttpStatus.NOT_FOUND);
+      throw new BeneficiaryListNotProvidedException(GROUP_BENEFICIARY_LIST_NOT_PROVIDED,
+              String.format(NOT_BENEFICIARY_LIST_PROVIDED_FOR_INITIATIVE, initiativeId));
     }
     log.debug("[NOTIFY_ALLOWED_CITIZEN] - Getting of beneficiaries from Group -> DONE");
     notificationConnector.sendAllowedCitizen(
@@ -307,13 +296,10 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
   public void setStatusToValidated(String initiativeId) {
     Group group =
         groupRepository
-            .findByInitiativeIdAndStatus(initiativeId, GroupConstants.Status.DRAFT)
+            .findByInitiativeIdAndStatusIn(initiativeId, List.of(Status.DRAFT, Status.OK))
             .orElseThrow(
-                () ->
-                    new BeneficiaryGroupException(
-                        GroupConstants.Exception.NotFound.CODE,
-                        MessageFormat.format(NotFound.NO_GROUP_FOR_INITIATIVE_ID, initiativeId),
-                        HttpStatus.NOT_FOUND));
+                () -> new GroupNotFoundOrNotValidStatusException(GROUP_NOT_FOUND_OR_STATUS_NOT_VALID,
+                        String.format(GROUP_NOT_FOUND_FOR_INITIATIVE_OR_STATUS_NOT_VALID, initiativeId)));
     group.setStatus(Status.VALIDATED);
     groupRepository.save(group);
   }
