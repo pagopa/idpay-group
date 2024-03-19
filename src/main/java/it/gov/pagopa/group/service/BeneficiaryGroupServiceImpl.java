@@ -36,6 +36,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.*;
 
 import static it.gov.pagopa.group.constants.GroupConstants.ExceptionCode.*;
 import static it.gov.pagopa.group.constants.GroupConstants.ExceptionMessage.*;
@@ -314,7 +315,6 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
     }
   }
 
-  @SuppressWarnings("BusyWait")
   private void deleteGroupRepo(QueueCommandOperationDTO queueCommandOperationDTO) {
 
     List<Group> deletedOperation = new ArrayList<>();
@@ -327,7 +327,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
       deletedOperation.addAll(fetchedGroups);
 
       try {
-        Thread.sleep(delay);
+        TimeUnit.MILLISECONDS.sleep(delay);
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
         log.error("An error has occurred while waiting {}", e.getMessage());
@@ -342,7 +342,6 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
             group.getFileName()));
   }
 
-  @SuppressWarnings("BusyWait")
   private void deleteGroupWhitelistRepo(QueueCommandOperationDTO queueCommandOperationDTO) {
 
     List<GroupUserWhitelist> deletedOperation = new ArrayList<>();
@@ -356,7 +355,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
       deletedOperation.addAll(fetchedGroups);
 
       try {
-        Thread.sleep(delay);
+        TimeUnit.MILLISECONDS.sleep(10000);
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
         log.error("An error has occurred while waiting {}", e.getMessage());
