@@ -355,7 +355,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
       deletedOperation.addAll(fetchedGroups);
 
       try {
-        TimeUnit.MILLISECONDS.sleep(10000);
+        TimeUnit.MILLISECONDS.sleep(delay);
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
         log.error("An error has occurred while waiting {}", e.getMessage());
