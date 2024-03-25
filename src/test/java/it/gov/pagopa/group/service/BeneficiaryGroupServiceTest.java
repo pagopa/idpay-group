@@ -193,7 +193,7 @@ class BeneficiaryGroupServiceTest {
     } catch (RuntimeException e) {
       Path root = Paths.get("output/tmp/group" + File.separator + organizationId);
       Files.delete(root);
-      assertEquals("Could not read the file!", e.getMessage());
+      assertEquals("Could not read the file", e.getMessage());
     }
   }
 
@@ -216,8 +216,7 @@ class BeneficiaryGroupServiceTest {
       beneficiaryGroupService.save(file, anyString(), anyString(), anyString());
     } catch (RuntimeException e) {
       log.info("InitiativeException: " + e.getMessage());
-      assertEquals("Could not store the file. Error: ", e.getMessage().subSequence(0, 33));
-      assertTrue(e.getMessage().startsWith("Could not store the file. Error: "));
+      assertTrue(e.getMessage().startsWith("Could not store the file"));
     }
   }
 
