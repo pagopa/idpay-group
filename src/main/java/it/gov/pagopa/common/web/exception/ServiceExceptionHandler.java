@@ -24,8 +24,8 @@ public class ServiceExceptionHandler {
         this.transcodeMap = transcodeMap;
     }
 
-    @ExceptionHandler(ServiceException.class)
-    protected ResponseEntity<? extends ServiceExceptionPayload> handleException(ServiceException error, HttpServletRequest request) {
+    @ExceptionHandler(ServiceException.class) //This method return a ResponseEntity<? extends ServiceExceptionPayload>
+    protected Object handleException(ServiceException error, HttpServletRequest request) {
         if (null != error.getPayload()) {
             return handleBodyProvidedException(error, request);
         }
