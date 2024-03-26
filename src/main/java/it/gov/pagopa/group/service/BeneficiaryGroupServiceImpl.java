@@ -7,9 +7,7 @@ import it.gov.pagopa.group.constants.GroupConstants.Status;
 import it.gov.pagopa.group.dto.FiscalCodeTokenizedDTO;
 import it.gov.pagopa.group.dto.PiiDTO;
 import it.gov.pagopa.group.dto.event.QueueCommandOperationDTO;
-import it.gov.pagopa.group.exception.GroupNotFoundOrNotValidStatusException;
-import it.gov.pagopa.group.exception.GroupNotFoundException;
-import it.gov.pagopa.group.exception.BeneficiaryListNotProvidedException;
+import it.gov.pagopa.group.exception.*;
 import it.gov.pagopa.group.model.Group;
 import it.gov.pagopa.group.model.GroupUserWhitelist;
 import it.gov.pagopa.group.repository.GroupQueryDAO;
@@ -35,7 +33,9 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.*;
 
 import static it.gov.pagopa.group.constants.GroupConstants.ExceptionCode.*;
 import static it.gov.pagopa.group.constants.GroupConstants.ExceptionMessage.*;
@@ -83,7 +83,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
       Path root = Paths.get(rootPath + File.separator + organizationId);
       Files.createDirectory(root);
     } catch (IOException e) {
-      throw new RuntimeException("Could not initialize folder for upload!");
+      throw new FolderInitializeException(GROUP_FOLDER_INITIALIZE_ERROR, GROUP_FOLDER_INITIALIZE_NOT_POSSIBLE);
     }
   }
 
@@ -202,7 +202,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
       Files.createDirectories(root);
       Files.copy(
           file.getInputStream(),
-          root.resolve(file.getOriginalFilename()),
+          root.resolve(Objects.requireNonNull(file.getOriginalFilename())),
           StandardCopyOption.REPLACE_EXISTING);
       Group group = new Group();
       group.setGroupId(groupId);
@@ -217,7 +217,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
       group.setBeneficiariesReached(null);
       groupRepository.save(group);
     } catch (Exception e) {
-      throw new RuntimeException("Could not store the file. Error: " + e.getMessage());
+      throw new FileSaveException(GROUP_SAVE_FILE_FAILED, GROUP_SAVE_NOT_POSSIBLE);
     }
   }
 
@@ -234,11 +234,11 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
       if (resource.exists() || resource.isReadable()) {
         return resource;
       } else {
-        throw new RuntimeException("Could not read the file!");
+        throw new FileLoadException(GROUP_LOAD_FILE_ERROR, GROUP_READ_NOT_POSSIBLE);
       }
     } catch (MalformedURLException e) {
       log.error("[READ_FILE_GROUP] - Could not read the file: " + filename, e);
-      throw new RuntimeException(e);
+      throw new FileLoadException(GROUP_LOAD_FILE_ERROR, GROUP_READ_NOT_POSSIBLE);
     }
   }
 
@@ -250,7 +250,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
       Files.delete(file);
     } catch (Exception e) {
       log.error("[UPLOAD_FILE_GROUP] - Could not delete the file: " + filename, e);
-      throw new RuntimeException(e);
+      throw new FileDeleteException(GROUP_DELETE_FILE_FAILED, GROUP_DELETE_NOT_POSSIBLE);
     }
   }
 
@@ -314,7 +314,6 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
     }
   }
 
-  @SuppressWarnings("BusyWait")
   private void deleteGroupRepo(QueueCommandOperationDTO queueCommandOperationDTO) {
 
     List<Group> deletedOperation = new ArrayList<>();
@@ -327,7 +326,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
       deletedOperation.addAll(fetchedGroups);
 
       try {
-        Thread.sleep(delay);
+        TimeUnit.MILLISECONDS.sleep(delay);
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
         log.error("An error has occurred while waiting {}", e.getMessage());
@@ -342,7 +341,6 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
             group.getFileName()));
   }
 
-  @SuppressWarnings("BusyWait")
   private void deleteGroupWhitelistRepo(QueueCommandOperationDTO queueCommandOperationDTO) {
 
     List<GroupUserWhitelist> deletedOperation = new ArrayList<>();
@@ -356,7 +354,7 @@ public class BeneficiaryGroupServiceImpl implements BeneficiaryGroupService {
       deletedOperation.addAll(fetchedGroups);
 
       try {
-        Thread.sleep(delay);
+        TimeUnit.MILLISECONDS.sleep(delay);
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
         log.error("An error has occurred while waiting {}", e.getMessage());
