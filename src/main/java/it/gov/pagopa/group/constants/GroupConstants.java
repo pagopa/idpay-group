@@ -40,6 +40,10 @@ public class GroupConstants {
         public static final String GROUP_BENEFICIARY_LIST_NOT_PROVIDED = "GROUP_BENEFICIARY_LIST_NOT_PROVIDED";
         public static final String GROUP_NOT_FOUND_OR_STATUS_NOT_VALID = "GROUP_NOT_FOUND_OR_STATUS_NOT_VALID";
         public static final String GROUP_INITIATIVE_STATUS_NOT_VALID = "GROUP_INITIATIVE_STATUS_NOT_VALID";
+        public static final String GROUP_DELETE_FILE_FAILED = "GROUP_DELETE_FILE_FAILED";
+        public static final String GROUP_SAVE_FILE_FAILED = "GROUP_SAVE_FILE_FAILED";
+        public static final String GROUP_LOAD_FILE_ERROR = "GROUP_LOAD_FILE_ERROR";
+        public static final String GROUP_FOLDER_INITIALIZE_ERROR = "GROUP_FOLDER_INITIALIZE_ERROR";
 
         private ExceptionCode() {}
     }
@@ -49,6 +53,10 @@ public class GroupConstants {
         public static final String GROUP_NOT_FOUND_FOR_INITIATIVE = "There is no group for initiativeId [%s]";
         public static final String GROUP_NOT_FOUND_FOR_INITIATIVE_OR_STATUS_NOT_VALID = "There is no group for initiativeId [%s] or the status is invalid";
         public static final String INITIATIVE_UNPROCESSABLE_FOR_STATUS_NOT_VALID = "Initiative [%s] is unprocessable for status not valid";
+        public static final String  GROUP_DELETE_NOT_POSSIBLE = "It's not possible remove this file";
+        public static final String GROUP_SAVE_NOT_POSSIBLE = "Could not store the file";
+        public static final String GROUP_READ_NOT_POSSIBLE= "Could not read the file";
+        public static final String GROUP_FOLDER_INITIALIZE_NOT_POSSIBLE= "Could not initialize folder for upload";
 
         private ExceptionMessage() {}
     }
