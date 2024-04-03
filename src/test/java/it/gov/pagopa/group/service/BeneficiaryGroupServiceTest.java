@@ -7,9 +7,7 @@ import it.gov.pagopa.group.constants.GroupConstants.Status;
 import it.gov.pagopa.group.dto.FiscalCodeTokenizedDTO;
 import it.gov.pagopa.group.dto.PiiDTO;
 import it.gov.pagopa.group.dto.event.QueueCommandOperationDTO;
-import it.gov.pagopa.group.exception.GroupNotFoundOrNotValidStatusException;
-import it.gov.pagopa.group.exception.GroupNotFoundException;
-import it.gov.pagopa.group.exception.BeneficiaryListNotProvidedException;
+import it.gov.pagopa.group.exception.*;
 import it.gov.pagopa.group.model.Group;
 import it.gov.pagopa.group.model.GroupUserWhitelist;
 import it.gov.pagopa.group.repository.GroupQueryDAO;
@@ -190,10 +188,37 @@ class BeneficiaryGroupServiceTest {
     String fileName = "test.csv";
     try {
       beneficiaryGroupServiceImpl.load(organizationId, fileName);
-    } catch (RuntimeException e) {
+    } catch (FileLoadException e) {
       Path root = Paths.get("output/tmp/group" + File.separator + organizationId);
       Files.delete(root);
-      assertEquals("Could not read the file!", e.getMessage());
+      assertEquals("Could not read the file", e.getMessage());
+    }
+  }
+  @Test
+  void folderInitializeException_ko() {
+    String organizationId = "test";
+    String fileName = "test.csv";
+    AuditUtilities auditUtilities = mock(AuditUtilities.class);
+    String rootPath = "path/test";
+    boolean isFilesOnStorageToBeDeleted = true;
+    GroupRepository groupRepository = mock(GroupRepository.class);
+    GroupUserWhitelistRepository groupUserWhitelistRepository = mock(GroupUserWhitelistRepository.class);
+    PdvEncryptRestConnector pdvEncryptRestConnector = mock(PdvEncryptRestConnector.class);
+    GroupQueryDAO groupQueryDAO = mock(GroupQueryDAO.class);
+    Clock clock = mock(Clock.class);
+    NotificationConnector notificationConnector = mock(NotificationConnector.class);
+
+    BeneficiaryGroupServiceImpl beneficiaryGroupService = new BeneficiaryGroupServiceImpl(
+            auditUtilities, rootPath, isFilesOnStorageToBeDeleted,
+            groupRepository, groupUserWhitelistRepository,
+            pdvEncryptRestConnector, groupQueryDAO, clock,
+            notificationConnector
+    );
+
+    try {
+      beneficiaryGroupService.load(organizationId, fileName);
+    } catch (FolderInitializeException e) {
+      assertEquals("Could not initialize folder for upload", e.getMessage());
     }
   }
 
@@ -214,13 +239,22 @@ class BeneficiaryGroupServiceTest {
               "text/csv",
               inputFile);
       beneficiaryGroupService.save(file, anyString(), anyString(), anyString());
-    } catch (RuntimeException e) {
+    } catch (FileSaveException e) {
       log.info("InitiativeException: " + e.getMessage());
-      assertEquals("Could not store the file. Error: ", e.getMessage().subSequence(0, 33));
-      assertTrue(e.getMessage().startsWith("Could not store the file. Error: "));
+      assertEquals("Could not store the file", e.getMessage());
     }
   }
+  @Test
+  void deleteFileNotPossibleException_ko() {
+    String organizationId = "test";
+    String fileName = "test.csv";
 
+    try {
+      beneficiaryGroupService.delete(organizationId, fileName);
+    } catch (FileDeleteException e) {
+      assertEquals("It's not possible remove this file", e.getMessage());
+    }
+  }
   @Test
   void whenBeneficiaryListContainCitizenToken_thenServiceReturnTrue() {
     List<GroupUserWhitelist> beneficiaryList = new ArrayList<>();
