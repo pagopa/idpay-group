@@ -44,8 +44,6 @@ public class GroupConstants {
         public static final String GROUP_SAVE_FILE_FAILED = "GROUP_SAVE_FILE_FAILED";
         public static final String GROUP_LOAD_FILE_ERROR = "GROUP_LOAD_FILE_ERROR";
         public static final String GROUP_FOLDER_INITIALIZE_ERROR = "GROUP_FOLDER_INITIALIZE_ERROR";
-        public static final String GROUP_PARALLEL_EXECUTION_ERROR = "GROUP_PARALLEL_EXECUTION_ERROR";
-
 
         private ExceptionCode() {}
     }
@@ -59,7 +57,6 @@ public class GroupConstants {
         public static final String GROUP_SAVE_NOT_POSSIBLE = "Could not store the file";
         public static final String GROUP_READ_NOT_POSSIBLE= "Could not read the file";
         public static final String GROUP_FOLDER_INITIALIZE_NOT_POSSIBLE= "Could not initialize folder for upload";
-        public static final String GROUP_PARALLEL_EXECUTION_NOT_POSSIBLE= "Error occurred during parallel execution";
 
 
         private ExceptionMessage() {}
