@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.math.BigDecimal;
+
 import java.time.Clock;
 import java.time.LocalDateTime;
 
@@ -54,12 +54,13 @@ public class BeneficiaryGroupController implements BeneficiaryGroup {
             return ResponseEntity.ok(GroupUpdateDTO.builder().status(GroupConstants.Status.KO).errorKey(GroupConstants.Status.KOkeyMessage.INVALID_FILE_FORMAT).elabTimeStamp(LocalDateTime.now(clock)).build());
         }
         InitiativeDTO initiativeDTO = initiativeRestConnector.getInitiative(initiativeId);
-        BigDecimal budget = initiativeDTO.getGeneral().getBudget();
-        BigDecimal beneficiaryBudget = initiativeDTO.getGeneral().getBeneficiaryBudget();
+
+        Long budget = initiativeDTO.getGeneral().getBudgetCents();
+        Long beneficiaryBudget = initiativeDTO.getGeneral().getBeneficiaryBudgetCents();
         try {
             int counterCheckFile = fileValidationService.rowFileCounterCheck(file);
             if (counterCheckFile > 0){
-                if (BigDecimal.valueOf(counterCheckFile).multiply(beneficiaryBudget).compareTo(budget) <= 0){
+                if (counterCheckFile * beneficiaryBudget <= budget){
                     beneficiaryGroupService.save(file, initiativeId, organizationId, GroupConstants.Status.DRAFT);
                     auditUtilities.logUploadCFOK(initiativeId, organizationId, file.getName());
                     return ResponseEntity.ok(GroupUpdateDTO.builder().status(GroupConstants.Status.DRAFT).elabTimeStamp(LocalDateTime.now(clock)).build());

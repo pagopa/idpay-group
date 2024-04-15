@@ -35,7 +35,6 @@ import org.springframework.web.client.ResourceAccessException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.time.Clock;
 import java.time.LocalDate;
@@ -572,7 +571,7 @@ class BeneficiaryGroupApiTest {
   private InitiativeDTO createInitiativeDTO(String organizationId, String initiativeId) {
     InitiativeDTO initiativeDTO = new InitiativeDTO();
     InitiativeGeneralDTO initiativeGeneralDTO =
-        new InitiativeGeneralDTO(BigDecimal.valueOf(90000), BigDecimal.valueOf(900));
+        new InitiativeGeneralDTO(9000000L, 90000L);
     initiativeDTO.setInitiativeId(initiativeId);
     initiativeDTO.setOrganizationId(organizationId);
     initiativeDTO.setInitiativeName("initiativa1");
@@ -583,7 +582,7 @@ class BeneficiaryGroupApiTest {
   private InitiativeDTO createInitiativeDTOLowBudget(String organizationId, String initiativeId) {
     InitiativeDTO initiativeDTO = new InitiativeDTO();
     InitiativeGeneralDTO initiativeGeneralDTO =
-        new InitiativeGeneralDTO(BigDecimal.valueOf(60), BigDecimal.valueOf(30));
+        new InitiativeGeneralDTO(6000L, 3000L);
     initiativeDTO.setInitiativeId(initiativeId);
     initiativeDTO.setOrganizationId(organizationId);
     initiativeDTO.setInitiativeName("initiativa1");
