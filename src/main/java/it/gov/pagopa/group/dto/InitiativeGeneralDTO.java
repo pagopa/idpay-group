@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
-import java.math.BigDecimal;
-
 /**
  * InitiativeGeneralDTO
  */
@@ -18,10 +16,10 @@ import java.math.BigDecimal;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class InitiativeGeneralDTO   {
 
-  @JsonProperty("budget")
-  private BigDecimal budget;
+  @JsonProperty("budgetCents")
+  private Long budgetCents;
 
-  @JsonProperty("beneficiaryBudget")
-  private BigDecimal beneficiaryBudget;
+  @JsonProperty("beneficiaryBudgetCents")
+  private Long beneficiaryBudgetCents;
 
 }

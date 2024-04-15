@@ -17,7 +17,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
-import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.doThrow;
@@ -77,7 +76,6 @@ class InitiativeServiceTest {
 
     @Test
     void givenMockingIsDoneByMockito_whenGetIsCalled_shouldReturnMockedObject_____() {
-        InitiativeDTO initiativeDTOexpected = createInitiativeDTO();
 
         HttpHeaders headers = new HttpHeaders();
         headers.set(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
@@ -114,7 +112,7 @@ class InitiativeServiceTest {
 
     private InitiativeDTO createInitiativeDTO(){
         InitiativeDTO initiativeDTO = new InitiativeDTO();
-        InitiativeGeneralDTO initiativeGeneralDTO = new InitiativeGeneralDTO(BigDecimal.valueOf(90000), BigDecimal.valueOf(900));
+        InitiativeGeneralDTO initiativeGeneralDTO = new InitiativeGeneralDTO(9000000L, 90000L);
         initiativeDTO.setInitiativeId(INITIATIVE_ID);
         initiativeDTO.setOrganizationId(ORGANIZATION_ID);
         initiativeDTO.setInitiativeName(INITIATIVE_NAME);

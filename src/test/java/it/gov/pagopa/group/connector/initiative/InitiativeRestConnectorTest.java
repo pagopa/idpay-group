@@ -10,8 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import java.math.BigDecimal;
-
 import static it.gov.pagopa.group.constants.GroupConstants.ExceptionCode.GROUP_INITIATIVE_STATUS_NOT_VALID;
 import static it.gov.pagopa.group.constants.GroupConstants.ExceptionMessage.INITIATIVE_UNPROCESSABLE_FOR_STATUS_NOT_VALID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -55,7 +53,7 @@ class InitiativeRestConnectorTest {
 
     private InitiativeDTO createInitiativeDTO(String status){
         InitiativeDTO initiativeDTO = new InitiativeDTO();
-        InitiativeGeneralDTO initiativeGeneralDTO = new InitiativeGeneralDTO(BigDecimal.valueOf(90000), BigDecimal.valueOf(900));
+        InitiativeGeneralDTO initiativeGeneralDTO = new InitiativeGeneralDTO(9000000L, 90000L);
         initiativeDTO.setInitiativeId(INITIATIVE_ID);
         initiativeDTO.setOrganizationId(ORGANIZATION_ID);
         initiativeDTO.setInitiativeName(INITIATIVE_NAME);
