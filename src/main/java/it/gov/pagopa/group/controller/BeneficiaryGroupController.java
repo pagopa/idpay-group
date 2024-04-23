@@ -1,6 +1,5 @@
 package it.gov.pagopa.group.controller;
 
-import io.micrometer.common.util.StringUtils;
 import it.gov.pagopa.group.connector.initiative.InitiativeRestConnector;
 import it.gov.pagopa.group.constants.GroupConstants;
 import it.gov.pagopa.group.dto.*;
@@ -50,11 +49,6 @@ public class BeneficiaryGroupController implements BeneficiaryGroup {
             auditUtilities.logUploadCFKO(initiativeId, organizationId, file.getName(), "File is empty");
             return ResponseEntity.ok(GroupUpdateDTO.builder().status(GroupConstants.Status.KO).errorKey(GroupConstants.Status.KOkeyMessage.INVALID_FILE_EMPTY).elabTimeStamp(LocalDateTime.now(clock)).build());
         }
-        if (!isValidFilePath(file.getOriginalFilename())) {
-            log.info("[UPLOAD_FILE_GROUP] - Initiative: {}. ContentType not accepted: {}", initiativeId, file.getContentType());
-            auditUtilities.logUploadCFKO(initiativeId, organizationId, file.getName(), "File path not valid");
-            return ResponseEntity.ok(GroupUpdateDTO.builder().status(GroupConstants.Status.KO).errorKey(GroupConstants.Status.KOkeyMessage.INVALID_FILE_FORMAT).elabTimeStamp(LocalDateTime.now(clock)).build());
-        }
         if (!(GroupConstants.CONTENT_TYPE.equals(file.getContentType()))){
             log.info("[UPLOAD_FILE_GROUP] - Initiative: {}. ContentType not accepted: {}", initiativeId, file.getContentType());
             auditUtilities.logUploadCFKO(initiativeId, organizationId, file.getName(), "ContentType not accepted");
@@ -85,10 +79,6 @@ public class BeneficiaryGroupController implements BeneficiaryGroup {
             auditUtilities.logUploadCFKO(initiativeId, organizationId, file.getName(), e.getMessage());
             return ResponseEntity.internalServerError().build();
         }
-    }
-
-    private boolean isValidFilePath(String originalFilename) {
-        return !StringUtils.isEmpty(originalFilename) && !originalFilename.contains("..");
     }
 
     @Override
