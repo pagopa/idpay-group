@@ -1,7 +1,7 @@
 package it.gov.pagopa.group.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 /**
@@ -16,10 +16,10 @@ import lombok.*;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class InitiativeGeneralDTO   {
 
-  @JsonProperty("budgetCents")
+  @JsonAlias("budget")
   private Long budgetCents;
 
-  @JsonProperty("beneficiaryBudgetCents")
+  @JsonAlias("beneficiaryBudget")
   private Long beneficiaryBudgetCents;
 
 }
