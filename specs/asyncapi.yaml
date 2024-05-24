@@ -15,7 +15,7 @@ channels:
   group-send-notification-notification-manager:
     publish:
       message:
-        $ref: '#/components/messages/GenericNotificationQueueDTO'
+        $ref: '#/components/messages/CitizenNotificationOnQueueDTO'
       bindings:
         kafka:
           topic: idpay_notification_request_topic
@@ -24,7 +24,7 @@ channels:
   group-send-notification-notification-onboarding:
     publish:
       message:
-        $ref: '#/components/messages/GenericNotificationQueueDTO'
+        $ref: '#/components/messages/CitizenNotificationOnQueueDTO'
       bindings:
         kafka:
           topic: idpay_onboarding_notification_topic
@@ -41,13 +41,13 @@ channels:
         - name: "deleteInitiative"
 components:
   messages:
-    GenericNotificationQueueDTO:
+    CitizenNotificationOnQueueDTO:
       contentType: application/json
       description: >-
         Event consumed from application when a notification was sent
       summary: Send the notification
       payload:
-        $ref: "#/components/schemas/GenericNotificationQueueDTO"
+        $ref: "#/components/schemas/CitizenNotificationOnQueueDTO"
     QueueCommandOperationDTO:
       contentType: application/json
       description: >-
@@ -58,7 +58,7 @@ components:
 
 
   schemas:
-    GenericNotificationQueueDTO:
+    CitizenNotificationOnQueueDTO:
       type: object
       description: DTO for generic notification queue events
       properties:
@@ -74,6 +74,10 @@ components:
           type: string
           description: Initiative ID
           example: 661626073785876cb5aa7601
+        initiativeName:
+          type: string
+          description: Initiative Name
+          example: Initiative TEST
         serviceId:
           type: string
           description: Service ID
