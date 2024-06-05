@@ -44,8 +44,8 @@ components:
     CitizenNotificationOnQueueDTO:
       contentType: application/json
       description: >-
-        Event consumed from application when a notification was sent
-      summary: Send the notification
+        Send information about users indicated by a whitelist initiative
+      summary: Information about whitelist initiative
       payload:
         $ref: "#/components/schemas/CitizenNotificationOnQueueDTO"
     DeleteInitiative:
