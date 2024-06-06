@@ -1,0 +1,84 @@
+asyncapi: 2.0.0
+info:
+  title: Group Service
+  version: 1.0.0
+  description: >-
+    Its purpose is to notify allowed citizen notification and cancellation of an initiative
+tags:
+  - name: "sendAllowedCitizenOnNotificationManager"
+    description: "Notify to notification manager"
+  - name: "sendAllowedCitizenOnOnboarding"
+    description: "Notify to onboarding"
+  - name: "deleteInitiative"
+    description: "Delete the initiative"
+channels:
+  group-send-notification-notification-manager:
+    publish:
+      message:
+        $ref: '#/components/messages/CitizenNotificationOnQueueDTO'
+      bindings:
+        kafka:
+          topic: idpay_notification_request_topic
+      tags:
+        - name: "sendAllowedCitizenOnNotificationManager"
+  group-send-notification-notification-onboarding:
+    publish:
+      message:
+        $ref: '#/components/messages/CitizenNotificationOnQueueDTO'
+      bindings:
+        kafka:
+          topic: idpay_onboarding_notification_topic
+      tags:
+        - name: "sendAllowedCitizenOnOnboarding"
+  group-delete-initiative:
+    subscribe:
+      message:
+        $ref: '#/components/messages/DeleteInitiative'
+      bindings:
+        kafka:
+          topic: idpay-commands
+      tags:
+        - name: "deleteInitiative"
+components:
+  messages:
+    CitizenNotificationOnQueueDTO:
+      contentType: application/json
+      description: >-
+        Send information about users indicated by a whitelist initiative
+      summary: Information about whitelist initiative
+      payload:
+        $ref: "#/components/schemas/CitizenNotificationOnQueueDTO"
+    DeleteInitiative:
+      contentType: application/json
+      description: >-
+        Event consumed from application when a delete initiative command has published
+      summary: Delete documents of the initiative
+      payload:
+        $ref: "https://raw.githubusercontent.com/pagopa/idpay-portal-welfare-backend-initiative/main/specs/asyncapi.yml#/components/schemas/QueueCommandOperationDTO"
+
+
+  schemas:
+    CitizenNotificationOnQueueDTO:
+      type: object
+      description: DTO for generic notification queue events
+      properties:
+        operationType:
+          type: string
+          description: Type of operation
+          example: DELETE
+        userId:
+          type: string
+          description: User ID
+          example: bcf3651c-d2d3-4998-81a9-5f24302ab674
+        initiativeId:
+          type: string
+          description: Initiative ID
+          example: 661626073785876cb5aa7601
+        initiativeName:
+          type: string
+          description: Initiative Name
+          example: Initiative TEST
+        serviceId:
+          type: string
+          description: Service ID
+          example: 66176f4e3785876cb5aa764d
