@@ -111,7 +111,7 @@ class PdvEncryptRestConnectorTest {
     @Test
     void whenPDVRetryerHasMaximum3Attempts_thenOnly3TriesAllowed(){
         Request request = Request.create(Request.HttpMethod.PUT, wireMockServer.baseUrl(), Collections.emptyMap(), new byte[0], Charset.defaultCharset(), new RequestTemplate());
-        RetryableException e = new RetryableException(503, EXCEPTION_MESSAGE, null, null, request);
+        RetryableException e = new RetryableException(503, EXCEPTION_MESSAGE, null, 0L, request);
         PdvClientRetryer pdvClientRetryer = new PdvClientRetryer(100, 1, 3);
 
         //Retry #2
