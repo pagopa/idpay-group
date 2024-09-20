@@ -20,7 +20,7 @@ public class PdvClientErrorDecoder implements ErrorDecoder {
 //                    String.format("Service unavailable (status code %s)", response.status()),
                     response.reason(),
                     response.request().httpMethod(),
-                    null,
+                    0L,
                     response.request());
         }
 
