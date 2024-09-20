@@ -84,6 +84,7 @@ microservice-chart:
     GROUP_FILE_ROOT_PATH: /tmp/group
     DELETE_PAGINATION_SIZE: "100"
     DELETE_DELAY_TIME: "1000"
+    HEALTH_MONGO_ENABLED: "false"
 
   externalConfigMapValues:
     idpay-common:
