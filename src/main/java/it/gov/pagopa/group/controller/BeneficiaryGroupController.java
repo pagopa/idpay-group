@@ -118,6 +118,7 @@ public class BeneficiaryGroupController implements BeneficiaryGroup {
         log.info("[SET_GROUP_STATUS_TO_VALIDATED] - Status updated");
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
+    
 }
 
 
