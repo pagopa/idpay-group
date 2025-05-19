@@ -34,7 +34,6 @@ microservice-chart:
     create: true
     path: /idpaygroup/(.*)
     proxyBodySize: 2m
-    servicePort: 8080
 
   serviceAccount:
     create: false
