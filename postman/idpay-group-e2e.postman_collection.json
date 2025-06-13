@@ -403,7 +403,7 @@
 										{
 											"key": "file",
 											"type": "file",
-											"src": "postman-cloud:///1f03bb51-0964-4bd0-92f7-2a852789190b"
+											"src": "./postman/ps_fiscal_ code_groups_file_wrong_fiscal_code.csv"
 										}
 									]
 								},
@@ -559,7 +559,7 @@
 										{
 											"key": "file",
 											"type": "file",
-											"src": "postman-cloud:///1f03adb9-5271-4260-a059-fb65dec3f2de"
+											"src": "./postman/empty_file.csv"
 										}
 									]
 								},
@@ -715,7 +715,7 @@
 										{
 											"key": "file",
 											"type": "file",
-											"src": "/C:/Users/EBALDIVFX/OneDrive - NTT DATA EMEAL/Desktop/id-pay/idpay-group/postman/empty_file.csv"
+											"src": "./postman/ps_fiscal_ code_groups_file_wrong_fiscal_code.csv"
 										}
 									]
 								},
@@ -867,7 +867,7 @@
 										{
 											"key": "file",
 											"type": "file",
-											"src": "postman-cloud:///1f03bb55-0520-4fc0-a617-3b0edb76b49d"
+											"src": "./postman/empty_file.csv"
 										}
 									]
 								},
@@ -1021,7 +1021,7 @@
 										{
 											"key": "file",
 											"type": "file",
-											"src": "postman-cloud:///1f03bb56-2517-43f0-94b0-b626eb4be8e4"
+											"src": "./postman/ps_fiscal_code_groups_file_large_OVER_SIZE.csv"
 										}
 									]
 								},
@@ -1593,7 +1593,7 @@
 										{
 											"key": "file",
 											"type": "file",
-											"src": "postman-cloud:///1f03bb51-0964-4bd0-92f7-2a852789190b"
+											"src": "./postman/ps_fiscal_code_groups_file_valid_CF.csv"
 										}
 									]
 								},
@@ -1671,7 +1671,7 @@
 										{
 											"key": "file",
 											"type": "file",
-											"src": "postman-cloud:///1f03adb9-5271-4260-a059-fb65dec3f2de"
+											"src": "./postman/ps_fiscal_ code_groups_file_wrong_fiscal_code.csv"
 										}
 									]
 								},
@@ -1749,7 +1749,7 @@
 										{
 											"key": "file",
 											"type": "file",
-											"src": "/C:/Users/EBALDIVFX/OneDrive - NTT DATA EMEAL/Desktop/id-pay/idpay-group/postman/empty_file.csv"
+											"src": "./postman/empty_file.csv"
 										}
 									]
 								},
@@ -1823,7 +1823,7 @@
 										{
 											"key": "file",
 											"type": "file",
-											"src": "postman-cloud:///1f03bb55-0520-4fc0-a617-3b0edb76b49d"
+											"src": "./postman/ps_fiscal_code_groups_file_large_OVER_SIZE.csv"
 										}
 									]
 								},
@@ -1899,7 +1899,7 @@
 										{
 											"key": "file",
 											"type": "file",
-											"src": "postman-cloud:///1f03bb56-2517-43f0-94b0-b626eb4be8e4"
+											"src": "./postman/ps_fiscal_code_groups_file_valid_CF.csv"
 										}
 									]
 								},
@@ -2475,7 +2475,7 @@
 										{
 											"key": "file",
 											"type": "file",
-											"src": "postman-cloud:///1f03bb56-2517-43f0-94b0-b626eb4be8e4"
+											"src": "./postman/ps_fiscal_code_groups_file_valid_CF.csv"
 										}
 									]
 								},
