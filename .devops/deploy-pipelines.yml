@@ -12,6 +12,7 @@ trigger:
     include:
       - release-*
       - main
+      - IDP-2733_test_postman
   paths:
     include:
       - src/*
