@@ -19,7 +19,7 @@ trigger:
       - pom.xml
       - Dockerfile
 
-pr: none
+#pr: none
 
 resources:
   - repo: self
