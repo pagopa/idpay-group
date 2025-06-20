@@ -403,7 +403,7 @@
 										{
 											"key": "file",
 											"type": "file",
-											"src": "./postman/ps_fiscal_ code_groups_file_wrong_fiscal_code.csv"
+											"src": "{{basePath}}/ps_fiscal_ code_groups_file_wrong_fiscal_code.csv"
 										}
 									]
 								},
@@ -559,7 +559,7 @@
 										{
 											"key": "file",
 											"type": "file",
-											"src": "./postman/invalid_format.xlsx"
+											"src": "{{basePath}}/invalid_format.xlsx"
 										}
 									]
 								},
@@ -715,7 +715,7 @@
 										{
 											"key": "file",
 											"type": "file",
-											"src": "./postman/empty_file.csv"
+											"src": "{{basePath}}/empty_file.csv"
 										}
 									]
 								},
@@ -867,7 +867,7 @@
 										{
 											"key": "file",
 											"type": "file",
-											"src": "./postman/ps_fiscal_code_groups_file_large_OVER_SIZE.csv"
+											"src": "{{basePath}}/ps_fiscal_code_groups_file_large_OVER_SIZE.csv"
 										}
 									]
 								},
@@ -1021,7 +1021,7 @@
 										{
 											"key": "file",
 											"type": "file",
-											"src": "./postman/ps_fiscal_code_groups_file_valid_CF.csv"
+											"src": "{{basePath}}/ps_fiscal_code_groups_file_valid_CF.csv"
 										}
 									]
 								},
@@ -1593,7 +1593,7 @@
 										{
 											"key": "file",
 											"type": "file",
-											"src": "./postman/ps_fiscal_ code_groups_file_wrong_fiscal_code.csv"
+											"src": "{{basePath}}/ps_fiscal_ code_groups_file_wrong_fiscal_code.csv"
 										}
 									]
 								},
@@ -1671,7 +1671,7 @@
 										{
 											"key": "file",
 											"type": "file",
-											"src": "./postman/invalid_format.xlsx"
+											"src": "{{basePath}}/invalid_format.xlsx"
 										}
 									]
 								},
@@ -1749,7 +1749,7 @@
 										{
 											"key": "file",
 											"type": "file",
-											"src": "./postman/empty_file.csv"
+											"src": "{{basePath}}/empty_file.csv"
 										}
 									]
 								},
@@ -1823,7 +1823,7 @@
 										{
 											"key": "file",
 											"type": "file",
-											"src": "./postman/ps_fiscal_code_groups_file_large_OVER_SIZE.csv"
+											"src": "{{basePath}}/ps_fiscal_code_groups_file_large_OVER_SIZE.csv"
 										}
 									]
 								},
@@ -1899,7 +1899,7 @@
 										{
 											"key": "file",
 											"type": "file",
-											"src": "./postman/ps_fiscal_code_groups_file_valid_CF.csv"
+											"src": "{{basePath}}/ps_fiscal_code_groups_file_valid_CF.csv"
 										}
 									]
 								},
@@ -2475,7 +2475,7 @@
 										{
 											"key": "file",
 											"type": "file",
-											"src": "./postman/ps_fiscal_code_groups_file_valid_CF.csv"
+											"src": "{{basePath}}/ps_fiscal_code_groups_file_valid_CF.csv"
 										}
 									]
 								},
@@ -2695,6 +2695,10 @@
 		{
 			"key": "initiativeId_exhausted",
 			"value": ""
+		},
+		{
+			"key": "basePath",
+			"value": "./"
 		}
 	]
 }
