@@ -16,7 +16,7 @@
     <version>1.2.2</version>
 
     <properties>
-        <java.version>17</java.version>
+        <java.version>21</java.version>
     </properties>
 
     <dependencies>
@@ -184,7 +184,8 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.3</version>
                 <configuration>
-                    <argLine>@{argLine}  -Duser.timezone=Europe/Rome</argLine>
+                    <argLine>-Duser.timezone=Europe/Rome</argLine>
+                    <argLine>-Xmx1024m</argLine>
                 </configuration>
             </plugin>
             <plugin>

@@ -42,7 +42,7 @@ public class BeneficiaryGroupController implements BeneficiaryGroup {
     }
 
     @Override
-    public ResponseEntity<GroupUpdateDTO> uploadBeneficiaryGroupFile(@RequestParam("file") MultipartFile file, @PathVariable("organizationId") String organizationId, @PathVariable("initiativeId") String initiativeId){
+    public ResponseEntity<GroupUpdateDTO> uploadBeneficiaryGroupFile(@RequestParam("file") MultipartFile file, String organizationId, String initiativeId){
         if (file.isEmpty()){
             log.info("[UPLOAD_FILE_GROUP] - Initiative: {}. File is empty", initiativeId);
             auditUtilities.logUploadCFKO(initiativeId, organizationId, file.getName(), "File is empty");
@@ -89,7 +89,7 @@ public class BeneficiaryGroupController implements BeneficiaryGroup {
     }
 
     @Override
-    public ResponseEntity<StatusGroupDTO> getGroupStatus(@PathVariable("organizationId") String organizationId, @PathVariable("initiativeId") String initiativeId) {
+    public ResponseEntity<StatusGroupDTO> getGroupStatus(String organizationId,  String initiativeId) {
         Group group = beneficiaryGroupService.getStatusByInitiativeId(initiativeId, organizationId);
         log.info("[GET_FILE_GROUP] - Initiative {}. Status {}. ErrorMessage: {}. CreationDate: {}. File Name {}", initiativeId, group.getStatus(), group.getExceptionMessage(), group.getCreationDate(), group.getFileName());
         return ResponseEntity.ok(StatusGroupDTO.builder()
@@ -118,6 +118,7 @@ public class BeneficiaryGroupController implements BeneficiaryGroup {
         log.info("[SET_GROUP_STATUS_TO_VALIDATED] - Status updated");
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
+    
 }
 
 
