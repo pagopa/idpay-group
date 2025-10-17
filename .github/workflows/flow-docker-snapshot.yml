@@ -19,9 +19,9 @@ on:
         required: false
         default: 'true'
       argocd_target_branch:
-          description: 'argocd target branch name'
-          required: false
-          default: 'main'
+        description: 'argocd target branch name'
+        required: false
+        default: 'main'
       postman_branch:
         description: postman branch name'
         required: false
