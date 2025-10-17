@@ -77,12 +77,12 @@ jobs:
           azure_devops_pat: ${{ secrets.AZURE_DEVOPS_TOKEN }}
           azure_template_parameters: |
             {
-              "APPS_TOP": "[idpay-payment]",
+              "APPS_TOP": "[idpay-group]",
               "APPS_MID": "[]",
               "APPS_EXT": "[]",
               "ARGOCD_TARGET_BRANCH": "${{ github.event.inputs.argocd_target_branch }}",
               "POSTMAN_BRANCH": "${{ github.event.inputs.postman_branch }}",
-              "TRIGGER_MESSAGE": "idpay-payment"
+              "TRIGGER_MESSAGE": "idpay-group"
             }
 
 
