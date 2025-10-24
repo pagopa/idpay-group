@@ -20,6 +20,7 @@
         <argLine>-Duser.timezone=Europe/Rome</argLine> <!-- placeholder to make works both the remote pipeline with sonar cloud and locally -->
     </properties>
 
+
     <dependencies>
         <!--SB STARTER-->
         <dependency>
