@@ -13,8 +13,8 @@ RUN mvn clean package -DskipTests
 #
 FROM amazoncorretto:21-alpine3.22@sha256:fda60fd7965970ce7ed7ce789b18418647b56ac6112fc17df006337bdc6355c4 AS runtime
 
-RUN apk --no-cache add shadow
-RUN useradd --uid 10000 runner
+RUN apk --no-cache add shadow \
+&& useradd --uid 10000 runner
 
 VOLUME /tmp
 WORKDIR /app
