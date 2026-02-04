@@ -77,12 +77,10 @@ class MongoRequestRateTooLargeRetryerTest {
             throw new DummyDataAccessException("TooManyRequests RetryAfterMs=50");
         };
 
-        long start = System.currentTimeMillis();
         MongoRequestRateTooLargeRetryExpiredException ex = assertThrows(
                 MongoRequestRateTooLargeRetryExpiredException.class,
                 () -> MongoRequestRateTooLargeRetryer.execute("flow", logic, 10, 20)
         );
-        long elapsed = System.currentTimeMillis() - start;
 
         assertTrue(ex.getMessage().contains("flow"));
     }
