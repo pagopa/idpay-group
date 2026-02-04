@@ -41,11 +41,15 @@ class MongoRequestRateTooLargeAutomaticRetryAspectTest {
 
     static class TestController {
         @MongoRequestRateTooLargeApiRetryable(maxRetry = 7, maxMillisElapsed = 100)
-        public void endpoint() {}
+        public void endpoint() {
+            // This method is intentionally empty because it's used only to test
+        }
     }
 
     static class TestControllerNoAnnotation {
-        public void endpoint() {}
+        public void endpoint() {
+            // This method is intentionally empty because it's used only to test
+        }
     }
 
     @Test
